@@ -1,0 +1,1255 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Silent Hill: Townfall save tracker, complete Discovery checklist, New Game+ route tracker, and ending calculator.">
+<title>Silent Hill: Townfall — Ending & Progress Tracker</title>
+<style>
+:root{
+  --bg:#080a0b;
+  --bg-deep:#050607;
+  --panel:rgba(16,19,20,.94);
+  --panel-solid:#101314;
+  --panel-raised:#15191b;
+  --soft:#0c0f10;
+  --soft2:#0a0c0d;
+  --text:#eceae4;
+  --muted:#969da0;
+  --muted2:#747b7e;
+  --line:#2b3033;
+  --line-soft:rgba(255,255,255,.065);
+  --accent:#cbc3b6;
+  --accent-dim:#8f887d;
+  --good:#91ad94;
+  --warn:#c5a66a;
+  --bad:#c16d6d;
+  --shadow:0 18px 55px rgba(0,0,0,.26);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  min-height:100vh;
+  color:var(--text);
+  font:15px/1.55 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background:
+    radial-gradient(circle at 12% -8%,rgba(255,255,255,.055),transparent 31%),
+    radial-gradient(circle at 88% 18%,rgba(130,140,138,.035),transparent 24%),
+    linear-gradient(180deg,#0a0c0d 0%,var(--bg) 42%,var(--bg-deep) 100%);
+}
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  opacity:.2;
+  background:
+    linear-gradient(115deg,transparent 0 44%,rgba(255,255,255,.025) 50%,transparent 56%),
+    repeating-linear-gradient(0deg,rgba(255,255,255,.012) 0 1px,transparent 1px 4px);
+  mix-blend-mode:soft-light;
+}
+a{color:#ddd5c8;text-decoration:none}
+a:hover{text-decoration:none;color:#fff}
+button,input,select{font:inherit}
+button,select,input{transition:border-color .16s ease,background .16s ease,box-shadow .16s ease,transform .16s ease}
+button:focus-visible,a:focus-visible,summary:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible{
+  outline:2px solid rgba(203,195,182,.72);
+  outline-offset:2px;
+}
+.wrap{width:min(1240px,calc(100% - 30px));margin:auto;padding:44px 0 76px;position:relative}
+header{margin-bottom:24px;padding:4px 2px}
+.eyebrow{
+  display:inline-flex;
+  align-items:center;
+  gap:9px;
+  text-transform:uppercase;
+  letter-spacing:.18em;
+  color:#a6aaab;
+  font-weight:800;
+  font-size:.72rem;
+}
+.eyebrow::before{content:"";width:22px;height:1px;background:#6f7475}
+h1{
+  font:500 clamp(2.45rem,5vw,4.6rem)/.97 Georgia,"Times New Roman",serif;
+  letter-spacing:-.038em;
+  margin:10px 0 13px;
+  text-wrap:balance;
+}
+.lead{color:#abb0b1;max-width:860px;margin:0;font-size:.98rem}
+.toolbar{
+  display:grid;
+  grid-template-columns:minmax(220px,1fr) auto auto auto;
+  gap:10px;
+  align-items:end;
+  background:linear-gradient(180deg,rgba(19,23,24,.96),rgba(14,17,18,.96));
+  border:1px solid var(--line);
+  border-radius:18px;
+  padding:16px;
+  margin:22px 0;
+  box-shadow:var(--shadow);
+}
+label.small{
+  display:block;
+  color:var(--muted);
+  font-size:.7rem;
+  font-weight:850;
+  text-transform:uppercase;
+  letter-spacing:.105em;
+  margin-bottom:7px;
+}
+select,input[type=number],input[type=text]{
+  width:100%;
+  background:#090b0c;
+  color:var(--text);
+  border:1px solid #353b3e;
+  border-radius:10px;
+  padding:10px 12px;
+  outline:none;
+}
+select:hover,input[type=number]:hover,input[type=text]:hover{border-color:#51595d}
+select:focus,input[type=number]:focus,input[type=text]:focus{border-color:#7a817f;box-shadow:0 0 0 3px rgba(203,195,182,.08)}
+.btn{
+  border:1px solid #3a4144;
+  background:linear-gradient(180deg,#181c1e,#131718);
+  color:var(--text);
+  border-radius:10px;
+  padding:10px 13px;
+  cursor:pointer;
+  font-weight:750;
+  line-height:1.2;
+}
+.btn:hover{border-color:#6b7377;background:#1b2022;transform:translateY(-1px)}
+.btn:active{transform:translateY(0)}
+.btn.danger{color:#dfaaaa}
+.btn.danger:hover{border-color:#805252;background:#211718}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:20px;align-items:start}
+.card{
+  background:linear-gradient(180deg,rgba(17,20,22,.97),rgba(13,16,17,.97));
+  border:1px solid var(--line);
+  border-radius:18px;
+  overflow:hidden;
+  box-shadow:var(--shadow);
+}
+.cardhead{padding:21px 22px 19px;border-bottom:1px solid var(--line)}
+.cardhead h2{margin:0;font-size:1.08rem;letter-spacing:-.01em}
+.cardhead p{color:#9da3a5;margin:6px 0 0;font-size:.86rem;max-width:850px}
+.controls{padding:18px 22px}
+.statgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.stat{
+  padding:13px;
+  border:1px solid var(--line-soft);
+  border-radius:12px;
+  background:rgba(255,255,255,.018);
+}
+.stat label{display:block;font-weight:770;margin-bottom:7px}
+.stat small{color:var(--muted);display:block;margin-top:6px}
+.quick{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-top:16px;padding-top:16px;border-top:1px solid var(--line)}
+.checkline{display:flex;gap:10px;align-items:center;cursor:pointer}
+input[type=checkbox]{width:19px;height:19px;accent-color:#c6beb1;cursor:pointer}
+.progress{margin-left:auto;color:var(--muted);font-size:.85rem}
+.progress strong{color:var(--text)}
+.progressbar{
+  height:5px;
+  margin-top:14px;
+  overflow:hidden;
+  border-radius:999px;
+  background:#090b0c;
+  border:1px solid rgba(255,255,255,.04);
+}
+.progressbar>span{
+  display:block;
+  width:0;
+  height:100%;
+  border-radius:inherit;
+  background:linear-gradient(90deg,#7e7b74,#d0c7b8);
+  transition:width .22s ease;
+}
+.parts{padding:11px 12px 13px}
+details.part{
+  border:1px solid var(--line);
+  border-radius:13px;
+  background:linear-gradient(180deg,#0e1112,#0b0e0f);
+  margin:9px 0;
+  overflow:hidden;
+  transition:border-color .16s ease,background .16s ease;
+}
+details.part:hover{border-color:#3a4144}
+details.part[open]{border-color:#40474a;background:linear-gradient(180deg,#111516,#0c0f10)}
+details.part>summary{
+  cursor:pointer;
+  list-style:none;
+  padding:14px 15px;
+  font-weight:800;
+  display:grid;
+  grid-template-columns:18px minmax(0,1fr) auto;
+  align-items:center;
+  gap:10px;
+  user-select:none;
+}
+details.part>summary::-webkit-details-marker{display:none}
+details.part>summary::before{
+  content:"›";
+  color:#8e9699;
+  font:700 1.35rem/1 Georgia,serif;
+  transform:rotate(0deg);
+  transition:transform .16s ease,color .16s ease;
+  transform-origin:center;
+}
+details.part[open]>summary::before{transform:rotate(90deg);color:#d4cec3}
+details.part>summary:hover{background:rgba(255,255,255,.018)}
+.partcount{
+  color:#aaaead;
+  background:#161a1b;
+  border:1px solid #303638;
+  border-radius:999px;
+  padding:3px 8px;
+  font-size:.76rem;
+  font-weight:700;
+  min-width:52px;
+  text-align:center;
+}
+.item{
+  display:grid;
+  grid-template-columns:auto minmax(0,1fr) auto;
+  gap:12px;
+  padding:13px 16px;
+  border-top:1px solid var(--line-soft);
+  align-items:start;
+  transition:background .14s ease,opacity .14s ease;
+}
+.item:hover{background:rgba(255,255,255,.018)}
+.item.done{opacity:.55;background:rgba(255,255,255,.01)}
+.item.done .itemname{text-decoration:line-through;text-decoration-thickness:1px;text-decoration-color:#7d8587}
+.itemname{font-weight:760;letter-spacing:-.005em}
+.meta{color:#858d90;font-size:.75rem;margin-top:3px;text-transform:uppercase;letter-spacing:.055em}
+.where{color:#c4c8c9;font-size:.84rem;margin-top:6px;line-height:1.48}
+.guide{
+  font-size:.76rem;
+  border:1px solid #363d40;
+  background:#111516;
+  border-radius:8px;
+  padding:6px 9px;
+  white-space:nowrap;
+  color:#cfc8bc;
+}
+.guide:hover{border-color:#6b7377;background:#191e20;color:#fff}
+.ngtag{
+  display:inline-block;
+  vertical-align:1px;
+  font-size:.62rem;
+  text-transform:uppercase;
+  letter-spacing:.09em;
+  border:1px solid #49433b;
+  color:#cabda7;
+  border-radius:999px;
+  padding:2px 7px;
+  margin-left:6px;
+}
+.side{position:sticky;top:18px}
+.result{padding:24px}
+.resultlabel{color:var(--muted);font-size:.69rem;font-weight:850;text-transform:uppercase;letter-spacing:.13em}
+.ending{
+  font:500 3.45rem/.95 Georgia,"Times New Roman",serif;
+  margin:7px 0 13px;
+  letter-spacing:-.035em;
+}
+.score{font-size:.9rem;color:var(--muted)}
+.score b{font-size:1.45rem;color:var(--text)}
+.break{margin-top:18px;border-top:1px solid var(--line);padding-top:12px}
+.row{display:flex;justify-content:space-between;gap:15px;padding:7px 0;color:var(--muted)}
+.row b{color:var(--text);font-variant-numeric:tabular-nums}
+.notice{
+  margin-top:17px;
+  padding:14px 14px 14px 15px;
+  border:1px solid var(--line);
+  border-left:3px solid #6f736d;
+  background:#0b0e0f;
+  border-radius:10px;
+  color:#c9cdce;
+  font-size:.84rem;
+}
+.notice strong{color:#eeebe5}
+.storage{margin-top:15px;color:#7f8789;font-size:.73rem;line-height:1.5}
+.sourcebox{padding:16px 19px;margin-top:20px;color:var(--muted);font-size:.79rem}
+.sourcebox strong{color:#b8bcbd;margin-right:8px}
+.sourcebox a{
+  display:inline-block;
+  margin:5px 5px 5px 0;
+  border:1px solid #303638;
+  background:#0d1011;
+  border-radius:999px;
+  padding:5px 9px;
+  color:#aaaead;
+}
+.sourcebox a:hover{color:#fff;border-color:#555d60}
+.hidden{display:none!important}
+.sharebar{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.banner{
+  display:none;
+  margin:0 0 20px;
+  padding:15px 16px;
+  border:1px solid #5c564c;
+  border-radius:13px;
+  background:linear-gradient(180deg,#19160f,#14120e);
+  color:#ddd3bf;
+  box-shadow:var(--shadow);
+}
+.banner.show{display:block}
+.banner strong{color:#fff}
+.modalback{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.76);
+  backdrop-filter:blur(4px);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+  z-index:1000;
+}
+.modalback.show{display:flex}
+.modal{
+  width:min(720px,100%);
+  max-height:90vh;
+  overflow:auto;
+  background:#111416;
+  border:1px solid #343a3d;
+  border-radius:17px;
+  box-shadow:0 30px 100px rgba(0,0,0,.62);
+}
+.modalhead{display:flex;justify-content:space-between;gap:16px;align-items:center;padding:18px 20px;border-bottom:1px solid var(--line)}
+.modalhead h3{margin:0}
+.modalbody{padding:20px}
+.modalbody p{color:#b6bbbc}
+.modal textarea{
+  width:100%;
+  min-height:150px;
+  background:#090b0c;
+  color:var(--text);
+  border:1px solid #343a3d;
+  border-radius:10px;
+  padding:12px;
+  font:12px/1.45 ui-monospace,SFMono-Regular,Consolas,monospace;
+  resize:vertical;
+}
+.preview{margin-top:14px;padding:14px;border:1px solid var(--line);border-radius:10px;background:#0c0f10}
+.previewgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 18px}
+.previewgrid div{color:var(--muted)}
+.previewgrid b{color:var(--text)}
+.readonly .item input,.readonly input,.readonly select,.readonly button[data-edit="1"]{pointer-events:none;opacity:.65}
+.copyok{color:#9fbe9f;font-size:.8rem;margin-left:6px}
+footer{opacity:.8}
+
+.partactions{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:9px;
+  min-width:max-content;
+}
+.partall{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  color:#a9adae;
+  font-size:.72rem;
+  font-weight:750;
+  letter-spacing:.025em;
+  cursor:pointer;
+  padding:3px 7px;
+  border:1px solid #303638;
+  border-radius:999px;
+  background:#131718;
+}
+.partall:hover{border-color:#555d60;color:#e5e2dc}
+.partall input{
+  width:15px;
+  height:15px;
+  margin:0;
+}
+.mechanics-card{margin-top:20px}
+.mechanics-card .cardhead{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:18px;
+}
+.sourcebadge{
+  flex:0 0 auto;
+  display:inline-flex;
+  align-items:center;
+  border:1px solid #49433b;
+  border-radius:999px;
+  padding:4px 8px;
+  color:#c9bda8;
+  font-size:.67rem;
+  font-weight:800;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  white-space:nowrap;
+}
+.formulabox{
+  margin-bottom:16px;
+  padding:14px 15px;
+  border:1px solid #343a3d;
+  border-radius:12px;
+  background:#0a0d0e;
+}
+.formulabox .formula{
+  color:#eeeae3;
+  font:600 .96rem/1.5 ui-monospace,SFMono-Regular,Consolas,monospace;
+  overflow-wrap:anywhere;
+}
+.formulabox .thresholds{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:11px;
+}
+.threshold{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:5px 8px;
+  border:1px solid #303638;
+  border-radius:999px;
+  background:#121617;
+  color:#b6bbbc;
+  font-size:.74rem;
+}
+.threshold b{color:#eeebe5}
+.mechanicgrid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+}
+.mechanic{
+  border:1px solid var(--line-soft);
+  border-radius:12px;
+  background:rgba(255,255,255,.016);
+  padding:14px;
+}
+.mechanic h3{
+  margin:0 0 6px;
+  font-size:.88rem;
+  letter-spacing:-.005em;
+}
+.mechanic p{
+  margin:0;
+  color:#adb2b3;
+  font-size:.82rem;
+  line-height:1.55;
+}
+.mechanic strong{color:#e9e6df}
+.mechanic.warn{
+  border-color:#4b4232;
+  background:rgba(129,96,40,.06);
+}
+.prioritybox{
+  margin-top:10px;
+  padding:14px 15px;
+  border:1px solid #343a3d;
+  border-radius:12px;
+  background:#0c0f10;
+}
+.prioritybox h3{margin:0 0 7px;font-size:.88rem}
+.prioritybox p{margin:0;color:#adb2b3;font-size:.82rem;line-height:1.55}
+.priorityflow{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  flex-wrap:wrap;
+  margin-top:10px;
+  color:#8f9698;
+  font-size:.76rem;
+}
+.priorityflow span{
+  padding:5px 8px;
+  border:1px solid #303638;
+  border-radius:8px;
+  background:#131718;
+  color:#d0d3d3;
+}
+.mechanics-source{
+  margin-top:12px;
+  color:#7f8789;
+  font-size:.73rem;
+  line-height:1.5;
+}
+.mechanics-source a{color:#bcb5aa}
+.mechanics-source a:hover{color:#fff}
+@media(max-width:700px){
+  .mechanicgrid{grid-template-columns:1fr}
+  .mechanics-card .cardhead{display:block}
+  .sourcebadge{margin-top:10px}
+  .partactions{gap:5px}
+  .partall{padding:3px 6px}
+}
+
+
+.profile-note{
+  margin:-7px 0 22px;
+  padding:12px 14px;
+  border:1px solid #303638;
+  border-radius:12px;
+  background:rgba(255,255,255,.018);
+  color:#a2a8a9;
+  font-size:.8rem;
+  line-height:1.55;
+}
+.profile-note strong{color:#e2ded6}
+.profile-note em{color:#cbc4b8}
+
+@media(max-width:900px){
+  .layout{grid-template-columns:1fr}
+  .side{position:static}
+}
+@media(max-width:700px){
+  .wrap{width:min(100% - 20px,1240px);padding-top:28px}
+  .toolbar{grid-template-columns:1fr 1fr}
+  .toolbar>div:first-child{grid-column:1/-1}
+  .statgrid{grid-template-columns:1fr}
+  .item{grid-template-columns:auto 1fr}
+  .guide{grid-column:2;justify-self:start}
+  .progress{width:100%;margin-left:29px}
+}
+@media(max-width:520px){
+  .toolbar{grid-template-columns:1fr}
+  .toolbar .sharebar{grid-column:1!important}
+  .toolbar .btn{width:100%}
+  details.part>summary{grid-template-columns:16px minmax(0,1fr) auto}
+  .ending{font-size:3rem}
+  .previewgrid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<main class="wrap">
+<header>
+<div class="eyebrow">Silent Hill: Townfall</div>
+<h1>Ending & Progress Tracker</h1>
+<p class="lead">Track all 85 scoring Discoveries in story order, follow the New Game+ special-ending routes, and see your calculated ending update as you play. Use named profiles to keep separate playthroughs and ending routes independent.</p>
+</header>
+
+<section class="toolbar">
+<div>
+<label class="small" for="saveSelect">Active profile</label>
+<select id="saveSelect"></select>
+</div>
+<button class="btn" id="newSave" data-edit="1">+ New profile</button>
+<button class="btn" id="renameSave" data-edit="1">Rename profile</button>
+<button class="btn danger" id="deleteSave" data-edit="1">Delete profile</button>
+</section>
+
+<div class="profile-note">
+  <strong>Profiles save automatically.</strong>
+  Create separate profiles for different runs, for example, <em>New Game</em>, <em>New Game+</em>, or a particular ending route. Each profile keeps its own Discoveries, penalties, target ending, and New Game+ progress.
+</div>
+
+<div class="layout">
+<section>
+<div class="card">
+<div class="cardhead"><h2>Ending variables</h2><p>Normal-ending score = Discoveries − (2 × qualifying Simon kills) − (4 × cannula refills) − (3 × Zoe mistakes). Only kills that count toward the ending calculation should be entered.</p></div>
+<div class="controls">
+<div class="statgrid">
+<div class="stat"><label for="kills">Qualifying Simon kills</label><input data-edit="1" id="kills" type="number" min="0" value="0"><small>−2 points each</small></div>
+<div class="stat"><label for="refills">Cannula refills used</label><input data-edit="1" id="refills" type="number" min="0" value="0"><small>−4 points each</small></div>
+<div class="stat"><label for="mistakes">Zoe mistakes made</label><input data-edit="1" id="mistakes" type="number" min="0" value="0"><small>−3 points each</small></div>
+</div>
+<div class="quick">
+<label class="checkline"><input data-edit="1" id="ngPlus" type="checkbox"> New Game+ playthrough</label>
+<span class="progress">Discoveries: <strong id="discoveryCount">0 / 85</strong></span>
+</div>
+</div>
+</div>
+
+<div class="card mechanics-card">
+  <div class="cardhead">
+    <div>
+      <h2>How the ending calculation works</h2>
+      <p>The normal endings use a points system. The rules below are based on community reverse-engineering of the game’s Unreal Engine blueprints rather than official Konami documentation.</p>
+    </div>
+    <span class="sourcebadge">Reverse-engineered</span>
+  </div>
+  <div class="controls">
+    <div class="formulabox">
+      <div class="formula">Ending score = Discoveries − (2 × qualifying Simon kills) − (4 × cannula refills) − (3 × Zoe mistakes)</div>
+      <div class="thresholds">
+        <span class="threshold"><b>Justice</b> 20+</span>
+        <span class="threshold"><b>Forever</b> 0–19</span>
+        <span class="threshold"><b>Abandoned</b> below 0</span>
+      </div>
+    </div>
+
+    <div class="mechanicgrid">
+      <div class="mechanic">
+        <h3>Discoveries · +1 each</h3>
+        <p>Up to <strong>85 points</strong>. Documents, Clues, and emails read on computers count. <strong>Postcards do not</strong>, because they are profile-level collectibles rather than save-level scoring Discoveries.</p>
+      </div>
+
+      <div class="mechanic">
+        <h3>Qualifying Simon kills · −2 each</h3>
+        <p>Only Simon’s kills of <strong>Motionless, Sorrowful, Lunger (Fearful), and Widow (Enraged)</strong> count. Fallen, the Wall, the Weight, and enemies killed while playing as Richard do not. The end-of-game <strong>Enemies Killed</strong> total includes non-scoring kills, so it should not be entered here.</p>
+      </div>
+
+      <div class="mechanic">
+        <h3>Cannula refills · −4 each</h3>
+        <p>Each cannula refill/revive costs <strong>4 points</strong>. Other healing items do not affect the ending score.</p>
+      </div>
+
+      <div class="mechanic warn">
+        <h3>Zoe mistakes · −3 each</h3>
+        <p>Wrong vital-sign readings, an incorrect pump setup, and failed intubation steps in <strong>The Patient</strong> count. With the pumps set incorrectly, another mistake can be registered roughly every <strong>5 seconds</strong> while Zoe remains in the surgery room; the timer pauses when she leaves the room.</p>
+      </div>
+    </div>
+
+    <div class="prioritybox">
+      <h3>New Game+ special-ending branches</h3>
+      <p>Dog and Sci-Fi can both be fully prepared on the same New Game+ playthrough. After viewing all three Strange Books, <strong>using the Strange Access Card at the Part 6 keypad triggers Sci-Fi</strong> before the final boss. If you skip the card reader and all three coins have been inserted, Dog occurs after the final boss. To obtain both from the same setup, make a manual save before the keypad, take one branch, then reload and take the other.</p>
+      <div class="priorityflow" aria-label="Special-ending branch order">
+        <span>Use card after all 3 books → Sci-Fi</span>
+        <b>otherwise, after final boss</b>
+        <span>All 3 coins inserted → Dog</span>
+        <b>otherwise</b>
+        <span>Use score → Justice / Forever / Abandoned</span>
+      </div>
+    </div>
+
+    <div class="mechanics-source">
+      Source: <a href="https://www.reddit.com/r/silenthill/comments/1wqv5hk/spoilers_the_true_math_behind_silent_hill/" target="_blank" rel="noopener noreferrer">“The True Math Behind Silent Hill: Townfall Endings” on r/silenthill</a>. As a useful reference point, with all 85 Discoveries and no other penalties, 32 qualifying Simon kills leave a score of 21; a 33rd drops the score to 19.
+    </div>
+  </div>
+</div>
+
+<div class="card" style="margin-top:20px">
+<div class="cardhead"><h2>Discoveries — all 85</h2><p>All scoring Documents and Clues are listed in story order. Each checked Discovery adds +1 point to the normal-ending score.</p></div>
+<div class="controls">
+<div class="quick" style="margin:0;padding:0;border:0">
+<label class="checkline"><input data-edit="1" id="allDiscoveries" type="checkbox"> <strong>Mark all 85 as found</strong></label>
+<button class="btn" data-edit="1" id="clearDiscoveries">Clear all</button>
+<button class="btn" id="expandParts">Expand all</button>
+<button class="btn" id="collapseParts">Collapse all</button>
+<span class="progress" id="discoveryPercent" title="Discovery completion">0%</span>
+</div>
+<div class="progressbar" aria-hidden="true"><span id="discoveryBar"></span></div>
+</div>
+<div class="parts" id="parts"></div>
+</div>
+
+<div class="card hidden" id="ngCard" style="margin-top:20px">
+<div class="cardhead"><h2>New Game+ special-ending routes</h2><p>Items and trigger actions are tracked separately, in encounter order. Dog and Sci-Fi can be prepared on the same playthrough. For Sci-Fi, mark each Strange Book only after you actually view it; using the Strange Access Card in Part 6 is the branch trigger itself.</p></div>
+<div class="controls">
+<div class="quick" style="margin:0;padding:0;border:0">
+<button class="btn" data-edit="1" id="clearNG">Clear New Game+ progress</button>
+<span class="progress" id="ngProgress">0 / 11 complete</span>
+</div>
+</div>
+<div class="parts" id="ngList"></div>
+</div>
+
+<div class="card sourcebox">
+<strong>Reference guides:</strong>
+<a href="https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/" target="_blank" rel="noopener">All 85 guide</a>
+<a href="https://www.powerpyx.com/silent-hill-townfall-new-game-plus-collectible-locations/" target="_blank" rel="noopener">NG+ collectibles guide</a>
+<a href="https://www.powerpyx.com/silent-hill-townfall-all-endings-guide/" target="_blank" rel="noopener">All endings guide</a>
+<a href="https://www.reddit.com/r/silenthill/comments/1wqv5hk/spoilers_the_true_math_behind_silent_hill/" target="_blank" rel="noopener">Reverse-engineered ending math</a>
+</div>
+</section>
+
+<aside class="card side">
+<div class="result">
+<div style="margin-bottom:18px">
+<label class="small" for="targetEnding">Target ending</label>
+<select data-edit="1" id="targetEnding">
+  <option value="Justice">Justice</option>
+  <option value="Forever">Forever</option>
+  <option value="Abandoned">Abandoned</option>
+  <option value="Sci-Fi">Sci-Fi</option>
+  <option value="Dog">Dog</option>
+</select>
+</div>
+<div class="resultlabel">Projected ending</div>
+<div class="ending" id="ending">Forever</div>
+<div class="score">Score: <b id="score">0</b></div>
+<div class="break">
+<div class="row"><span>Discoveries</span><b id="bDisc">+0</b></div>
+<div class="row"><span>Simon kills</span><b id="bKills">0</b></div>
+<div class="row"><span>Cannula refills</span><b id="bRefills">0</b></div>
+<div class="row"><span>Zoe mistakes</span><b id="bMistakes">0</b></div>
+</div>
+<div class="notice" id="notice"></div>
+<div class="storage">Profile progress is saved automatically in this browser on this device. Switching profiles restores each run exactly where you left it.</div>
+</div>
+</aside>
+</div>
+
+
+</main>
+
+
+<script>
+const COLLECTIBLES = [{"id":1,"part":1,"partName":"Arrival","name":"Boat Tour Cancelled Notice","type":"Document","where":"On the door of the small building by the pier, immediately after the St. Amelia sign reveal.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":2,"part":1,"partName":"Arrival","name":"Shorefront Family Clinic Notice","type":"Document","where":"On the wall beside the clinic door, northeast of Town Square.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":3,"part":1,"partName":"Arrival","name":"Room Service Card","type":"Clue","where":"On the table beside the CRTV pickup in the Otherworld hotel.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":4,"part":1,"partName":"Arrival","name":"Hotel Room Note","type":"Document","where":"On the bathroom counter, after the hotel door puzzle.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":5,"part":1,"partName":"Arrival","name":"Hotel Reception Notice","type":"Document","where":"Behind the reception desk, to the right of the hotel elevator.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":6,"part":1,"partName":"Arrival","name":"Vigil and Protest Flyer","type":"Document","where":"On the Town Square bench beside the pillar, near the LET THE FERRIES IN sign.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":7,"part":1,"partName":"Arrival","name":"Hand Delivered Letter","type":"Document","where":"On Zoe’s living-room table.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":8,"part":1,"partName":"Arrival","name":"Organ Transplant Card","type":"Clue","where":"On the upstairs bathroom floor; it is also used for the organ-box clue.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":9,"part":1,"partName":"Arrival","name":"Power Card Credit Guide","type":"Clue","where":"In the crawlspace beside Zoe’s stairs; bring the flashlight.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":10,"part":1,"partName":"Arrival","name":"Newsagents Note","type":"Document","where":"On the counter inside Peters Newsagent.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":11,"part":1,"partName":"Arrival","name":"Zoe’s Email: “Your Letter”","type":"Document","where":"In Zoe’s computer inbox after restoring power; open the top email.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":12,"part":1,"partName":"Arrival","name":"Zoe’s Email: “Please Report In”","type":"Document","where":"In Zoe’s computer inbox after restoring power; open the bottom email.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":13,"part":1,"partName":"Arrival","name":"Zoe’s Email: “For Attending…”","type":"Clue","where":"In Zoe’s computer inbox after restoring power; open the middle email.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":14,"part":1,"partName":"Arrival","name":"Note on Patient Records","type":"Document","where":"In Dr Stevenson’s room, the first door on the right; check the desk drawer.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":15,"part":1,"partName":"Arrival","name":"Resignation Letter","type":"Clue","where":"In Z Ellis’s room, on the paper to the left of the scales.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":16,"part":1,"partName":"Arrival","name":"Clinic Email: “Where Are You?”","type":"Clue","where":"On the computer in Z Ellis’s room.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":17,"part":1,"partName":"Arrival","name":"Clinic Email: Reception Answer Phone Message","type":"Clue","where":"On the computer in Z Ellis’s room; open the second message.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":18,"part":1,"partName":"Arrival","name":"Jess’s Door Note","type":"Clue","where":"On the back door of Jess’s house.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":19,"part":1,"partName":"Arrival","name":"Task Assignment","type":"Document","where":"On Jess’s kitchen counter.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":20,"part":1,"partName":"Arrival","name":"Jess Legal Advice","type":"Document","where":"On Jess’s living-room table.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":21,"part":1,"partName":"Arrival","name":"Nurse’s Rounds Form","type":"Document","where":"On the clinic reception counter.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":22,"part":1,"partName":"Arrival","name":"Restock Issues","type":"Document","where":"On the pharmacy’s front counter.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":23,"part":1,"partName":"Arrival","name":"Feeling Sick Note","type":"Document","where":"In Apartment 1/2 on the second floor, south of Building 14.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":24,"part":2,"partName":"Zoe","name":"Water Warning","type":"Document","where":"On Zoe’s living-room table during the Part 2 visit.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":25,"part":2,"partName":"Zoe","name":"Zoe’s Email: “Coming Back”","type":"Document","where":"On Zoe’s computer; open the only email in the inbox.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":26,"part":2,"partName":"Zoe","name":"Jane Chalmer’s Obituary","type":"Document","where":"On the middle shelf inside the Community Gardens shed.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":27,"part":2,"partName":"Zoe","name":"St. Amelia Standard","type":"Document","where":"On Mr. Stewart’s living-room table.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":28,"part":2,"partName":"Zoe","name":"Medical Security Note","type":"Clue","where":"On the security-booth window outside the Medical Centre.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":29,"part":2,"partName":"Zoe","name":"Community Help Needed","type":"Document","where":"On the first table to the right in the Medical Centre parking lot.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":30,"part":2,"partName":"Zoe","name":"Exhausted Supplies","type":"Document","where":"On a bed inside the tent at the back-left of the parking lot.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":31,"part":2,"partName":"Zoe","name":"Scaffold Notice","type":"Document","where":"On the door of the apartment south of the Medical Centre.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":32,"part":2,"partName":"Zoe","name":"Handwritten Note","type":"Document","where":"In Apartment 1/1 on the second floor, on the living-room table.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":33,"part":2,"partName":"Zoe","name":"Press Photos “Note.txt”","type":"Document","where":"On the computer in Apartment 2/2 on the third floor; open the first file.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":34,"part":2,"partName":"Zoe","name":"Photo1.jpg","type":"Document","where":"In Apartment 2/2; print or view the first photo.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":35,"part":2,"partName":"Zoe","name":"Photo2.jpg","type":"Document","where":"In Apartment 2/2; print or view the second photo.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":36,"part":3,"partName":"The Patient","name":"Supply Situation Update","type":"Document","where":"On the Consult Room B computer on the ground floor of Victoria Ward; open the first email.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":37,"part":3,"partName":"The Patient","name":"RE: Supply Situation Update","type":"Document","where":"On the same Consult Room B computer; open the reply.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":38,"part":3,"partName":"The Patient","name":"Unrealistic Expectations (1098512…)","type":"Document","where":"On the desk computer on Chapman Ward 1F; open the first file.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":39,"part":3,"partName":"The Patient","name":"Dailies – Infusion Status","type":"Clue","where":"On the same Chapman Ward 1F computer; open the second file.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":40,"part":3,"partName":"The Patient","name":"Dailies – Records Room Code","type":"Clue","where":"On the office board on Chapman Ward 1F.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":41,"part":3,"partName":"The Patient","name":"Equipment Cleanup Notice","type":"Document","where":"On a bed in the Victoria Ward basement hallway.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":42,"part":3,"partName":"The Patient","name":"Zoe’s Patient List","type":"Clue","where":"In the altered ward, inside the vent room off the right-hand hallway; check the table beside the bed.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":43,"part":4,"partName":"Clara Woods","name":"Harbour Notice","type":"Document","where":"On the railing to the left of the boat ramp, farther up the pier.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":44,"part":4,"partName":"Clara Woods","name":"Store Staff Notice","type":"Document","where":"On the counter beside the cash register in the enterable store.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":45,"part":4,"partName":"Clara Woods","name":"Atlas Square Apartment Note","type":"Document","where":"Inside the ground-floor apartment northeast of Atlas Square.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":46,"part":4,"partName":"Clara Woods","name":"Lost and Found","type":"Clue","where":"On the computer inside the CEG Employee Lockers building; open the first note.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":47,"part":4,"partName":"Clara Woods","name":"CEG Employee Locker List","type":"Clue","where":"On the same lockers computer; open the second note.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":48,"part":4,"partName":"Clara Woods","name":"CEG Lockers Managers Note","type":"Document","where":"In the back office of the lockers building; check the desk drawer.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":49,"part":4,"partName":"Clara Woods","name":"Gaming Magazine","type":"Clue","where":"At 5 South Brae; go upstairs, enter the first door, and check the bed.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":50,"part":4,"partName":"Clara Woods","name":"Reciprocating Compressor","type":"Clue","where":"Collect the printer output after completing the floppy-disk puzzle.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":51,"part":4,"partName":"Clara Woods","name":"Lamenting Poem","type":"Clue","where":"At 6 North Brae; enter through the back door, go upstairs, and check the chair in the second bedroom.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":52,"part":4,"partName":"Clara Woods","name":"The Code Today","type":"Clue","where":"At 5 Upper Brae; go upstairs and check the table in the first room.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":53,"part":4,"partName":"Clara Woods","name":"The Code Before","type":"Clue","where":"During Tape: Yesterday, check the corner of the kitchen table.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":54,"part":4,"partName":"Clara Woods","name":"The Code After","type":"Clue","where":"During Tape: Tomorrow, return downstairs and collect it in the living room.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":55,"part":4,"partName":"Clara Woods","name":"Current Count","type":"Clue","where":"After switching to Tape: Yesterday with the Ammonite Disk, check the computer again.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":56,"part":4,"partName":"Clara Woods","name":"Inquiry Preparation Notice","type":"Document","where":"Behind the reception desk on the ground floor of CEG HQ, to the right of the Ground Floor Map.","guide":"https://www.powerpyx.com/silent-hill-townfall-part-4-clara-woods-collectible-locations/"},{"id":57,"part":4,"partName":"Clara Woods","name":"Box IDs and Names","type":"Clue","where":"On the podium on the CEG lobby stage.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":58,"part":4,"partName":"Clara Woods","name":"Grid of Codes (A)","type":"Clue","where":"In the northwest corner of the maintenance room, inside the garbage can beside the computer.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":59,"part":4,"partName":"Clara Woods","name":"Grid of Codes (B)","type":"Clue","where":"Inside the garbage can in the security room.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":60,"part":4,"partName":"Clara Woods","name":"Complete Grid of Codes","type":"Clue","where":"Combine both Grid of Codes clues in the inventory.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":61,"part":4,"partName":"Clara Woods","name":"CEG Security: Out of Hours Access","type":"Document","where":"On the security-room computer; open the first email.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":62,"part":4,"partName":"Clara Woods","name":"Urgent Message","type":"Document","where":"On the same security-room computer; open the second email.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":63,"part":4,"partName":"Clara Woods","name":"Employee File Cover Note","type":"Clue","where":"On Richard’s box after opening it.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":64,"part":5,"partName":"Richard","name":"Construction Halted Notice","type":"Document","where":"In the first parking-lot building; check the back-corner table in the second room on the left.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":65,"part":5,"partName":"Richard","name":"CEG Kiosk Note","type":"Document","where":"In the second building on the left; check the table to the right of the garage-door entrance.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":66,"part":5,"partName":"Richard","name":"CEG Memo","type":"Document","where":"On the desk in the upstairs Managers Office.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":67,"part":5,"partName":"Richard","name":"Facilities: Works Halted","type":"Document","where":"On the computer in the right-hand room of Building 1 after restoring power.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":68,"part":5,"partName":"Richard","name":"“DONTREAD.DOC”","type":"Clue","where":"On the same computer; open the bottom email.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":69,"part":5,"partName":"Richard","name":"CEG Tower Meeting Minutes","type":"Document","where":"On the southeast-corner table in the east meeting room on 3F.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":70,"part":5,"partName":"Richard","name":"CEG Tower: Evening News","type":"Document","where":"On the computer in the northwest room of Public Relations on 3F.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":71,"part":5,"partName":"Richard","name":"CEG Tower: Engineer Public Statement","type":"Document","where":"On the same computer in the northwest room of Public Relations on 3F.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":72,"part":5,"partName":"Richard","name":"PR Meeting Note","type":"Document","where":"In the small southern room of Public Relations on 3F; check the filing cabinet.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":73,"part":5,"partName":"Richard","name":"Richard’s Note","type":"Clue","where":"In the southeast room of Public Relations on 3F, beside a body.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":74,"part":5,"partName":"Richard","name":"CEG Checkout Sheet","type":"Clue","where":"In the 4F storeroom, inside the GENERAL STORAGE cabinet.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":75,"part":5,"partName":"Richard","name":"CEG Tower: He’s Done","type":"Document","where":"On the 10F computer outside the office.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":76,"part":6,"partName":"Simon","name":"Ordell File","type":"Document","where":"On the desk where Simon’s 10F (Different) segment begins.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":77,"part":6,"partName":"Simon","name":"CEG Tower: What did you do?","type":"Document","where":"On the 10F computer outside the office in the (Different) version of the area.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":78,"part":6,"partName":"Simon","name":"Reference Sheet","type":"Clue","where":"On the desk to the right as CEG HQ (Different) begins.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":79,"part":6,"partName":"Simon","name":"SWDP: Ordell Site Visit","type":"Document","where":"On the computer in the northeast room after the SWDP elevator.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":80,"part":6,"partName":"Simon","name":"RCU Refit Note","type":"Document","where":"On the bed after squeezing through the gap in the wall.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":81,"part":6,"partName":"Simon","name":"Photo of Joe McKenzie","type":"Document","where":"In the doorway after the same wall gap.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":82,"part":6,"partName":"Simon","name":"Remote Systems Control","type":"Clue","where":"In the SWDP control room, to the right of the console.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":83,"part":6,"partName":"Simon","name":"Auxiliary Lines","type":"Clue","where":"On the AUX-room computer with the AUX Disk inserted.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":84,"part":6,"partName":"Simon","name":"Clamp Release Procedure","type":"Clue","where":"Collect the control-room printer output after turning Valve F.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":85,"part":6,"partName":"Simon","name":"Crew Patch","type":"Document","where":"On the overalls on the beach, past the Shorefront stairs.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"}];
+const NG_ITEMS = [{"id":"bronzeCoin","chapter":"Chapter 1 · Cold Open","name":"Bronze Coin","kind":"Dog","where":"In the back room of Video Star, on a shelf.","state":"acquired","guide":"https://www.powerpyx.com/silent-hill-townfall-new-game-plus-collectible-locations/","part":1,"partName":"Arrival"},{"id":"bronzeInserted","chapter":"Chapter 1 · Cold Open","name":"Insert Bronze Coin","kind":"Dog","where":"Insert it into the Guide Dogs for the Blind donation bank on Main Street, just before the Pharmacy.","state":"coin","guide":"https://www.powerpyx.com/silent-hill-townfall-new-game-plus-collectible-locations/","part":1,"partName":"Arrival"},{"id":"book1","chapter":"Chapter 3 · A Connection","name":"View Strange Book 1 — History of Space Flight, 1952–1992","kind":"Sci-Fi","where":"In the bedroom of Zoe’s House, on the floor to the left of the bed.","state":"book","guide":"https://www.powerpyx.com/silent-hill-townfall-new-game-plus-collectible-locations/","part":1,"partName":"Arrival"},{"id":"accessCard","chapter":"Chapter 6 · Journey to Medical","name":"Strange Access Card","kind":"Sci-Fi","where":"Open the postcard-symbol door in the hotel; the card is beside the elephant statue.","state":"acquired","guide":"https://www.powerpyx.com/silent-hill-townfall-new-game-plus-collectible-locations/","part":2,"partName":"Zoe"},{"id":"silverCoin","chapter":"Chapter 9 · Begin Again","name":"Silver Coin","kind":"Dog","where":"In Clara Woods, on the backyard shelf near the Strange Postcard location from the first playthrough.","state":"acquired","guide":"https://www.powerpyx.com/silent-hill-townfall-new-game-plus-collectible-locations/","part":4,"partName":"Clara Woods"},{"id":"book2","chapter":"Chapter 10 · Missing Parts","name":"View Strange Book 2 — Freeze Me / Wake Me","kind":"Sci-Fi","where":"In the store at the southwest corner of Atlas Square, on the shelf in the left corner.","state":"book","guide":"https://www.powerpyx.com/silent-hill-townfall-new-game-plus-collectible-locations/","part":4,"partName":"Clara Woods"},{"id":"silverInserted","chapter":"Chapter 10 · Missing Parts","name":"Insert Silver Coin","kind":"Dog","where":"Insert it into the donation bank in the laundromat building behind the post service building; the area is reached after obtaining the boltcutters.","state":"coin","guide":"https://www.powerpyx.com/silent-hill-townfall-new-game-plus-collectible-locations/","part":4,"partName":"Clara Woods"},{"id":"goldCoin","chapter":"Chapter 15 · Trying Again","name":"Gold Coin","kind":"Dog","where":"In SWDP (Different), Room 793, on the console.","state":"acquired","guide":"https://www.powerpyx.com/silent-hill-townfall-new-game-plus-collectible-locations/","part":6,"partName":"Simon"},{"id":"book3","chapter":"Chapter 15 · Trying Again","name":"View Strange Book 3 — A Map of Nowhere Else","kind":"Sci-Fi","where":"In SWDP (Different), Room 621, on the table beside the Resource Container.","state":"book","guide":"https://www.powerpyx.com/silent-hill-townfall-new-game-plus-collectible-locations/","part":6,"partName":"Simon"},{"id":"goldInserted","chapter":"Chapter 15 · Trying Again","name":"Insert Gold Coin","kind":"Dog","where":"At the four-way split with red lights, follow the hallway to the end and use the dog donation bank.","state":"coin","guide":"https://www.powerpyx.com/silent-hill-townfall-new-game-plus-collectible-locations/","part":6,"partName":"Simon"},{"id":"accessCardUsed","chapter":"Chapter 15 · Trying Again","name":"Use Strange Access Card","kind":"Sci-Fi","where":"Use the keypad on the left immediately before the doorway where Simon removes his IV.","state":"card","guide":"https://www.powerpyx.com/silent-hill-townfall-new-game-plus-collectible-locations/","part":6,"partName":"Simon"}];
+const STORAGE_KEY = "townfallEndingTracker.v2";
+
+const $ = id => document.getElementById(id);
+const els = {
+ saveSelect:$("saveSelect"), newSave:$("newSave"), renameSave:$("renameSave"), deleteSave:$("deleteSave"),
+ kills:$("kills"), refills:$("refills"), mistakes:$("mistakes"), ngPlus:$("ngPlus"),
+ allDiscoveries:$("allDiscoveries"), clearDiscoveries:$("clearDiscoveries"),
+ expandParts:$("expandParts"), collapseParts:$("collapseParts"),
+ parts:$("parts"), ngCard:$("ngCard"), ngList:$("ngList"), clearNG:$("clearNG"), ngProgress:$("ngProgress"),
+ discoveryCount:$("discoveryCount"), discoveryPercent:$("discoveryPercent"), discoveryBar:$("discoveryBar"),
+ targetEnding:$("targetEnding"), ending:$("ending"), score:$("score"), bDisc:$("bDisc"), bKills:$("bKills"), bRefills:$("bRefills"), bMistakes:$("bMistakes"), notice:$("notice")
+};
+
+function blankSave(name="Profile 1") {
+ return {
+   id:crypto.randomUUID ? crypto.randomUUID() : String(Date.now()+Math.random()),
+   name,
+   targetEnding:"Justice",
+   ngPlus:false,
+   kills:0,
+   refills:0,
+   mistakes:0,
+   discoveries:{},
+   ng:{},
+   openParts:[1]
+ };
+}
+function loadDB() {
+ try {
+   const x=JSON.parse(localStorage.getItem(STORAGE_KEY));
+   if(x && Array.isArray(x.saves) && x.saves.length) {
+     // Discovery-list v2:
+     // - removes the erroneous duplicate Part 2 "Note.txt"
+     // - adds Part 4 "Inquiry Preparation Notice"
+     // - preserves existing checkmarks against the corrected numbering
+     if(x.discoveryListVersion!==2) {
+       x.saves.forEach(s=>{
+         const old=s.discoveries || {};
+         const migrated={};
+
+         for(let id=1;id<=33;id++) migrated[id]=!!old[id];
+         for(let oldId=35;oldId<=56;oldId++) migrated[oldId-1]=!!old[oldId];
+
+         // Newly added Discovery; old profiles have not tracked it yet.
+         migrated[56]=false;
+
+         for(let id=57;id<=85;id++) migrated[id]=!!old[id];
+
+         s.discoveries=migrated;
+       });
+
+       x.discoveryListVersion=2;
+       localStorage.setItem(STORAGE_KEY,JSON.stringify(x));
+     }
+     return x;
+   }
+ } catch(e) {}
+
+ const first=blankSave("Profile 1");
+ return {active:first.id,saves:[first],discoveryListVersion:2};
+}
+let db=loadDB();
+
+
+const FORMAT_VERSION = 2;
+const TARGETS = ["Justice","Forever","Abandoned","Sci-Fi","Dog"];
+
+function toBase64Url(bytes) {
+  let bin="";
+  bytes.forEach(b=>bin+=String.fromCharCode(b));
+  return btoa(bin).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+}
+function fromBase64Url(s) {
+  s=s.replace(/-/g,"+").replace(/_/g,"/");
+  while(s.length%4) s+="=";
+  const bin=atob(s), out=new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++) out[i]=bin.charCodeAt(i);
+  return out;
+}
+function utf8(s){ return new TextEncoder().encode(s); }
+function unutf8(b){ return new TextDecoder().decode(b); }
+
+function fnv1a(bytes) {
+  let h=0x811c9dc5;
+  for(const b of bytes){ h^=b; h=Math.imul(h,0x01000193)>>>0; }
+  return h>>>0;
+}
+function u32hex(n){ return n.toString(16).padStart(8,"0"); }
+
+function packBits(ids, getter) {
+  const out=new Uint8Array(Math.ceil(ids.length/8));
+  ids.forEach((id,i)=>{ if(getter(id)) out[i>>3] |= (1<<(i&7)); });
+  return toBase64Url(out);
+}
+function unpackBits(encoded, ids) {
+  const out={};
+  const bytes=fromBase64Url(encoded || "");
+  ids.forEach((id,i)=>out[id]=!!((bytes[i>>3]||0)&(1<<(i&7))));
+  return out;
+}
+
+function portableObject(s) {
+  const discoveryIds=COLLECTIBLES.map(x=>String(x.id));
+  const ngIds=NG_ITEMS.map(x=>x.id);
+  return {
+    v:FORMAT_VERSION,
+    n:String(s.name||"Imported Save").slice(0,80),
+    t:TARGETS.includes(s.targetEnding)?s.targetEnding:"Justice",
+    p:!!s.ngPlus,
+    k:num(s.kills),
+    r:num(s.refills),
+    m:num(s.mistakes),
+    d:packBits(discoveryIds,id=>!!s.discoveries[id]),
+    g:packBits(ngIds,id=>!!s.ng[id])
+  };
+}
+function encodePortable(s) {
+  const json=JSON.stringify(portableObject(s));
+  const body=toBase64Url(utf8(json));
+  const checksum=u32hex(fnv1a(utf8(body)));
+  return `TF${FORMAT_VERSION}.${body}.${checksum}`;
+}
+function decodePortable(code) {
+  code=String(code||"").trim();
+  const m=code.match(/^TF(\d+)\.([A-Za-z0-9_-]+)\.([0-9a-fA-F]{8})$/);
+  if(!m) throw new Error("This does not look like a valid Townfall save code.");
+  const version=Number(m[1]);
+  if(version!==FORMAT_VERSION) throw new Error(`Unsupported save-code version TF${version}.`);
+  const body=m[2], expected=m[3].toLowerCase(), actual=u32hex(fnv1a(utf8(body)));
+  if(actual!==expected) throw new Error("Checksum failed. The code is incomplete or has been changed.");
+  let o;
+  try{o=JSON.parse(unutf8(fromBase64Url(body)));}catch(e){throw new Error("The save payload could not be decoded.");}
+  if(o.v!==FORMAT_VERSION) throw new Error("The save payload version does not match.");
+  const discoveryIds=COLLECTIBLES.map(x=>String(x.id));
+  const ngIds=NG_ITEMS.map(x=>x.id);
+  return {
+    id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()+Math.random()),
+    name:String(o.n||"Imported Save").slice(0,80),
+    targetEnding:TARGETS.includes(o.t)?o.t:"Justice",
+    ngPlus:!!o.p,
+    kills:num(o.k), refills:num(o.r), mistakes:num(o.m),
+    discoveries:unpackBits(o.d, discoveryIds),
+    ng:unpackBits(o.g, ngIds)
+  };
+}
+function currentSave(){ return active(); }
+
+function makeShareUrl(s) {
+  const u=new URL(location.href);
+  u.search="";
+  u.hash="";
+  u.searchParams.set("view", encodePortable(s));
+  return u.toString();
+}
+function openModal(title, inner) {
+  els.modalTitle.textContent=title;
+  els.modalBody.innerHTML=inner;
+  els.modalBack.classList.add("show");
+  els.modalBack.setAttribute("aria-hidden","false");
+}
+function closeModal() {
+  els.modalBack.classList.remove("show");
+  els.modalBack.setAttribute("aria-hidden","true");
+}
+function copyText(text, statusId) {
+  navigator.clipboard.writeText(text).then(()=>{
+    const el=document.getElementById(statusId); if(el){el.textContent="Copied!";setTimeout(()=>el.textContent="",1800);}
+  }).catch(()=>{ prompt("Copy this:",text); });
+}
+function saveSummary(s) {
+  const discoveries=COLLECTIBLES.filter(x=>!!s.discoveries[x.id]).length;
+  const score=discoveries-(num(s.kills)*2)-(num(s.refills)*4)-(num(s.mistakes)*3);
+  return {discoveries,score};
+}
+
+function saveDB() { db.discoveryListVersion=2; localStorage.setItem(STORAGE_KEY,JSON.stringify(db)); }
+function active() { return db.saves.find(s=>s.id===db.active) || db.saves[0]; }
+function num(v) { const n=parseInt(v,10); return Number.isFinite(n)&&n>0?n:0; }
+function signed(n) { return n>0 ? "+"+n : String(n); }
+
+function renderSaveSelect() {
+ els.saveSelect.innerHTML="";
+ db.saves.forEach(s=>{const o=document.createElement("option");o.value=s.id;o.textContent=s.name;els.saveSelect.appendChild(o)});
+ els.saveSelect.value=db.active;
+ els.saveSelect.disabled=false;
+}
+
+function renderMainList() {
+ const s=currentSave();
+
+ // Older profiles did not store accordion state. Give them the
+ // same sensible first-use default as a new profile: Part 1 open.
+ if(!Array.isArray(s.openParts)) {
+   s.openParts=[1];
+   saveDB();
+ }
+
+ const openParts=new Set(
+   s.openParts
+     .map(Number)
+     .filter(p=>Number.isInteger(p) && p>=1 && p<=6)
+ );
+
+ els.parts.innerHTML="";
+
+ const rememberOpenParts=()=>{
+   s.openParts=[...els.parts.querySelectorAll("details.part[open]")]
+     .map(d=>Number(d.dataset.part))
+     .filter(p=>Number.isInteger(p));
+   saveDB();
+ };
+
+ for(let p=1;p<=6;p++) {
+   const items=COLLECTIBLES.filter(x=>x.part===p);
+   const got=items.filter(x=>!!s.discoveries[x.id]).length;
+
+   const d=document.createElement("details");
+   d.className="part";
+   d.dataset.part=p;
+   d.open=openParts.has(p);
+
+   const summary=document.createElement("summary");
+
+   const title=document.createElement("span");
+   title.textContent=`Part ${p}: ${items[0].partName}`;
+
+   const actions=document.createElement("span");
+   actions.className="partactions";
+
+   const count=document.createElement("span");
+   count.className="partcount";
+   count.textContent=`${got} / ${items.length}`;
+
+   const allLabel=document.createElement("label");
+   allLabel.className="partall";
+   allLabel.title=`Mark or clear all Discoveries in Part ${p}`;
+   allLabel.addEventListener("click",e=>e.stopPropagation());
+
+   const partToggle=document.createElement("input");
+   partToggle.type="checkbox";
+   partToggle.checked=got===items.length;
+   partToggle.indeterminate=got>0 && got<items.length;
+   partToggle.disabled=false;
+   partToggle.setAttribute("aria-label",`Mark all Discoveries in Part ${p}`);
+
+   const allText=document.createElement("span");
+   allText.textContent="All";
+
+   partToggle.addEventListener("click",e=>e.stopPropagation());
+   partToggle.addEventListener("change",e=>{
+     e.stopPropagation();
+     const mark=partToggle.checked;
+     items.forEach(x=>s.discoveries[x.id]=mark);
+     saveDB();
+     renderAll();
+   });
+
+   allLabel.append(partToggle,allText);
+   actions.append(count,allLabel);
+   summary.append(title,actions);
+   d.appendChild(summary);
+
+   items.forEach(x=>{
+     const row=document.createElement("div");
+     row.className="item"+(s.discoveries[x.id]?" done":"");
+
+     const cb=document.createElement("input");
+     cb.type="checkbox";
+     cb.checked=!!s.discoveries[x.id];
+     cb.disabled=false;
+     cb.addEventListener("change",()=>{
+       s.discoveries[x.id]=cb.checked;
+       saveDB();
+       renderAll();
+     });
+
+     const body=document.createElement("div");
+     body.innerHTML=`<div class="itemname">${x.id}. ${escapeHtml(x.name)}</div><div class="meta">${x.type} · Part ${x.part}</div><div class="where">${escapeHtml(x.where)}</div>`;
+
+     const a=document.createElement("a");
+     a.className="guide";
+     a.href=x.guide;
+     a.target="_blank";
+     a.rel="noopener";
+     a.textContent="Guide ↗";
+
+     row.append(cb,body,a);
+     d.appendChild(row);
+   });
+
+   // Save the user's accordion choice whenever this Part is opened or closed.
+   d.addEventListener("toggle",rememberOpenParts);
+
+   els.parts.appendChild(d);
+ }
+}
+
+function renderNG() {
+ const s=currentSave();
+ els.ngCard.classList.toggle("hidden",!s.ngPlus);
+ els.ngList.innerHTML="";
+
+ const completed=NG_ITEMS.filter(x=>!!s.ng[x.id]).length;
+ els.ngProgress.textContent=`${completed} / ${NG_ITEMS.length} complete`;
+
+ if(!s.ngPlus) return;
+
+ let lastGroup="";
+ NG_ITEMS.forEach(x=>{
+   const group=`Part ${x.part}: ${x.partName} · ${x.chapter}`;
+   if(group!==lastGroup) {
+     const h=document.createElement("div");
+     h.style.cssText="padding:13px 16px 6px;color:#a6abad;font-size:.74rem;font-weight:850;text-transform:uppercase;letter-spacing:.075em";
+     h.textContent=group;
+     els.ngList.appendChild(h);
+     lastGroup=group;
+   }
+
+   const row=document.createElement("div");
+   row.className="item"+(s.ng[x.id]?" done":"");
+
+   const cb=document.createElement("input");
+   cb.type="checkbox";
+   cb.checked=!!s.ng[x.id];
+   cb.disabled=false;
+   cb.addEventListener("change",()=>{
+     s.ng[x.id]=cb.checked;
+     saveDB();
+     renderAll();
+   });
+
+   const body=document.createElement("div");
+   body.innerHTML=`<div class="itemname">${escapeHtml(x.name)} <span class="ngtag">${x.kind}</span></div><div class="meta">Part ${x.part}: ${escapeHtml(x.partName)} · ${escapeHtml(x.chapter)}</div><div class="where">${escapeHtml(x.where)}</div>`;
+
+   const a=document.createElement("a");
+   a.className="guide";
+   a.href=x.guide;
+   a.target="_blank";
+   a.rel="noopener";
+   a.textContent="Guide ↗";
+
+   row.append(cb,body,a);
+   els.ngList.appendChild(row);
+ });
+}
+
+function escapeHtml(s) {
+ return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+}
+
+function syncInputs() {
+ const s=currentSave();
+ els.kills.value=s.kills; els.refills.value=s.refills; els.mistakes.value=s.mistakes; els.ngPlus.checked=!!s.ngPlus;
+ els.targetEnding.value=s.targetEnding || "Justice";
+ const count=COLLECTIBLES.filter(x=>!!s.discoveries[x.id]).length;
+ els.allDiscoveries.checked=count===85;
+ els.allDiscoveries.indeterminate=count>0 && count<85;
+ els.discoveryCount.textContent=`${count} / 85`;
+ const percent=Math.round(count/85*100);
+ els.discoveryPercent.textContent=percent+"%";
+ els.discoveryBar.style.width=percent+"%";
+}
+
+function compute() {
+ const s=currentSave();
+ const discoveries=COLLECTIBLES.filter(x=>!!s.discoveries[x.id]).length;
+ const kills=num(s.kills), refills=num(s.refills), mistakes=num(s.mistakes);
+ const score=discoveries-(kills*2)-(refills*4)-(mistakes*3);
+
+ const books=["book1","book2","book3"].filter(k=>s.ng[k]).length;
+ const cardAcquired=!!s.ng.accessCard;
+ const cardUsed=!!s.ng.accessCardUsed;
+ const coins=["bronzeInserted","silverInserted","goldInserted"].filter(k=>s.ng[k]).length;
+
+ const sciPrepared=!!s.ngPlus && books===3 && cardAcquired;
+ const sciTriggered=!!s.ngPlus && books===3 && cardUsed;
+ const dogPrepared=!!s.ngPlus && coins===3;
+
+ let ending=sciTriggered?"Sci-Fi":dogPrepared?"Dog":score>=20?"Justice":score>=0?"Forever":"Abandoned";
+ els.ending.textContent=ending;
+ els.score.textContent=score;
+ els.bDisc.textContent=signed(discoveries);
+ els.bKills.textContent=signed(-kills*2);
+ els.bRefills.textContent=signed(-refills*4);
+ els.bMistakes.textContent=signed(-mistakes*3);
+
+ const target=s.targetEnding || "Justice";
+ const remaining=85-discoveries;
+ let targetText="";
+
+ if(target==="Justice") {
+   if(score>=20) {
+     targetText=`<strong>Target: Justice.</strong> Your score is within the required range, with a ${score-20}-point margin above the 20-point threshold.`;
+   } else {
+     targetText=`<strong>Target: Justice.</strong> You need ${20-score} more point${20-score===1?"":"s"} to reach the 20-point threshold. ${remaining} Discover${remaining===1?"y remains":"ies remain"} unchecked.`;
+   }
+ } else if(target==="Forever") {
+   if(score>=0 && score<20) {
+     targetText=`<strong>Target: Forever.</strong> Your score is within the required 0–19 range.`;
+   } else if(score<0) {
+     targetText=`<strong>Target: Forever.</strong> You need ${-score} more point${-score===1?"":"s"} to return to the 0–19 range.`;
+   } else {
+     targetText=`<strong>Target: Forever.</strong> You are ${score-19} point${score-19===1?"":"s"} above the 19-point ceiling.`;
+   }
+ } else if(target==="Abandoned") {
+   if(score<0) {
+     targetText=`<strong>Target: Abandoned.</strong> Your score is below 0, within the required range.`;
+   } else {
+     targetText=`<strong>Target: Abandoned.</strong> You need at least ${score+1} additional penalty point${score+1===1?"":"s"} to bring the score below 0.`;
+   }
+ } else if(target==="Sci-Fi") {
+   const missingBooks=3-books;
+
+   if(!s.ngPlus) {
+     targetText=`<strong>Target: Sci-Fi.</strong> This ending requires a New Game+ playthrough.`;
+   } else if(sciTriggered) {
+     targetText=`<strong>Target: Sci-Fi.</strong> All requirements are complete and the Strange Access Card has been used.`;
+   } else if(sciPrepared) {
+     targetText=`<strong>Target: Sci-Fi.</strong> The route is fully prepared. Use the Strange Access Card at the Part 6 keypad to trigger the ending.`;
+   } else {
+     const pieces=[];
+     if(missingBooks>0) pieces.push(`${missingBooks} Strange Book${missingBooks===1?"":"s"} to view`);
+     if(!cardAcquired) pieces.push("the Strange Access Card to acquire");
+     targetText=`<strong>Target: Sci-Fi.</strong> Still needed: ${pieces.join(" and ")}.`;
+   }
+ } else if(target==="Dog") {
+   const missing=3-coins;
+
+   if(!s.ngPlus) {
+     targetText=`<strong>Target: Dog.</strong> This ending requires a New Game+ playthrough.`;
+   } else if(missing>0) {
+     targetText=`<strong>Target: Dog.</strong> You still need ${missing} coin insertion${missing===1?"":"s"}.`;
+   } else if(sciTriggered) {
+     targetText=`<strong>Target: Dog.</strong> All three coins have been inserted, but Sci-Fi has been triggered on this save state. Reload a save from before using the Strange Access Card, skip the keypad, and complete the final boss.`;
+   } else if(sciPrepared) {
+     targetText=`<strong>Target: Dog.</strong> All three coins have been inserted. The Sci-Fi route is also prepared, so skip the Strange Access Card keypad and complete the final boss.`;
+   } else {
+     targetText=`<strong>Target: Dog.</strong> All three coins have been inserted. Complete the final boss without triggering Sci-Fi.`;
+   }
+ }
+
+ let statusText="";
+ if(sciTriggered) {
+   statusText=`<br><br><strong>Projected ending:</strong> Sci-Fi.`;
+ } else if(dogPrepared) {
+   statusText=`<br><br><strong>Projected ending:</strong> Dog.`;
+ } else if(sciPrepared) {
+   statusText=`<br><br><strong>Route status:</strong> Sci-Fi prepared.`;
+ } else if(score>=20) {
+   statusText=`<br><br><strong>Projected ending:</strong> Justice.`;
+ } else if(score>=0) {
+   statusText=`<br><br><strong>Projected ending:</strong> Forever.`;
+ } else {
+   statusText=`<br><br><strong>Projected ending:</strong> Abandoned.`;
+ }
+
+ els.notice.innerHTML=targetText+statusText;
+}
+
+function renderAll() {
+ renderSaveSelect();
+ syncInputs();
+ renderMainList();
+ renderNG();
+ compute();
+}
+
+els.saveSelect.addEventListener("change",()=>{
+ db.active=els.saveSelect.value;
+ saveDB();
+ renderAll();
+});
+
+els.newSave.addEventListener("click",()=>{
+ const suggested=`Profile ${db.saves.length+1}`;
+ const name=prompt("Name this profile:",suggested);
+ if(name===null)return;
+ const s=blankSave(name.trim()||suggested);
+ db.saves.push(s);
+ db.active=s.id;
+ saveDB();
+ renderAll();
+});
+
+els.renameSave.addEventListener("click",()=>{
+ const s=active();
+ const name=prompt("Rename profile:",s.name);
+ if(name===null)return;
+ s.name=name.trim()||s.name;
+ saveDB();
+ renderAll();
+});
+
+els.deleteSave.addEventListener("click",()=>{
+ if(db.saves.length===1){
+   alert("Keep at least one profile.");
+   return;
+ }
+ const s=active();
+ if(!confirm(`Delete profile "${s.name}"? This removes its locally stored tracker progress.`))return;
+ db.saves=db.saves.filter(x=>x.id!==s.id);
+ db.active=db.saves[0].id;
+ saveDB();
+ renderAll();
+});
+
+["kills","refills","mistakes"].forEach(id=>els[id].addEventListener("input",()=>{
+ active()[id]=num(els[id].value);
+ saveDB();
+ compute();
+}));
+
+els.targetEnding.addEventListener("change",()=>{
+ active().targetEnding=els.targetEnding.value;
+ saveDB();
+ compute();
+});
+
+els.ngPlus.addEventListener("change",()=>{
+ active().ngPlus=els.ngPlus.checked;
+ saveDB();
+ renderAll();
+});
+
+els.clearNG.addEventListener("click",()=>{
+ active().ng={};
+ saveDB();
+ renderAll();
+});
+
+els.allDiscoveries.addEventListener("change",()=>{
+ const s=active();
+ COLLECTIBLES.forEach(x=>s.discoveries[x.id]=els.allDiscoveries.checked);
+ saveDB();
+ renderAll();
+});
+
+els.clearDiscoveries.addEventListener("click",()=>{
+ if(confirm("Clear all 85 Discovery checkboxes for this profile?")){
+   active().discoveries={};
+   saveDB();
+   renderAll();
+ }
+});
+
+els.expandParts.addEventListener("click",()=>{
+ const s=active();
+ els.parts.querySelectorAll("details.part").forEach(d=>d.open=true);
+ s.openParts=[1,2,3,4,5,6];
+ saveDB();
+});
+
+els.collapseParts.addEventListener("click",()=>{
+ const s=active();
+ els.parts.querySelectorAll("details.part").forEach(d=>d.open=false);
+ s.openParts=[];
+ saveDB();
+});
+
+renderAll();
+</script>
+</body></html>
