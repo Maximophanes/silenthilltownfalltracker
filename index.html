@@ -202,6 +202,23 @@ select:focus,input[type=number]:focus,input[type=text]:focus{border-color:#9e525
 .stat label{display:block;font-weight:770;margin-bottom:7px}
 .stat small{color:var(--muted);display:block;margin-top:6px}
 .quick{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-top:16px;padding-top:16px;border-top:1px solid var(--line)}
+.bulkundo{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-top:12px;
+  padding:10px 12px;
+  border:1px solid rgba(189,98,107,.24);
+  border-radius:10px;
+  background:rgba(95,22,32,.12);
+  color:#cdbfc1;
+  font-size:.86rem;
+}
+.bulkundo .btn{
+  flex:0 0 auto;
+  padding:7px 11px;
+}
 .checkline{display:flex;gap:10px;align-items:center;cursor:pointer}
 input[type=checkbox]{width:19px;height:19px;accent-color:#b85a64;cursor:pointer}
 .progress{margin-left:auto;color:var(--muted);font-size:.85rem}
@@ -689,6 +706,10 @@ footer{opacity:.8}
 <button class="btn" id="collapseParts">Collapse all</button>
 <span class="progress" id="discoveryPercent" title="Discovery completion">0%</span>
 </div>
+<div class="bulkundo hidden" id="discoveryUndo" role="status" aria-live="polite">
+<span id="discoveryUndoText"></span>
+<button class="btn" data-edit="1" id="undoDiscoveries">Undo</button>
+</div>
 <div class="progressbar" aria-hidden="true"><span id="discoveryBar"></span></div>
 </div>
 <div class="parts" id="parts"></div>
@@ -755,6 +776,7 @@ const els = {
  saveSelect:$("saveSelect"), newSave:$("newSave"), renameSave:$("renameSave"), deleteSave:$("deleteSave"),
  kills:$("kills"), refills:$("refills"), mistakes:$("mistakes"), ngPlus:$("ngPlus"),
  allDiscoveries:$("allDiscoveries"), clearDiscoveries:$("clearDiscoveries"),
+ discoveryUndo:$("discoveryUndo"), discoveryUndoText:$("discoveryUndoText"), undoDiscoveries:$("undoDiscoveries"),
  expandParts:$("expandParts"), collapseParts:$("collapseParts"),
  parts:$("parts"), ngCard:$("ngCard"), ngList:$("ngList"), clearNG:$("clearNG"), ngProgress:$("ngProgress"),
  discoveryCount:$("discoveryCount"), discoveryPercent:$("discoveryPercent"), discoveryBar:$("discoveryBar"),
@@ -925,6 +947,27 @@ function saveSummary(s) {
 
 function saveDB() { db.discoveryListVersion=2; localStorage.setItem(STORAGE_KEY,JSON.stringify(db)); }
 function active() { return db.saves.find(s=>s.id===db.active) || db.saves[0]; }
+
+function snapshotDiscoveries(s) {
+ const snapshot={};
+ COLLECTIBLES.forEach(x=>{
+   if(s.discoveries[x.id]) snapshot[x.id]=true;
+ });
+ return snapshot;
+}
+
+function setDiscoveryUndo(s,message) {
+ s.discoveryUndo={
+   discoveries:snapshotDiscoveries(s),
+   message,
+   createdAt:Date.now()
+ };
+}
+
+function clearDiscoveryUndo(s) {
+ if(s && s.discoveryUndo) delete s.discoveryUndo;
+}
+
 function num(v) { const n=parseInt(v,10); return Number.isFinite(n)&&n>0?n:0; }
 function signed(n) { return n>0 ? "+"+n : String(n); }
 
@@ -1000,6 +1043,7 @@ function renderMainList() {
    partToggle.addEventListener("change",e=>{
      e.stopPropagation();
      const mark=partToggle.checked;
+     clearDiscoveryUndo(s);
      items.forEach(x=>s.discoveries[x.id]=mark);
      saveDB();
      renderAll();
@@ -1019,6 +1063,7 @@ function renderMainList() {
      cb.checked=!!s.discoveries[x.id];
      cb.disabled=false;
      cb.addEventListener("change",()=>{
+       clearDiscoveryUndo(s);
        s.discoveries[x.id]=cb.checked;
        saveDB();
        renderAll();
@@ -1109,6 +1154,10 @@ function syncInputs() {
  const percent=Math.round(count/85*100);
  els.discoveryPercent.textContent=percent+"%";
  els.discoveryBar.style.width=percent+"%";
+
+ const undo=s.discoveryUndo;
+ els.discoveryUndo.classList.toggle("hidden",!undo);
+ els.discoveryUndoText.textContent=undo ? undo.message : "";
 }
 
 function compute() {
@@ -1280,17 +1329,47 @@ els.clearNG.addEventListener("click",()=>{
 
 els.allDiscoveries.addEventListener("change",()=>{
  const s=active();
- COLLECTIBLES.forEach(x=>s.discoveries[x.id]=els.allDiscoveries.checked);
+ const mark=els.allDiscoveries.checked;
+ const question=mark
+   ? "Mark all 85 Discovery checkboxes as found for this profile?"
+   : "Clear all 85 Discovery checkboxes for this profile?";
+
+ if(!confirm(question)){
+   renderAll();
+   return;
+ }
+
+ setDiscoveryUndo(
+   s,
+   mark
+     ? "All 85 Discoveries marked as found."
+     : "All 85 Discovery checkboxes cleared."
+ );
+
+ COLLECTIBLES.forEach(x=>s.discoveries[x.id]=mark);
  saveDB();
  renderAll();
 });
 
 els.clearDiscoveries.addEventListener("click",()=>{
- if(confirm("Clear all 85 Discovery checkboxes for this profile?")){
-   active().discoveries={};
-   saveDB();
-   renderAll();
- }
+ if(!confirm("Clear all 85 Discovery checkboxes for this profile?"))return;
+
+ const s=active();
+ setDiscoveryUndo(s,"All 85 Discovery checkboxes cleared.");
+ s.discoveries={};
+ saveDB();
+ renderAll();
+});
+
+els.undoDiscoveries.addEventListener("click",()=>{
+ const s=active();
+ const undo=s.discoveryUndo;
+ if(!undo)return;
+
+ s.discoveries={...(undo.discoveries || {})};
+ delete s.discoveryUndo;
+ saveDB();
+ renderAll();
 });
 
 els.expandParts.addEventListener("click",()=>{
