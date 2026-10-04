@@ -263,6 +263,63 @@ input[type=checkbox]{width:19px;height:19px;accent-color:#b85a64;cursor:pointer}
 }
 .progress{margin-left:auto;color:var(--muted);font-size:.85rem}
 .progress strong{color:var(--text)}
+.ngprogress{
+  margin-left:auto;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  color:var(--muted);
+  font-size:.82rem;
+  font-variant-numeric:tabular-nums;
+}
+.ngsegments{
+  display:grid;
+  grid-template-columns:repeat(11,10px);
+  gap:4px;
+  align-items:center;
+}
+.ngsegment{
+  width:10px;
+  height:14px;
+  border:1px solid rgba(189,98,107,.24);
+  border-radius:2px;
+  background:#0a0607;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.012);
+  transition:background .18s ease,border-color .18s ease,box-shadow .18s ease;
+}
+.ngsegment.filled{
+  border-color:rgba(205,101,112,.58);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 0 8px rgba(165,55,68,.055);
+}
+.ngsegment:nth-child(1).filled{background:#5e3036}
+.ngsegment:nth-child(2).filled{background:#673239}
+.ngsegment:nth-child(3).filled{background:#70353d}
+.ngsegment:nth-child(4).filled{background:#793841}
+.ngsegment:nth-child(5).filled{background:#823b46}
+.ngsegment:nth-child(6).filled{background:#8b3f4a}
+.ngsegment:nth-child(7).filled{background:#95434f}
+.ngsegment:nth-child(8).filled{background:#9f4754}
+.ngsegment:nth-child(9).filled{background:#aa4c59}
+.ngsegment:nth-child(10).filled{background:#b65160}
+.ngsegment:nth-child(11).filled{
+  background:#c05a68;
+  border-color:rgba(220,119,130,.72);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.045),0 0 10px rgba(177,60,74,.075);
+}
+.ngprogress-count{
+  width:50px;
+  flex:0 0 50px;
+  text-align:right;
+  white-space:nowrap;
+  color:#cfc2c5;
+  font-weight:760;
+  transition:color .18s ease,text-shadow .18s ease,font-weight .18s ease;
+}
+.ngprogress.complete .ngprogress-count{
+  color:#dc818c;
+  font-weight:820;
+  text-shadow:0 0 10px rgba(190,75,89,.14);
+}
 .progressbar{
   height:5px;
   margin-top:14px;
@@ -572,6 +629,7 @@ details.part>summary:hover{background:rgba(190,70,82,.025)}
   .item{grid-template-columns:auto 1fr}
   .guide{grid-column:2;justify-self:start}
   .progress{width:100%;margin-left:29px}
+  .ngprogress{width:100%;margin-left:0;justify-content:flex-end}
 }
 @media(max-width:520px){
   .toolbar{grid-template-columns:1fr}
@@ -703,7 +761,12 @@ details.part>summary:hover{background:rgba(190,70,82,.025)}
 <div class="controls">
 <div class="quick" style="margin:0;padding:0;border:0">
 <button class="btn" id="clearNG">Clear New Game+ progress</button>
-<span class="progress" id="ngProgress">0 / 11 complete</span>
+<div class="ngprogress" id="ngProgress" role="status" aria-live="polite" aria-label="New Game+ progress: 0 of 11 items complete">
+  <div class="ngsegments" id="ngSegments" aria-hidden="true">
+    <span class="ngsegment"></span><span class="ngsegment"></span><span class="ngsegment"></span><span class="ngsegment"></span><span class="ngsegment"></span><span class="ngsegment"></span><span class="ngsegment"></span><span class="ngsegment"></span><span class="ngsegment"></span><span class="ngsegment"></span><span class="ngsegment"></span>
+  </div>
+  <span class="ngprogress-count" id="ngProgressCount">0 / 11</span>
+</div>
 </div>
 </div>
 <div class="parts" id="ngList"></div>
@@ -761,7 +824,7 @@ const els = {
  allDiscoveries:$("allDiscoveries"), clearDiscoveries:$("clearDiscoveries"),
  discoveryUndo:$("discoveryUndo"), discoveryUndoText:$("discoveryUndoText"), undoDiscoveries:$("undoDiscoveries"),
  expandParts:$("expandParts"), collapseParts:$("collapseParts"),
- parts:$("parts"), ngCard:$("ngCard"), ngList:$("ngList"), clearNG:$("clearNG"), ngProgress:$("ngProgress"),
+ parts:$("parts"), ngCard:$("ngCard"), ngList:$("ngList"), clearNG:$("clearNG"), ngProgress:$("ngProgress"), ngSegments:$("ngSegments"), ngProgressCount:$("ngProgressCount"),
  discoveryCount:$("discoveryCount"), discoveryPercent:$("discoveryPercent"), discoveryBar:$("discoveryBar"),
  targetEnding:$("targetEnding"), ending:$("ending"), score:$("score"), bDisc:$("bDisc"), bKills:$("bKills"), bRefills:$("bRefills"), bMistakes:$("bMistakes"), notice:$("notice")
 };
@@ -994,7 +1057,12 @@ function renderNG() {
  els.ngList.innerHTML="";
 
  const completed=NG_ITEMS.filter(x=>!!s.ng[x.id]).length;
- els.ngProgress.textContent=`${completed} / ${NG_ITEMS.length} complete`;
+ els.ngProgressCount.textContent=`${completed} / ${NG_ITEMS.length}`;
+ els.ngProgress.setAttribute("aria-label",`New Game+ progress: ${completed} of ${NG_ITEMS.length} items complete`);
+ els.ngProgress.classList.toggle("complete",completed===NG_ITEMS.length);
+ [...els.ngSegments.children].forEach((segment,index)=>{
+   segment.classList.toggle("filled",index<completed);
+ });
 
  if(!s.ngPlus) return;
 
