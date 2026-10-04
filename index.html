@@ -222,6 +222,45 @@ select:focus,input[type=number]:focus,input[type=text]:focus{border-color:#9e525
 }
 .checkline{display:flex;gap:10px;align-items:center;cursor:pointer}
 input[type=checkbox]{width:19px;height:19px;accent-color:#b85a64;cursor:pointer}
+.ngplus-toggle{
+  position:relative;
+  padding:9px 13px;
+  border:1px solid rgba(189,98,107,.32);
+  border-radius:999px;
+  background:linear-gradient(180deg,rgba(52,22,28,.34),rgba(24,13,16,.34));
+  color:#d2c3c5;
+  font-weight:780;
+  letter-spacing:.01em;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.018);
+  transition:border-color .16s ease,background .16s ease,color .16s ease,box-shadow .16s ease,transform .16s ease;
+}
+.ngplus-toggle:hover{
+  border-color:rgba(201,93,104,.58);
+  background:linear-gradient(180deg,rgba(68,27,34,.42),rgba(31,15,19,.40));
+  color:#eee5e6;
+  transform:translateY(-1px);
+}
+.ngplus-toggle input{
+  flex:0 0 auto;
+}
+.ngplus-toggle.active{
+  border-color:rgba(201,93,104,.78);
+  background:
+    radial-gradient(circle at 16% 50%,rgba(201,93,104,.13),transparent 44%),
+    linear-gradient(180deg,rgba(77,27,36,.56),rgba(35,14,19,.54));
+  color:#f1e7e9;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.025),
+    0 0 0 1px rgba(201,93,104,.06),
+    0 0 24px rgba(155,44,58,.08);
+}
+.ngplus-toggle.active span::after{
+  content:"  · ACTIVE";
+  color:#d66b76;
+  font-size:.68rem;
+  font-weight:850;
+  letter-spacing:.09em;
+}
 .progress{margin-left:auto;color:var(--muted);font-size:.85rem}
 .progress strong{color:var(--text)}
 .progressbar{
@@ -576,7 +615,7 @@ details.part>summary:hover{background:rgba(190,70,82,.025)}
 <div class="stat"><label for="mistakes">Zoe mistakes made</label><input id="mistakes" type="number" min="0" step="1" value="0"><small>−3 points each</small></div>
 </div>
 <div class="quick">
-<label class="checkline"><input id="ngPlus" type="checkbox"> New Game+ playthrough</label>
+<label class="checkline ngplus-toggle"><input id="ngPlus" type="checkbox"><span>New Game+ playthrough</span></label>
 <span class="progress">Discoveries: <strong id="discoveryCount">0 / 85</strong></span>
 </div>
 </div>
@@ -1006,6 +1045,7 @@ function escapeHtml(s) {
 function syncInputs() {
  const s=currentSave();
  els.kills.value=s.kills; els.refills.value=s.refills; els.mistakes.value=s.mistakes; els.ngPlus.checked=!!s.ngPlus;
+ els.ngPlus.closest(".ngplus-toggle").classList.toggle("active",!!s.ngPlus);
  els.targetEnding.value=s.targetEnding || "Justice";
  const count=COLLECTIBLES.filter(x=>!!s.discoveries[x.id]).length;
  els.allDiscoveries.checked=count===85;
