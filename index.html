@@ -617,6 +617,101 @@ details.part>summary:hover{background:rgba(190,70,82,.025)}
 .profile-note strong{color:#e7dcde}
 .profile-note em{color:#d0b9bd}
 
+body.modal-open{overflow:hidden}
+
+.confirm-modal[hidden]{display:none}
+.confirm-modal{
+  position:fixed;
+  inset:0;
+  z-index:1000;
+  display:grid;
+  place-items:center;
+  padding:20px;
+  background:rgba(2,1,2,.76);
+  -webkit-backdrop-filter:blur(6px);
+  backdrop-filter:blur(6px);
+}
+.confirm-panel{
+  width:min(100%,440px);
+  max-height:calc(100vh - 28px);
+  max-height:calc(100dvh - 28px);
+  overflow:auto;
+  border:1px solid #56353c;
+  border-radius:17px;
+  background:
+    radial-gradient(circle at 15% 0%,rgba(172,49,65,.08),transparent 36%),
+    linear-gradient(180deg,#1a1013 0%,#100a0c 100%);
+  box-shadow:
+    0 24px 80px rgba(0,0,0,.58),
+    inset 0 1px 0 rgba(255,255,255,.025);
+}
+.confirm-body{
+  padding:22px 22px 18px;
+}
+.confirm-kicker{
+  margin-bottom:7px;
+  color:#ba737b;
+  font-size:.67rem;
+  font-weight:850;
+  text-transform:uppercase;
+  letter-spacing:.13em;
+}
+.confirm-title{
+  margin:0;
+  color:#f1e9e9;
+  font:500 1.62rem/1.08 Georgia,"Times New Roman",serif;
+  letter-spacing:-.02em;
+}
+.confirm-message{
+  margin:11px 0 0;
+  color:#b8adaf;
+  font-size:.88rem;
+  line-height:1.6;
+}
+.confirm-message strong{
+  color:#eee4e6;
+  font-weight:760;
+}
+.confirm-input-wrap{
+  margin-top:15px;
+}
+.confirm-input-wrap[hidden]{display:none}
+.confirm-input{
+  width:100%;
+}
+.confirm-actions{
+  display:flex;
+  justify-content:flex-end;
+  gap:9px;
+  padding:14px 16px 16px;
+  border-top:1px solid rgba(189,98,107,.16);
+  background:rgba(5,3,4,.24);
+}
+.confirm-actions .btn{
+  min-width:92px;
+}
+.confirm-actions .btn.confirm-danger{
+  border-color:#75414a;
+  background:linear-gradient(180deg,#35171d,#241015);
+  color:#efb0b7;
+}
+.confirm-actions .btn.confirm-danger:hover{
+  border-color:#aa5964;
+  background:linear-gradient(180deg,#421a22,#2c1117);
+  color:#ffd7dc;
+}
+@media(max-width:520px){
+  .confirm-modal{padding:14px}
+  .confirm-body{padding:20px 18px 16px}
+  .confirm-actions{
+    padding:12px 14px 14px;
+  }
+  .confirm-actions .btn{
+    flex:1 1 0;
+    min-width:0;
+  }
+}
+
 @media(max-width:900px){
   .layout{grid-template-columns:1fr}
   .side{position:static}
@@ -811,6 +906,22 @@ details.part>summary:hover{background:rgba(190,70,82,.025)}
 
 </main>
 
+<div class="confirm-modal" id="appDialog" hidden>
+  <div class="confirm-panel" role="dialog" aria-modal="true" aria-labelledby="appDialogTitle" aria-describedby="appDialogMessage">
+    <div class="confirm-body">
+      <div class="confirm-kicker" id="appDialogKicker">Tracker</div>
+      <h2 class="confirm-title" id="appDialogTitle">Confirm action</h2>
+      <p class="confirm-message" id="appDialogMessage"></p>
+      <div class="confirm-input-wrap" id="appDialogInputWrap" hidden>
+        <input class="confirm-input" id="appDialogInput" type="text" autocomplete="off">
+      </div>
+    </div>
+    <div class="confirm-actions">
+      <button class="btn" id="appDialogCancel" type="button">Cancel</button>
+      <button class="btn" id="appDialogConfirm" type="button">OK</button>
+    </div>
+  </div>
+</div>
 
 <script>
 const COLLECTIBLES = [{"id":1,"part":1,"partName":"Arrival","name":"Boat Tour Cancelled Notice","type":"Document","where":"On the door of the small building by the pier, immediately after the St. Amelia sign reveal.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":2,"part":1,"partName":"Arrival","name":"Shorefront Family Clinic Notice","type":"Document","where":"On the wall beside the clinic door, northeast of Town Square.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":3,"part":1,"partName":"Arrival","name":"Room Service Card","type":"Clue","where":"On the table beside the CRTV pickup in the Otherworld hotel.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":4,"part":1,"partName":"Arrival","name":"Hotel Room Note","type":"Document","where":"On the bathroom counter, after the hotel door puzzle.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":5,"part":1,"partName":"Arrival","name":"Hotel Reception Notice","type":"Document","where":"Behind the reception desk, to the right of the hotel elevator.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":6,"part":1,"partName":"Arrival","name":"Vigil and Protest Flyer","type":"Document","where":"On the Town Square bench beside the pillar, near the LET THE FERRIES IN sign.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":7,"part":1,"partName":"Arrival","name":"Hand Delivered Letter","type":"Document","where":"On Zoe’s living-room table.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":8,"part":1,"partName":"Arrival","name":"Organ Transplant Card","type":"Clue","where":"On the upstairs bathroom floor; it is also used for the organ-box clue.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":9,"part":1,"partName":"Arrival","name":"Power Card Credit Guide","type":"Clue","where":"In the crawlspace beside Zoe’s stairs; bring the flashlight.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":10,"part":1,"partName":"Arrival","name":"Newsagents Note","type":"Document","where":"On the counter inside Peters Newsagent.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":11,"part":1,"partName":"Arrival","name":"Zoe’s Email: “Your Letter”","type":"Document","where":"In Zoe’s computer inbox after restoring power; open the top email.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":12,"part":1,"partName":"Arrival","name":"Zoe’s Email: “Please Report In”","type":"Document","where":"In Zoe’s computer inbox after restoring power; open the bottom email.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":13,"part":1,"partName":"Arrival","name":"Zoe’s Email: “For Attending…”","type":"Clue","where":"In Zoe’s computer inbox after restoring power; open the middle email.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":14,"part":1,"partName":"Arrival","name":"Note on Patient Records","type":"Document","where":"In Dr Stevenson’s room, the first door on the right; check the desk drawer.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":15,"part":1,"partName":"Arrival","name":"Resignation Letter","type":"Clue","where":"In Z Ellis’s room, on the paper to the left of the scales.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":16,"part":1,"partName":"Arrival","name":"Clinic Email: “Where Are You?”","type":"Clue","where":"On the computer in Z Ellis’s room.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":17,"part":1,"partName":"Arrival","name":"Clinic Email: Reception Answer Phone Message","type":"Clue","where":"On the computer in Z Ellis’s room; open the second message.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":18,"part":1,"partName":"Arrival","name":"Jess’s Door Note","type":"Clue","where":"On the back door of Jess’s house.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":19,"part":1,"partName":"Arrival","name":"Task Assignment","type":"Document","where":"On Jess’s kitchen counter.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":20,"part":1,"partName":"Arrival","name":"Jess Legal Advice","type":"Document","where":"On Jess’s living-room table.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":21,"part":1,"partName":"Arrival","name":"Nurse’s Rounds Form","type":"Document","where":"On the clinic reception counter.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":22,"part":1,"partName":"Arrival","name":"Restock Issues","type":"Document","where":"On the pharmacy’s front counter.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":23,"part":1,"partName":"Arrival","name":"Feeling Sick Note","type":"Document","where":"In Apartment 1/2 on the second floor, south of Building 14.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":24,"part":2,"partName":"Zoe","name":"Water Warning","type":"Document","where":"On Zoe’s living-room table during the Part 2 visit.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":25,"part":2,"partName":"Zoe","name":"Zoe’s Email: “Coming Back”","type":"Document","where":"On Zoe’s computer; open the only email in the inbox.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":26,"part":2,"partName":"Zoe","name":"Jane Chalmer’s Obituary","type":"Document","where":"On the middle shelf inside the Community Gardens shed.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":27,"part":2,"partName":"Zoe","name":"St. Amelia Standard","type":"Document","where":"On Mr. Stewart’s living-room table.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":28,"part":2,"partName":"Zoe","name":"Medical Security Note","type":"Clue","where":"On the security-booth window outside the Medical Centre.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":29,"part":2,"partName":"Zoe","name":"Community Help Needed","type":"Document","where":"On the first table to the right in the Medical Centre parking lot.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":30,"part":2,"partName":"Zoe","name":"Exhausted Supplies","type":"Document","where":"On a bed inside the tent at the back-left of the parking lot.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":31,"part":2,"partName":"Zoe","name":"Scaffold Notice","type":"Document","where":"On the door of the apartment south of the Medical Centre.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":32,"part":2,"partName":"Zoe","name":"Handwritten Note","type":"Document","where":"In Apartment 1/1 on the second floor, on the living-room table.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":33,"part":2,"partName":"Zoe","name":"Press Photos “Note.txt”","type":"Document","where":"On the computer in Apartment 2/2 on the third floor; open the first file.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":34,"part":2,"partName":"Zoe","name":"Photo1.jpg","type":"Document","where":"In Apartment 2/2; print or view the first photo.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":35,"part":2,"partName":"Zoe","name":"Photo2.jpg","type":"Document","where":"In Apartment 2/2; print or view the second photo.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":36,"part":3,"partName":"The Patient","name":"Supply Situation Update","type":"Document","where":"On the Consult Room B computer on the ground floor of Victoria Ward; open the first email.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":37,"part":3,"partName":"The Patient","name":"RE: Supply Situation Update","type":"Document","where":"On the same Consult Room B computer; open the reply.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":38,"part":3,"partName":"The Patient","name":"Unrealistic Expectations (1098512…)","type":"Document","where":"On the desk computer on Chapman Ward 1F; open the first file.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":39,"part":3,"partName":"The Patient","name":"Dailies – Infusion Status","type":"Clue","where":"On the same Chapman Ward 1F computer; open the second file.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":40,"part":3,"partName":"The Patient","name":"Dailies – Records Room Code","type":"Clue","where":"On the office board on Chapman Ward 1F.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":41,"part":3,"partName":"The Patient","name":"Equipment Cleanup Notice","type":"Document","where":"On a bed in the Victoria Ward basement hallway.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":42,"part":3,"partName":"The Patient","name":"Zoe’s Patient List","type":"Clue","where":"In the altered ward, inside the vent room off the right-hand hallway; check the table beside the bed.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":43,"part":4,"partName":"Clara Woods","name":"Harbour Notice","type":"Document","where":"On the railing to the left of the boat ramp, farther up the pier.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":44,"part":4,"partName":"Clara Woods","name":"Store Staff Notice","type":"Document","where":"On the counter beside the cash register in the enterable store.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":45,"part":4,"partName":"Clara Woods","name":"Atlas Square Apartment Note","type":"Document","where":"Inside the ground-floor apartment northeast of Atlas Square.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":46,"part":4,"partName":"Clara Woods","name":"Lost and Found","type":"Clue","where":"On the computer inside the CEG Employee Lockers building; open the first note.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":47,"part":4,"partName":"Clara Woods","name":"CEG Employee Locker List","type":"Clue","where":"On the same lockers computer; open the second note.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":48,"part":4,"partName":"Clara Woods","name":"CEG Lockers Managers Note","type":"Document","where":"In the back office of the lockers building; check the desk drawer.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":49,"part":4,"partName":"Clara Woods","name":"Gaming Magazine","type":"Clue","where":"At 5 South Brae; go upstairs, enter the first door, and check the bed.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":50,"part":4,"partName":"Clara Woods","name":"Reciprocating Compressor","type":"Clue","where":"Collect the printer output after completing the floppy-disk puzzle.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":51,"part":4,"partName":"Clara Woods","name":"Lamenting Poem","type":"Clue","where":"At 6 North Brae; enter through the back door, go upstairs, and check the chair in the second bedroom.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":52,"part":4,"partName":"Clara Woods","name":"The Code Today","type":"Clue","where":"At 5 Upper Brae; go upstairs and check the table in the first room.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":53,"part":4,"partName":"Clara Woods","name":"The Code Before","type":"Clue","where":"During Tape: Yesterday, check the corner of the kitchen table.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":54,"part":4,"partName":"Clara Woods","name":"The Code After","type":"Clue","where":"During Tape: Tomorrow, return downstairs and collect it in the living room.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":55,"part":4,"partName":"Clara Woods","name":"Current Count","type":"Clue","where":"After switching to Tape: Yesterday with the Ammonite Disk, check the computer again.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":56,"part":4,"partName":"Clara Woods","name":"Inquiry Preparation Notice","type":"Document","where":"Behind the reception desk on the ground floor of CEG HQ, to the right of the Ground Floor Map.","guide":"https://www.powerpyx.com/silent-hill-townfall-part-4-clara-woods-collectible-locations/"},{"id":57,"part":4,"partName":"Clara Woods","name":"Box IDs and Names","type":"Clue","where":"On the podium on the CEG lobby stage.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":58,"part":4,"partName":"Clara Woods","name":"Grid of Codes (A)","type":"Clue","where":"In the northwest corner of the maintenance room, inside the garbage can beside the computer.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":59,"part":4,"partName":"Clara Woods","name":"Grid of Codes (B)","type":"Clue","where":"Inside the garbage can in the security room.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":60,"part":4,"partName":"Clara Woods","name":"Complete Grid of Codes","type":"Clue","where":"Combine both Grid of Codes clues in the inventory.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":61,"part":4,"partName":"Clara Woods","name":"CEG Security: Out of Hours Access","type":"Document","where":"On the security-room computer; open the first email.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":62,"part":4,"partName":"Clara Woods","name":"Urgent Message","type":"Document","where":"On the same security-room computer; open the second email.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":63,"part":4,"partName":"Clara Woods","name":"Employee File Cover Note","type":"Clue","where":"On Richard’s box after opening it.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":64,"part":5,"partName":"Richard","name":"Construction Halted Notice","type":"Document","where":"In the first parking-lot building; check the back-corner table in the second room on the left.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":65,"part":5,"partName":"Richard","name":"CEG Kiosk Note","type":"Document","where":"In the second building on the left; check the table to the right of the garage-door entrance.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":66,"part":5,"partName":"Richard","name":"CEG Memo","type":"Document","where":"On the desk in the upstairs Managers Office.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":67,"part":5,"partName":"Richard","name":"Facilities: Works Halted","type":"Document","where":"On the computer in the right-hand room of Building 1 after restoring power.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":68,"part":5,"partName":"Richard","name":"“DONTREAD.DOC”","type":"Clue","where":"On the same computer; open the bottom email.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":69,"part":5,"partName":"Richard","name":"CEG Tower Meeting Minutes","type":"Document","where":"On the southeast-corner table in the east meeting room on 3F.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":70,"part":5,"partName":"Richard","name":"CEG Tower: Evening News","type":"Document","where":"On the computer in the northwest room of Public Relations on 3F.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":71,"part":5,"partName":"Richard","name":"CEG Tower: Engineer Public Statement","type":"Document","where":"On the same computer in the northwest room of Public Relations on 3F.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":72,"part":5,"partName":"Richard","name":"PR Meeting Note","type":"Document","where":"In the small southern room of Public Relations on 3F; check the filing cabinet.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":73,"part":5,"partName":"Richard","name":"Richard’s Note","type":"Clue","where":"In the southeast room of Public Relations on 3F, beside a body.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":74,"part":5,"partName":"Richard","name":"CEG Checkout Sheet","type":"Clue","where":"In the 4F storeroom, inside the GENERAL STORAGE cabinet.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":75,"part":5,"partName":"Richard","name":"CEG Tower: He’s Done","type":"Document","where":"On the 10F computer outside the office.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":76,"part":6,"partName":"Simon","name":"Ordell File","type":"Document","where":"On the desk where Simon’s 10F (Different) segment begins.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":77,"part":6,"partName":"Simon","name":"CEG Tower: What did you do?","type":"Document","where":"On the 10F computer outside the office in the (Different) version of the area.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":78,"part":6,"partName":"Simon","name":"Reference Sheet","type":"Clue","where":"On the desk to the right as CEG HQ (Different) begins.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":79,"part":6,"partName":"Simon","name":"SWDP: Ordell Site Visit","type":"Document","where":"On the computer in the northeast room after the SWDP elevator.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":80,"part":6,"partName":"Simon","name":"RCU Refit Note","type":"Document","where":"On the bed after squeezing through the gap in the wall.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":81,"part":6,"partName":"Simon","name":"Photo of Joe McKenzie","type":"Document","where":"In the doorway after the same wall gap.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":82,"part":6,"partName":"Simon","name":"Remote Systems Control","type":"Clue","where":"In the SWDP control room, to the right of the console.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":83,"part":6,"partName":"Simon","name":"Auxiliary Lines","type":"Clue","where":"On the AUX-room computer with the AUX Disk inserted.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":84,"part":6,"partName":"Simon","name":"Clamp Release Procedure","type":"Clue","where":"Collect the control-room printer output after turning Valve F.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"},{"id":85,"part":6,"partName":"Simon","name":"Crew Patch","type":"Document","where":"On the overalls on the beach, past the Shorefront stairs.","guide":"https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/"}];
@@ -826,7 +937,10 @@ const els = {
  expandParts:$("expandParts"), collapseParts:$("collapseParts"),
  parts:$("parts"), ngCard:$("ngCard"), ngList:$("ngList"), clearNG:$("clearNG"), ngProgress:$("ngProgress"), ngSegments:$("ngSegments"), ngProgressCount:$("ngProgressCount"),
  discoveryCount:$("discoveryCount"), discoveryPercent:$("discoveryPercent"), discoveryBar:$("discoveryBar"),
- targetEnding:$("targetEnding"), ending:$("ending"), score:$("score"), bDisc:$("bDisc"), bKills:$("bKills"), bRefills:$("bRefills"), bMistakes:$("bMistakes"), notice:$("notice")
+ targetEnding:$("targetEnding"), ending:$("ending"), score:$("score"), bDisc:$("bDisc"), bKills:$("bKills"), bRefills:$("bRefills"), bMistakes:$("bMistakes"), notice:$("notice"),
+ appDialog:$("appDialog"), appDialogKicker:$("appDialogKicker"), appDialogTitle:$("appDialogTitle"),
+ appDialogMessage:$("appDialogMessage"), appDialogInputWrap:$("appDialogInputWrap"),
+ appDialogInput:$("appDialogInput"), appDialogCancel:$("appDialogCancel"), appDialogConfirm:$("appDialogConfirm")
 };
 
 function blankSave(name="Profile 1") {
@@ -929,6 +1043,90 @@ function updateNGState(s,id,checked) {
  Object.entries(NG_REQUIRES).forEach(([dependent,requiredIds])=>{
    if(requiredIds.includes(id)) s.ng[dependent]=false;
  });
+}
+
+
+let dialogState=null;
+
+function openAppDialog(options={}) {
+ const {
+   kicker="Tracker",
+   title="Confirm action",
+   message="",
+   confirmLabel="OK",
+   cancelLabel="Cancel",
+   showCancel=true,
+   danger=false,
+   input=false,
+   initialValue="",
+   onConfirm=null,
+   onCancel=null
+ }=options;
+
+ dialogState={
+   onConfirm,
+   onCancel,
+   input:!!input,
+   returnFocus:document.activeElement
+ };
+
+ els.appDialogKicker.textContent=kicker;
+ els.appDialogTitle.textContent=title;
+ els.appDialogMessage.textContent=message;
+ els.appDialogConfirm.textContent=confirmLabel;
+ els.appDialogCancel.textContent=cancelLabel;
+ els.appDialogCancel.hidden=!showCancel;
+ els.appDialogConfirm.classList.toggle("confirm-danger",!!danger);
+
+ els.appDialogInputWrap.hidden=!input;
+ els.appDialogInput.value=input ? String(initialValue ?? "") : "";
+
+ els.appDialog.hidden=false;
+ document.body.classList.add("modal-open");
+
+ requestAnimationFrame(()=>{
+   if(input){
+     els.appDialogInput.focus();
+     els.appDialogInput.select();
+   } else if(showCancel){
+     els.appDialogCancel.focus();
+   } else {
+     els.appDialogConfirm.focus();
+   }
+ });
+}
+
+function closeAppDialog({confirmed=false,restoreFocus=true}={}) {
+ if(els.appDialog.hidden)return;
+
+ const state=dialogState;
+ const value=state?.input ? els.appDialogInput.value : undefined;
+
+ els.appDialog.hidden=true;
+ document.body.classList.remove("modal-open");
+ dialogState=null;
+
+ if(restoreFocus && state?.returnFocus && state.returnFocus.isConnected) {
+   state.returnFocus.focus();
+ }
+
+ if(confirmed){
+   if(typeof state?.onConfirm==="function") state.onConfirm(value);
+ } else {
+   if(typeof state?.onCancel==="function") state.onCancel();
+ }
+}
+
+function confirmAppDialog(){
+ closeAppDialog({confirmed:true,restoreFocus:false});
+}
+
+function getDialogFocusable(){
+ const items=[];
+ if(!els.appDialogInputWrap.hidden)items.push(els.appDialogInput);
+ if(!els.appDialogCancel.hidden)items.push(els.appDialogCancel);
+ items.push(els.appDialogConfirm);
+ return items.filter(el=>!el.disabled && !el.hidden);
 }
 
 function renderSaveSelect() {
@@ -1275,35 +1473,110 @@ els.saveSelect.addEventListener("change",()=>{
 
 els.newSave.addEventListener("click",()=>{
  const suggested=`Profile ${db.saves.length+1}`;
- const name=prompt("Name this profile:",suggested);
- if(name===null)return;
- const s=blankSave(name.trim()||suggested);
- db.saves.push(s);
- db.active=s.id;
- saveDB();
- renderAll();
+ openAppDialog({
+   kicker:"Profile management",
+   title:"New profile",
+   message:"Choose a name for this tracker profile.",
+   confirmLabel:"Create profile",
+   input:true,
+   initialValue:suggested,
+   onConfirm:name=>{
+     const s=blankSave(name.trim()||suggested);
+     db.saves.push(s);
+     db.active=s.id;
+     saveDB();
+     renderAll();
+     els.saveSelect.focus();
+   }
+ });
 });
 
 els.renameSave.addEventListener("click",()=>{
  const s=active();
- const name=prompt("Rename profile:",s.name);
- if(name===null)return;
- s.name=name.trim()||s.name;
- saveDB();
- renderAll();
+ openAppDialog({
+   kicker:"Profile management",
+   title:"Rename profile",
+   message:`Rename "${s.name}".`,
+   confirmLabel:"Rename",
+   input:true,
+   initialValue:s.name,
+   onConfirm:name=>{
+     s.name=name.trim()||s.name;
+     saveDB();
+     renderAll();
+     els.renameSave.focus();
+   }
+ });
 });
 
 els.deleteSave.addEventListener("click",()=>{
  if(db.saves.length===1){
-   alert("Keep at least one profile.");
+   openAppDialog({
+     kicker:"Profile management",
+     title:"Profile required",
+     message:"Keep at least one profile.",
+     confirmLabel:"OK",
+     showCancel:false
+   });
    return;
  }
+
  const s=active();
- if(!confirm(`Delete profile "${s.name}"? This removes its locally stored tracker progress.`))return;
- db.saves=db.saves.filter(x=>x.id!==s.id);
- db.active=db.saves[0].id;
- saveDB();
- renderAll();
+ openAppDialog({
+   kicker:"Profile management",
+   title:"Delete profile?",
+   message:`Delete "${s.name}"? This removes its locally stored tracker progress.`,
+   confirmLabel:"Delete profile",
+   danger:true,
+   onConfirm:()=>{
+     const id=s.id;
+     if(!db.saves.some(x=>x.id===id))return;
+
+     db.saves=db.saves.filter(x=>x.id!==id);
+     db.active=db.saves[0].id;
+     saveDB();
+     renderAll();
+     els.deleteSave.focus();
+   }
+ });
+});
+
+els.appDialogCancel.addEventListener("click",()=>closeAppDialog());
+els.appDialogConfirm.addEventListener("click",confirmAppDialog);
+
+els.appDialogInput.addEventListener("keydown",e=>{
+ if(e.key==="Enter"){
+   e.preventDefault();
+   confirmAppDialog();
+ }
+});
+
+els.appDialog.addEventListener("click",e=>{
+ if(e.target===els.appDialog)closeAppDialog();
+});
+
+els.appDialog.addEventListener("keydown",e=>{
+ if(e.key==="Escape"){
+   e.preventDefault();
+   closeAppDialog();
+   return;
+ }
+
+ if(e.key!=="Tab")return;
+
+ const focusable=getDialogFocusable();
+ if(!focusable.length)return;
+
+ const first=focusable[0];
+ const last=focusable[focusable.length-1];
+
+ if(e.shiftKey && document.activeElement===first){
+   e.preventDefault();
+   last.focus();
+ } else if(!e.shiftKey && document.activeElement===last){
+   e.preventDefault();
+   first.focus();
+ }
 });
 
 ["kills","refills","mistakes"].forEach(id=>{
@@ -1345,35 +1618,48 @@ els.clearNG.addEventListener("click",()=>{
 els.allDiscoveries.addEventListener("change",()=>{
  const s=active();
  const mark=els.allDiscoveries.checked;
- const question=mark
-   ? "Mark all 85 Discovery checkboxes as found for this profile?"
-   : "Clear all 85 Discovery checkboxes for this profile?";
 
- if(!confirm(question)){
-   renderAll();
-   return;
- }
+ openAppDialog({
+   kicker:"Discoveries",
+   title:mark ? "Mark all Discoveries?" : "Clear all Discoveries?",
+   message:mark
+     ? "Mark all 85 Discovery checkboxes as found for this profile?"
+     : "Clear all 85 Discovery checkboxes for this profile?",
+   confirmLabel:mark ? "Mark all" : "Clear all",
+   danger:!mark,
+   onCancel:renderAll,
+   onConfirm:()=>{
+     setDiscoveryUndo(
+       s,
+       mark
+         ? "All 85 Discoveries marked as found."
+         : "All 85 Discovery checkboxes cleared."
+     );
 
- setDiscoveryUndo(
-   s,
-   mark
-     ? "All 85 Discoveries marked as found."
-     : "All 85 Discovery checkboxes cleared."
- );
-
- COLLECTIBLES.forEach(x=>s.discoveries[x.id]=mark);
- saveDB();
- renderAll();
+     COLLECTIBLES.forEach(x=>s.discoveries[x.id]=mark);
+     saveDB();
+     renderAll();
+     els.allDiscoveries.focus();
+   }
+ });
 });
 
 els.clearDiscoveries.addEventListener("click",()=>{
- if(!confirm("Clear all 85 Discovery checkboxes for this profile?"))return;
-
  const s=active();
- setDiscoveryUndo(s,"All 85 Discovery checkboxes cleared.");
- s.discoveries={};
- saveDB();
- renderAll();
+ openAppDialog({
+   kicker:"Discoveries",
+   title:"Clear all Discoveries?",
+   message:"Clear all 85 Discovery checkboxes for this profile?",
+   confirmLabel:"Clear all",
+   danger:true,
+   onConfirm:()=>{
+     setDiscoveryUndo(s,"All 85 Discovery checkboxes cleared.");
+     s.discoveries={};
+     saveDB();
+     renderAll();
+     els.clearDiscoveries.focus();
+   }
+ });
 });
 
 els.undoDiscoveries.addEventListener("click",()=>{
