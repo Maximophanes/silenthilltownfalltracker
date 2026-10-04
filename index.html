@@ -253,6 +253,11 @@ h1{
   }
 }
 @media(prefers-reduced-motion:reduce){
+  .item.next-missing-hit{
+    animation:none;
+    background:rgba(78,17,29,.22);
+    box-shadow:inset 0 0 0 1px rgba(147,51,65,.20);
+  }
   h1{
     animation:none;
     color:#f5eeee;
@@ -481,6 +486,51 @@ input[type=checkbox]{width:19px;height:19px;accent-color:#b85a64;cursor:pointer}
 .progress{margin-left:auto;color:var(--muted);font-size:.85rem}
 .progress strong{color:var(--text)}
 
+.next-missing-float{
+  position:fixed;
+  right:max(18px,env(safe-area-inset-right));
+  bottom:max(18px,env(safe-area-inset-bottom));
+  z-index:70;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  min-height:42px;
+  padding:9px 13px;
+  border-color:#63343c;
+  border-radius:999px;
+  background:
+    linear-gradient(180deg,rgba(37,20,24,.96),rgba(16,9,11,.96));
+  color:#d4c7ca;
+  box-shadow:
+    0 8px 24px rgba(0,0,0,.34),
+    inset 0 1px 0 rgba(255,255,255,.025);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+}
+.next-missing-float:hover{
+  border-color:#8a4650;
+  background:
+    linear-gradient(180deg,rgba(54,25,31,.98),rgba(23,11,14,.98));
+  color:#fff;
+  transform:translateY(-1px);
+}
+.next-missing-float:active{transform:translateY(0)}
+.next-missing-float span[aria-hidden="true"]{
+  color:#c76773;
+  font-size:.92rem;
+  line-height:1;
+}
+@media(max-width:520px){
+  .next-missing-float{
+    right:max(12px,env(safe-area-inset-right));
+    bottom:max(12px,env(safe-area-inset-bottom));
+    min-height:40px;
+    padding:8px 11px;
+    font-size:.78rem;
+  }
+}
+
 #discoveryPercent{
   display:inline-flex;
   align-items:center;
@@ -621,6 +671,24 @@ details.part>summary:hover{background:rgba(190,70,82,.025)}
   min-width:52px;
   text-align:center;
 }
+.item.next-missing-hit{
+  animation:nextMissingPulse 1.25s ease-out 1;
+}
+@keyframes nextMissingPulse{
+  0%{
+    background:rgba(118,24,39,.34);
+    box-shadow:inset 0 0 0 1px rgba(184,74,88,.30),0 0 18px rgba(111,18,34,.14);
+  }
+  45%{
+    background:rgba(78,17,29,.22);
+    box-shadow:inset 0 0 0 1px rgba(147,51,65,.20),0 0 10px rgba(84,12,25,.09);
+  }
+  100%{
+    background:transparent;
+    box-shadow:none;
+  }
+}
+
 .item{
   display:grid;
   grid-template-columns:auto minmax(0,1fr) auto;
@@ -1124,11 +1192,12 @@ body.modal-open{overflow:hidden}
 <div class="card" style="margin-top:20px">
 <div class="cardhead"><h2>Discoveries — all 85</h2><p>All scoring Documents and Clues are listed in story order. Each checked Discovery adds +1 point to the normal-ending score.</p></div>
 <div class="controls">
-<div class="quick" style="margin:0;padding:0;border:0">
+<div class="quick" id="discoveryToolbar" style="margin:0;padding:0;border:0">
 <label class="checkline"><input id="allDiscoveries" type="checkbox"> <strong>Mark all 85 as found</strong></label>
 <button class="btn" id="clearDiscoveries">Clear all</button>
 <button class="btn" id="expandParts">Expand all</button>
 <button class="btn" id="collapseParts">Collapse all</button>
+<button class="btn" id="nextMissing" title="Jump to the next unchecked Discovery">Next missing</button>
 <span class="progress" id="discoveryPercent" title="Discovery completion">0%</span>
 </div>
 <div class="bulkundo hidden" id="discoveryUndo" role="status" aria-live="polite">
@@ -1214,6 +1283,16 @@ body.modal-open{overflow:hidden}
 
 </main>
 
+<button
+  class="btn next-missing-float hidden"
+  id="nextMissingFloat"
+  type="button"
+  title="Jump to the next unchecked Discovery"
+  aria-label="Next missing Discovery">
+  <span aria-hidden="true">↓</span>
+  <span>Next missing</span>
+</button>
+
 <div class="confirm-modal" id="appDialog" hidden>
   <div class="confirm-panel" role="dialog" aria-modal="true" aria-labelledby="appDialogTitle" aria-describedby="appDialogMessage">
     <div class="confirm-body">
@@ -1237,6 +1316,8 @@ const NG_ITEMS = [{"id":"bronzeCoin","chapter":"Chapter 1 · Cold Open","name":"
 const STORAGE_KEY = "townfallEndingTracker.v2";
 
 const $ = id => document.getElementById(id);
+const nextMissingCursorByProfile=new Map();
+let nextMissingHighlightTimer=null;
 const els = {
  saveSelect:$("saveSelect"), saveSelectButton:$("saveSelectButton"),
  saveSelectValue:$("saveSelectValue"), saveSelectOptions:$("saveSelectOptions"),
@@ -1244,7 +1325,8 @@ const els = {
  kills:$("kills"), refills:$("refills"), mistakes:$("mistakes"), ngPlus:$("ngPlus"),
  allDiscoveries:$("allDiscoveries"), clearDiscoveries:$("clearDiscoveries"),
  discoveryUndo:$("discoveryUndo"), discoveryUndoText:$("discoveryUndoText"), undoDiscoveries:$("undoDiscoveries"),
- expandParts:$("expandParts"), collapseParts:$("collapseParts"),
+ expandParts:$("expandParts"), collapseParts:$("collapseParts"), nextMissing:$("nextMissing"),
+ nextMissingFloat:$("nextMissingFloat"), discoveryToolbar:$("discoveryToolbar"),
  parts:$("parts"), ngCard:$("ngCard"), ngList:$("ngList"), clearNG:$("clearNG"), ngProgress:$("ngProgress"), ngSegments:$("ngSegments"), ngProgressCount:$("ngProgressCount"),
  discoveryCount:$("discoveryCount"), discoveryPercent:$("discoveryPercent"), discoveryBar:$("discoveryBar"),
  targetEndingSelect:$("targetEndingSelect"), targetEndingButton:$("targetEndingButton"),
@@ -1576,6 +1658,7 @@ function renderMainList() {
 
    items.forEach(x=>{
      const row=document.createElement("div");
+     row.id=`discovery-${x.id}`;
      row.className="item"+(s.discoveries[x.id]?" done":"");
 
      const cb=document.createElement("input");
@@ -1776,6 +1859,74 @@ function syncInputs() {
  const undo=s.discoveryUndo;
  els.discoveryUndo.classList.toggle("hidden",!undo);
  els.discoveryUndoText.textContent=undo ? undo.message : "";
+}
+
+function updateFloatingNextMissing(){
+ if(!els.discoveryToolbar || !els.nextMissingFloat) return;
+ const rect=els.discoveryToolbar.getBoundingClientRect();
+ const toolbarAboveViewport=rect.bottom<=0;
+ els.nextMissingFloat.classList.toggle("hidden",!toolbarAboveViewport);
+}
+
+function focusNextMissing(){
+ const s=active();
+ const missing=COLLECTIBLES.filter(x=>!s.discoveries[x.id]);
+
+ if(!missing.length){
+   nextMissingCursorByProfile.set(s.id,0);
+   openAppDialog({
+     kicker:"Discoveries",
+     title:"Nothing missing",
+     message:"All 85 Discoveries are already marked as found for this profile.",
+     confirmLabel:"OK",
+     showCancel:false
+   });
+   return;
+ }
+
+ const lastId=nextMissingCursorByProfile.get(s.id) || 0;
+ const target=missing.find(x=>x.id>lastId) || missing[0];
+ nextMissingCursorByProfile.set(s.id,target.id);
+
+ const part=els.parts.querySelector(`details.part[data-part="${target.part}"]`);
+ if(part && !part.open) part.open=true;
+
+ requestAnimationFrame(()=>{
+   const row=$(`discovery-${target.id}`);
+   if(!row)return;
+
+   els.parts.querySelectorAll(".item.next-missing-hit").forEach(el=>{
+     el.classList.remove("next-missing-hit");
+   });
+
+   if(nextMissingHighlightTimer){
+     clearTimeout(nextMissingHighlightTimer);
+     nextMissingHighlightTimer=null;
+   }
+
+   // Force a reflow so repeated visits to the same row can replay the cue.
+   void row.offsetWidth;
+
+   const reduceMotion=window.matchMedia &&
+     window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+   row.classList.add("next-missing-hit");
+   row.scrollIntoView({
+     behavior:reduceMotion ? "auto" : "smooth",
+     block:"center"
+   });
+
+   const checkbox=row.querySelector('input[type="checkbox"]');
+   if(checkbox){
+     try{ checkbox.focus({preventScroll:true}); }
+     catch{ checkbox.focus(); }
+   }
+
+   nextMissingHighlightTimer=setTimeout(()=>{
+     row.classList.remove("next-missing-hit");
+     nextMissingHighlightTimer=null;
+   },reduceMotion ? 900 : 1300);
+ });
 }
 
 function compute() {
@@ -2250,6 +2401,25 @@ els.collapseParts.addEventListener("click",()=>{
  saveDB();
 });
 
+els.nextMissing.addEventListener("click",focusNextMissing);
+els.nextMissingFloat.addEventListener("click",focusNextMissing);
+
+if("IntersectionObserver" in window){
+ const discoveryToolbarObserver=new IntersectionObserver(entries=>{
+   const entry=entries[0];
+   if(entry.isIntersecting){
+     els.nextMissingFloat.classList.add("hidden");
+   } else {
+     updateFloatingNextMissing();
+   }
+ },{threshold:0});
+ discoveryToolbarObserver.observe(els.discoveryToolbar);
+} else {
+ window.addEventListener("scroll",updateFloatingNextMissing,{passive:true});
+ window.addEventListener("resize",updateFloatingNextMissing);
+}
+
 renderAll();
+requestAnimationFrame(updateFloatingNextMissing);
 </script>
 </body></html>
