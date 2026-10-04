@@ -480,6 +480,30 @@ input[type=checkbox]{width:19px;height:19px;accent-color:#b85a64;cursor:pointer}
 }
 .progress{margin-left:auto;color:var(--muted);font-size:.85rem}
 .progress strong{color:var(--text)}
+
+#discoveryPercent{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  flex:0 0 auto;
+  width:auto;
+  min-width:54px;
+  min-height:32px;
+  margin-left:auto;
+  padding:5px 10px;
+  border:1px solid #4a3035;
+  border-radius:999px;
+  background:#120c0e;
+  color:#b7aaad;
+  font-size:.82rem;
+  font-weight:800;
+  font-variant-numeric:tabular-nums;
+  letter-spacing:.015em;
+  line-height:1;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.018),
+    0 0 0 rgba(143,38,53,0);
+}
 .ngprogress{
   margin-left:auto;
   display:flex;
@@ -1697,6 +1721,23 @@ function moveTargetEndingFocus(current,delta){
  options[next].focus();
 }
 
+function interpolateHex3(t,startHex,midHex,endHex){
+ const hexToRgb=hex=>{
+   const n=parseInt(hex.slice(1),16);
+   return [(n>>16)&255,(n>>8)&255,n&255];
+ };
+ const mix=(a,b,x)=>Math.round(a+(b-a)*x);
+ const start=hexToRgb(startHex), mid=hexToRgb(midHex), end=hexToRgb(endHex);
+ let a,b,x;
+ if(t<=0.5){
+   a=start; b=mid; x=t/0.5;
+ } else {
+   a=mid; b=end; x=(t-0.5)/0.5;
+ }
+ const rgb=[mix(a[0],b[0],x),mix(a[1],b[1],x),mix(a[2],b[2],x)];
+ return `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`;
+}
+
 function syncInputs() {
  const s=currentSave();
  els.kills.value=s.kills; els.refills.value=s.refills; els.mistakes.value=s.mistakes; els.ngPlus.checked=!!s.ngPlus;
@@ -1709,6 +1750,28 @@ function syncInputs() {
  const percent=Math.round(count/85*100);
  els.discoveryPercent.textContent=percent+"%";
  els.discoveryBar.style.width=percent+"%";
+
+ const completion=count/85;
+ els.discoveryPercent.style.backgroundColor=interpolateHex3(
+   completion,
+   "#120c0e",
+   "#4d1720",
+   "#8f2635"
+ );
+ els.discoveryPercent.style.borderColor=interpolateHex3(
+   completion,
+   "#4a3035",
+   "#7a3540",
+   "#b65060"
+ );
+ els.discoveryPercent.style.color=interpolateHex3(
+   completion,
+   "#b7aaad",
+   "#ddd1d3",
+   "#fff3f4"
+ );
+ els.discoveryPercent.style.boxShadow=
+   `inset 0 1px 0 rgba(255,255,255,.018), 0 0 ${Math.round(4+completion*8)}px rgba(143,38,53,${(completion*0.16).toFixed(3)})`;
 
  const undo=s.discoveryUndo;
  els.discoveryUndo.classList.toggle("hidden",!undo);
