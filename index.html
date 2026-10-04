@@ -167,6 +167,92 @@ select,input[type=number],input[type=text]{
 }
 select:hover,input[type=number]:hover,input[type=text]:hover{border-color:#74414a}
 select:focus,input[type=number]:focus,input[type=text]:focus{border-color:#9e525c;box-shadow:0 0 0 3px rgba(189,98,107,.12)}
+
+.ending-select{
+  position:relative;
+}
+.ending-select-button{
+  width:100%;
+  min-height:43px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  border:1px solid #4a3035;
+  border-radius:10px;
+  padding:10px 12px;
+  background:linear-gradient(180deg,#100a0c,#0a0608);
+  color:var(--text);
+  cursor:pointer;
+  font-weight:720;
+  text-align:left;
+}
+.ending-select-button:hover{
+  border-color:#74414a;
+  background:linear-gradient(180deg,#150c0f,#0d0709);
+}
+.ending-select-button[aria-expanded="true"]{
+  border-color:#8f4b55;
+  background:linear-gradient(180deg,#170d10,#0e080a);
+  box-shadow:0 0 0 3px rgba(189,98,107,.10);
+}
+.ending-select-arrow{
+  flex:0 0 auto;
+  color:#a98f94;
+  font:700 1rem/1 Georgia,"Times New Roman",serif;
+  transform:rotate(90deg);
+  transition:transform .16s ease,color .16s ease;
+}
+.ending-select-button[aria-expanded="true"] .ending-select-arrow{
+  transform:rotate(-90deg);
+  color:#d3afb5;
+}
+.ending-options{
+  position:absolute;
+  z-index:80;
+  top:calc(100% + 7px);
+  left:0;
+  right:0;
+  padding:6px;
+  border:1px solid #56353c;
+  border-radius:11px;
+  background:
+    radial-gradient(circle at 18% 0%,rgba(172,49,65,.07),transparent 42%),
+    linear-gradient(180deg,#171013,#0d080a);
+  box-shadow:0 16px 42px rgba(0,0,0,.48);
+}
+.ending-options[hidden]{display:none}
+.ending-option{
+  width:100%;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  border:0;
+  border-radius:7px;
+  padding:9px 10px;
+  background:transparent;
+  color:#c7bbbd;
+  cursor:pointer;
+  text-align:left;
+  font-weight:680;
+}
+.ending-option:hover,
+.ending-option:focus-visible{
+  outline:none;
+  background:rgba(189,98,107,.11);
+  color:#fff;
+}
+.ending-option[aria-selected="true"]{
+  background:rgba(189,98,107,.16);
+  color:#f3e7e9;
+}
+.ending-option[aria-selected="true"]::after{
+  content:"✓";
+  color:#d1737d;
+  font-size:.78rem;
+  font-weight:900;
+}
 .btn{
   border:1px solid #55333a;
   background:linear-gradient(180deg,#211417,#170f11);
@@ -879,14 +965,27 @@ body.modal-open{overflow:hidden}
 <aside class="card side">
 <div class="result">
 <div style="margin-bottom:18px">
-<label class="small" for="targetEnding">Target ending</label>
-<select id="targetEnding">
-  <option value="Justice">Justice</option>
-  <option value="Forever">Forever</option>
-  <option value="Abandoned">Abandoned</option>
-  <option value="Sci-Fi">Sci-Fi</option>
-  <option value="Dog">Dog</option>
-</select>
+<label class="small" id="targetEndingLabel">Target ending</label>
+<div class="ending-select" id="targetEndingSelect">
+  <button
+    class="ending-select-button"
+    id="targetEndingButton"
+    type="button"
+    aria-haspopup="listbox"
+    aria-expanded="false"
+    aria-labelledby="targetEndingLabel targetEndingValue"
+    aria-controls="targetEndingOptions">
+    <span id="targetEndingValue">Justice</span>
+    <span class="ending-select-arrow" aria-hidden="true">›</span>
+  </button>
+  <div class="ending-options" id="targetEndingOptions" role="listbox" aria-labelledby="targetEndingLabel" hidden>
+    <button class="ending-option" type="button" role="option" data-value="Justice" aria-selected="true">Justice</button>
+    <button class="ending-option" type="button" role="option" data-value="Forever" aria-selected="false">Forever</button>
+    <button class="ending-option" type="button" role="option" data-value="Abandoned" aria-selected="false">Abandoned</button>
+    <button class="ending-option" type="button" role="option" data-value="Sci-Fi" aria-selected="false">Sci-Fi</button>
+    <button class="ending-option" type="button" role="option" data-value="Dog" aria-selected="false">Dog</button>
+  </div>
+</div>
 </div>
 <div class="resultlabel">Projected ending</div>
 <div class="ending" id="ending">Forever</div>
@@ -937,7 +1036,9 @@ const els = {
  expandParts:$("expandParts"), collapseParts:$("collapseParts"),
  parts:$("parts"), ngCard:$("ngCard"), ngList:$("ngList"), clearNG:$("clearNG"), ngProgress:$("ngProgress"), ngSegments:$("ngSegments"), ngProgressCount:$("ngProgressCount"),
  discoveryCount:$("discoveryCount"), discoveryPercent:$("discoveryPercent"), discoveryBar:$("discoveryBar"),
- targetEnding:$("targetEnding"), ending:$("ending"), score:$("score"), bDisc:$("bDisc"), bKills:$("bKills"), bRefills:$("bRefills"), bMistakes:$("bMistakes"), notice:$("notice"),
+ targetEndingSelect:$("targetEndingSelect"), targetEndingButton:$("targetEndingButton"),
+ targetEndingValue:$("targetEndingValue"), targetEndingOptions:$("targetEndingOptions"),
+ ending:$("ending"), score:$("score"), bDisc:$("bDisc"), bKills:$("bKills"), bRefills:$("bRefills"), bMistakes:$("bMistakes"), notice:$("notice"),
  appDialog:$("appDialog"), appDialogKicker:$("appDialogKicker"), appDialogTitle:$("appDialogTitle"),
  appDialogMessage:$("appDialogMessage"), appDialogInputWrap:$("appDialogInputWrap"),
  appDialogInput:$("appDialogInput"), appDialogCancel:$("appDialogCancel"), appDialogConfirm:$("appDialogConfirm")
@@ -1308,11 +1409,62 @@ function escapeHtml(s) {
  return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
 }
 
+const TARGET_ENDINGS=["Justice","Forever","Abandoned","Sci-Fi","Dog"];
+
+function targetEndingOptionButtons(){
+ return [...els.targetEndingOptions.querySelectorAll(".ending-option")];
+}
+
+function syncTargetEndingSelect(value){
+ const selected=TARGET_ENDINGS.includes(value) ? value : "Justice";
+ els.targetEndingValue.textContent=selected;
+ targetEndingOptionButtons().forEach(option=>{
+   option.setAttribute("aria-selected",String(option.dataset.value===selected));
+ });
+}
+
+function openTargetEndingSelect({focusSelected=true}={}){
+ els.targetEndingOptions.hidden=false;
+ els.targetEndingButton.setAttribute("aria-expanded","true");
+
+ if(focusSelected){
+   const selected=targetEndingOptionButtons().find(x=>x.getAttribute("aria-selected")==="true")
+     || targetEndingOptionButtons()[0];
+   requestAnimationFrame(()=>selected?.focus());
+ }
+}
+
+function closeTargetEndingSelect({restoreFocus=false}={}){
+ if(els.targetEndingOptions.hidden)return;
+ els.targetEndingOptions.hidden=true;
+ els.targetEndingButton.setAttribute("aria-expanded","false");
+ if(restoreFocus)els.targetEndingButton.focus();
+}
+
+function chooseTargetEnding(value){
+ if(!TARGET_ENDINGS.includes(value))return;
+
+ const s=active();
+ s.targetEnding=value;
+ saveDB();
+ syncTargetEndingSelect(value);
+ compute();
+ closeTargetEndingSelect({restoreFocus:true});
+}
+
+function moveTargetEndingFocus(current,delta){
+ const options=targetEndingOptionButtons();
+ if(!options.length)return;
+ const index=Math.max(0,options.indexOf(current));
+ const next=(index+delta+options.length)%options.length;
+ options[next].focus();
+}
+
 function syncInputs() {
  const s=currentSave();
  els.kills.value=s.kills; els.refills.value=s.refills; els.mistakes.value=s.mistakes; els.ngPlus.checked=!!s.ngPlus;
  els.ngPlus.closest(".ngplus-toggle").classList.toggle("active",!!s.ngPlus);
- els.targetEnding.value=s.targetEnding || "Justice";
+ syncTargetEndingSelect(s.targetEnding || "Justice");
  const count=COLLECTIBLES.filter(x=>!!s.discoveries[x.id]).length;
  els.allDiscoveries.checked=count===85;
  els.allDiscoveries.indeterminate=count>0 && count<85;
@@ -1597,10 +1749,62 @@ els.appDialog.addEventListener("keydown",e=>{
  });
 });
 
-els.targetEnding.addEventListener("change",()=>{
- active().targetEnding=els.targetEnding.value;
- saveDB();
- compute();
+els.targetEndingButton.addEventListener("click",()=>{
+ if(els.targetEndingOptions.hidden){
+   openTargetEndingSelect();
+ } else {
+   closeTargetEndingSelect();
+ }
+});
+
+els.targetEndingButton.addEventListener("keydown",e=>{
+ if(e.key==="ArrowDown" || e.key==="ArrowUp"){
+   e.preventDefault();
+   openTargetEndingSelect();
+   const options=targetEndingOptionButtons();
+   const selectedIndex=Math.max(0,options.findIndex(x=>x.getAttribute("aria-selected")==="true"));
+   const offset=e.key==="ArrowDown" ? 1 : -1;
+   options[(selectedIndex+offset+options.length)%options.length]?.focus();
+ }
+});
+
+targetEndingOptionButtons().forEach(option=>{
+ option.addEventListener("click",()=>chooseTargetEnding(option.dataset.value));
+ option.addEventListener("keydown",e=>{
+   if(e.key==="ArrowDown"){
+     e.preventDefault();
+     moveTargetEndingFocus(option,1);
+   } else if(e.key==="ArrowUp"){
+     e.preventDefault();
+     moveTargetEndingFocus(option,-1);
+   } else if(e.key==="Home"){
+     e.preventDefault();
+     targetEndingOptionButtons()[0]?.focus();
+   } else if(e.key==="End"){
+     e.preventDefault();
+     const options=targetEndingOptionButtons();
+     options[options.length-1]?.focus();
+   } else if(e.key==="Enter" || e.key===" "){
+     e.preventDefault();
+     chooseTargetEnding(option.dataset.value);
+   } else if(e.key==="Escape"){
+     e.preventDefault();
+     closeTargetEndingSelect({restoreFocus:true});
+   } else if(e.key==="Tab"){
+     closeTargetEndingSelect();
+   }
+ });
+});
+
+document.addEventListener("click",e=>{
+ if(!els.targetEndingSelect.contains(e.target))closeTargetEndingSelect();
+});
+
+document.addEventListener("keydown",e=>{
+ if(e.key==="Escape" && !els.targetEndingOptions.hidden){
+   e.preventDefault();
+   closeTargetEndingSelect({restoreFocus:true});
+ }
 });
 
 els.ngPlus.addEventListener("change",()=>{
