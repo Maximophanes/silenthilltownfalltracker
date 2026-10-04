@@ -329,6 +329,7 @@ details.part>summary:hover{background:rgba(190,70,82,.025)}
   margin:7px 0 13px;
   letter-spacing:-.035em;
 }
+.ending.branch{font-size:2.55rem;line-height:1}
 .score{font-size:.9rem;color:var(--muted)}
 .score b{font-size:1.45rem;color:var(--text)}
 .break{margin-top:18px;border-top:1px solid var(--line);padding-top:12px}
@@ -359,62 +360,6 @@ details.part>summary:hover{background:rgba(190,70,82,.025)}
 }
 .sourcebox a:hover{color:#fff;border-color:#74414a}
 .hidden{display:none!important}
-.sharebar{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
-.banner{
-  display:none;
-  margin:0 0 20px;
-  padding:15px 16px;
-  border:1px solid #704048;
-  border-radius:13px;
-  background:linear-gradient(180deg,#211214,#160b0d);
-  color:#dfc3c7;
-  box-shadow:var(--shadow);
-}
-.banner.show{display:block}
-.banner strong{color:#fff}
-.modalback{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.76);
-  backdrop-filter:blur(4px);
-  display:none;
-  align-items:center;
-  justify-content:center;
-  padding:18px;
-  z-index:1000;
-}
-.modalback.show{display:flex}
-.modal{
-  width:min(720px,100%);
-  max-height:90vh;
-  overflow:auto;
-  background:#150d0f;
-  border:1px solid #51343a;
-  border-radius:17px;
-  box-shadow:0 30px 100px rgba(0,0,0,.62);
-}
-.modalhead{display:flex;justify-content:space-between;gap:16px;align-items:center;padding:18px 20px;border-bottom:1px solid var(--line)}
-.modalhead h3{margin:0}
-.modalbody{padding:20px}
-.modalbody p{color:#b8abad}
-.modal textarea{
-  width:100%;
-  min-height:150px;
-  background:#0b0708;
-  color:var(--text);
-  border:1px solid #51343a;
-  border-radius:10px;
-  padding:12px;
-  font:12px/1.45 ui-monospace,SFMono-Regular,Consolas,monospace;
-  resize:vertical;
-}
-.preview{margin-top:14px;padding:14px;border:1px solid var(--line);border-radius:10px;background:#0d080a}
-.previewgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 18px}
-.previewgrid div{color:var(--muted)}
-.previewgrid b{color:var(--text)}
-.readonly .item input,.readonly input,.readonly select,.readonly button[data-edit="1"]{pointer-events:none;opacity:.65}
-.copyok{color:#9fbe9f;font-size:.8rem;margin-left:6px}
-footer{opacity:.8}
 
 .partactions{
   display:flex;
@@ -591,11 +536,9 @@ footer{opacity:.8}
 }
 @media(max-width:520px){
   .toolbar{grid-template-columns:1fr}
-  .toolbar .sharebar{grid-column:1!important}
   .toolbar .btn{width:100%}
   details.part>summary{grid-template-columns:16px minmax(0,1fr) auto}
   .ending{font-size:3rem}
-  .previewgrid{grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -604,7 +547,7 @@ footer{opacity:.8}
 <header>
 <div class="eyebrow">Silent Hill: Townfall</div>
 <h1>Ending & Progress Tracker</h1>
-<p class="lead">Track all 85 scoring Discoveries in story order, follow the New Game+ special-ending routes, and see your calculated ending update as you play. Use named profiles to keep separate playthroughs and ending routes independent.</p>
+<p class="lead">Track all 85 scoring Discoveries in story order, follow the New Game+ special-ending routes, and see your projected ending update as you play. Use named profiles to keep separate playthroughs and ending routes independent.</p>
 </header>
 
 <section class="toolbar">
@@ -612,9 +555,9 @@ footer{opacity:.8}
 <label class="small" for="saveSelect">Active profile</label>
 <select id="saveSelect"></select>
 </div>
-<button class="btn" id="newSave" data-edit="1">+ New profile</button>
-<button class="btn" id="renameSave" data-edit="1">Rename profile</button>
-<button class="btn danger" id="deleteSave" data-edit="1">Delete profile</button>
+<button class="btn" id="newSave">+ New profile</button>
+<button class="btn" id="renameSave">Rename profile</button>
+<button class="btn danger" id="deleteSave">Delete profile</button>
 </section>
 
 <div class="profile-note">
@@ -628,12 +571,12 @@ footer{opacity:.8}
 <div class="cardhead"><h2>Ending variables</h2><p>Normal-ending score = Discoveries − (2 × qualifying Simon kills) − (4 × cannula refills) − (3 × Zoe mistakes). Only kills that count toward the ending calculation should be entered.</p></div>
 <div class="controls">
 <div class="statgrid">
-<div class="stat"><label for="kills">Qualifying Simon kills</label><input data-edit="1" id="kills" type="number" min="0" value="0"><small>−2 points each</small></div>
-<div class="stat"><label for="refills">Cannula refills used</label><input data-edit="1" id="refills" type="number" min="0" value="0"><small>−4 points each</small></div>
-<div class="stat"><label for="mistakes">Zoe mistakes made</label><input data-edit="1" id="mistakes" type="number" min="0" value="0"><small>−3 points each</small></div>
+<div class="stat"><label for="kills">Qualifying Simon kills</label><input id="kills" type="number" min="0" step="1" value="0"><small>−2 points each</small></div>
+<div class="stat"><label for="refills">Cannula refills used</label><input id="refills" type="number" min="0" step="1" value="0"><small>−4 points each</small></div>
+<div class="stat"><label for="mistakes">Zoe mistakes made</label><input id="mistakes" type="number" min="0" step="1" value="0"><small>−3 points each</small></div>
 </div>
 <div class="quick">
-<label class="checkline"><input data-edit="1" id="ngPlus" type="checkbox"> New Game+ playthrough</label>
+<label class="checkline"><input id="ngPlus" type="checkbox"> New Game+ playthrough</label>
 <span class="progress">Discoveries: <strong id="discoveryCount">0 / 85</strong></span>
 </div>
 </div>
@@ -701,15 +644,15 @@ footer{opacity:.8}
 <div class="cardhead"><h2>Discoveries — all 85</h2><p>All scoring Documents and Clues are listed in story order. Each checked Discovery adds +1 point to the normal-ending score.</p></div>
 <div class="controls">
 <div class="quick" style="margin:0;padding:0;border:0">
-<label class="checkline"><input data-edit="1" id="allDiscoveries" type="checkbox"> <strong>Mark all 85 as found</strong></label>
-<button class="btn" data-edit="1" id="clearDiscoveries">Clear all</button>
+<label class="checkline"><input id="allDiscoveries" type="checkbox"> <strong>Mark all 85 as found</strong></label>
+<button class="btn" id="clearDiscoveries">Clear all</button>
 <button class="btn" id="expandParts">Expand all</button>
 <button class="btn" id="collapseParts">Collapse all</button>
 <span class="progress" id="discoveryPercent" title="Discovery completion">0%</span>
 </div>
 <div class="bulkundo hidden" id="discoveryUndo" role="status" aria-live="polite">
 <span id="discoveryUndoText"></span>
-<button class="btn" data-edit="1" id="undoDiscoveries">Undo</button>
+<button class="btn" id="undoDiscoveries">Undo</button>
 </div>
 <div class="progressbar" aria-hidden="true"><span id="discoveryBar"></span></div>
 </div>
@@ -717,10 +660,10 @@ footer{opacity:.8}
 </div>
 
 <div class="card hidden" id="ngCard" style="margin-top:20px">
-<div class="cardhead"><h2>New Game+ special-ending routes</h2><p>Items and trigger actions are tracked separately, in encounter order. Dog and Sci-Fi can be prepared on the same playthrough. For Sci-Fi, mark each Strange Book only after you actually view it; using the Strange Access Card in Part 6 is the branch trigger itself.</p></div>
+<div class="cardhead"><h2>New Game+ special-ending routes</h2><p>Items and trigger actions are tracked separately, in encounter order. Dog and Sci-Fi can be prepared on the same playthrough. For Sci-Fi, mark each Strange Book only after you actually view it; using the Strange Access Card in Part 6 is the branch trigger itself. Checking an insertion or card-use action automatically keeps its required acquired item in sync.</p></div>
 <div class="controls">
 <div class="quick" style="margin:0;padding:0;border:0">
-<button class="btn" data-edit="1" id="clearNG">Clear New Game+ progress</button>
+<button class="btn" id="clearNG">Clear New Game+ progress</button>
 <span class="progress" id="ngProgress">0 / 11 complete</span>
 </div>
 </div>
@@ -740,7 +683,7 @@ footer{opacity:.8}
 <div class="result">
 <div style="margin-bottom:18px">
 <label class="small" for="targetEnding">Target ending</label>
-<select data-edit="1" id="targetEnding">
+<select id="targetEnding">
   <option value="Justice">Justice</option>
   <option value="Forever">Forever</option>
   <option value="Abandoned">Abandoned</option>
@@ -835,116 +778,7 @@ function loadDB() {
 let db=loadDB();
 
 
-const FORMAT_VERSION = 2;
-const TARGETS = ["Justice","Forever","Abandoned","Sci-Fi","Dog"];
-
-function toBase64Url(bytes) {
-  let bin="";
-  bytes.forEach(b=>bin+=String.fromCharCode(b));
-  return btoa(bin).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
-}
-function fromBase64Url(s) {
-  s=s.replace(/-/g,"+").replace(/_/g,"/");
-  while(s.length%4) s+="=";
-  const bin=atob(s), out=new Uint8Array(bin.length);
-  for(let i=0;i<bin.length;i++) out[i]=bin.charCodeAt(i);
-  return out;
-}
-function utf8(s){ return new TextEncoder().encode(s); }
-function unutf8(b){ return new TextDecoder().decode(b); }
-
-function fnv1a(bytes) {
-  let h=0x811c9dc5;
-  for(const b of bytes){ h^=b; h=Math.imul(h,0x01000193)>>>0; }
-  return h>>>0;
-}
-function u32hex(n){ return n.toString(16).padStart(8,"0"); }
-
-function packBits(ids, getter) {
-  const out=new Uint8Array(Math.ceil(ids.length/8));
-  ids.forEach((id,i)=>{ if(getter(id)) out[i>>3] |= (1<<(i&7)); });
-  return toBase64Url(out);
-}
-function unpackBits(encoded, ids) {
-  const out={};
-  const bytes=fromBase64Url(encoded || "");
-  ids.forEach((id,i)=>out[id]=!!((bytes[i>>3]||0)&(1<<(i&7))));
-  return out;
-}
-
-function portableObject(s) {
-  const discoveryIds=COLLECTIBLES.map(x=>String(x.id));
-  const ngIds=NG_ITEMS.map(x=>x.id);
-  return {
-    v:FORMAT_VERSION,
-    n:String(s.name||"Imported Save").slice(0,80),
-    t:TARGETS.includes(s.targetEnding)?s.targetEnding:"Justice",
-    p:!!s.ngPlus,
-    k:num(s.kills),
-    r:num(s.refills),
-    m:num(s.mistakes),
-    d:packBits(discoveryIds,id=>!!s.discoveries[id]),
-    g:packBits(ngIds,id=>!!s.ng[id])
-  };
-}
-function encodePortable(s) {
-  const json=JSON.stringify(portableObject(s));
-  const body=toBase64Url(utf8(json));
-  const checksum=u32hex(fnv1a(utf8(body)));
-  return `TF${FORMAT_VERSION}.${body}.${checksum}`;
-}
-function decodePortable(code) {
-  code=String(code||"").trim();
-  const m=code.match(/^TF(\d+)\.([A-Za-z0-9_-]+)\.([0-9a-fA-F]{8})$/);
-  if(!m) throw new Error("This does not look like a valid Townfall save code.");
-  const version=Number(m[1]);
-  if(version!==FORMAT_VERSION) throw new Error(`Unsupported save-code version TF${version}.`);
-  const body=m[2], expected=m[3].toLowerCase(), actual=u32hex(fnv1a(utf8(body)));
-  if(actual!==expected) throw new Error("Checksum failed. The code is incomplete or has been changed.");
-  let o;
-  try{o=JSON.parse(unutf8(fromBase64Url(body)));}catch(e){throw new Error("The save payload could not be decoded.");}
-  if(o.v!==FORMAT_VERSION) throw new Error("The save payload version does not match.");
-  const discoveryIds=COLLECTIBLES.map(x=>String(x.id));
-  const ngIds=NG_ITEMS.map(x=>x.id);
-  return {
-    id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()+Math.random()),
-    name:String(o.n||"Imported Save").slice(0,80),
-    targetEnding:TARGETS.includes(o.t)?o.t:"Justice",
-    ngPlus:!!o.p,
-    kills:num(o.k), refills:num(o.r), mistakes:num(o.m),
-    discoveries:unpackBits(o.d, discoveryIds),
-    ng:unpackBits(o.g, ngIds)
-  };
-}
 function currentSave(){ return active(); }
-
-function makeShareUrl(s) {
-  const u=new URL(location.href);
-  u.search="";
-  u.hash="";
-  u.searchParams.set("view", encodePortable(s));
-  return u.toString();
-}
-function openModal(title, inner) {
-  els.modalTitle.textContent=title;
-  els.modalBody.innerHTML=inner;
-  els.modalBack.classList.add("show");
-  els.modalBack.setAttribute("aria-hidden","false");
-}
-function closeModal() {
-  els.modalBack.classList.remove("show");
-  els.modalBack.setAttribute("aria-hidden","true");
-}
-function copyText(text, statusId) {
-  navigator.clipboard.writeText(text).then(()=>{
-    const el=document.getElementById(statusId); if(el){el.textContent="Copied!";setTimeout(()=>el.textContent="",1800);}
-  }).catch(()=>{ prompt("Copy this:",text); });
-}
-function saveSummary(s) {
-  const discoveries=COLLECTIBLES.filter(x=>!!s.discoveries[x.id]).length;
-  const score=discoveries-(num(s.kills)*2)-(num(s.refills)*4)-(num(s.mistakes)*3);
-  return {discoveries,score};
-}
 
 function saveDB() { db.discoveryListVersion=2; localStorage.setItem(STORAGE_KEY,JSON.stringify(db)); }
 function active() { return db.saves.find(s=>s.id===db.active) || db.saves[0]; }
@@ -971,6 +805,29 @@ function clearDiscoveryUndo(s) {
 
 function num(v) { const n=parseInt(v,10); return Number.isFinite(n)&&n>0?n:0; }
 function signed(n) { return n>0 ? "+"+n : String(n); }
+
+const NG_REQUIRES = {
+ bronzeInserted:["bronzeCoin"],
+ silverInserted:["silverCoin"],
+ goldInserted:["goldCoin"],
+ accessCardUsed:["accessCard"]
+};
+
+function updateNGState(s,id,checked) {
+ s.ng[id]=checked;
+
+ // A downstream action cannot occur unless its required item was acquired.
+ if(checked) {
+   (NG_REQUIRES[id] || []).forEach(requiredId=>s.ng[requiredId]=true);
+   return;
+ }
+
+ // If a prerequisite acquisition is cleared, clear any downstream action
+ // that logically depends on it so the checklist cannot enter an impossible state.
+ Object.entries(NG_REQUIRES).forEach(([dependent,requiredIds])=>{
+   if(requiredIds.includes(id)) s.ng[dependent]=false;
+ });
+}
 
 function renderSaveSelect() {
  els.saveSelect.innerHTML="";
@@ -1035,7 +892,7 @@ function renderMainList() {
    partToggle.checked=got===items.length;
    partToggle.indeterminate=got>0 && got<items.length;
    partToggle.disabled=false;
-   partToggle.setAttribute("aria-label",`Mark all Discoveries in Part ${p}`);
+   partToggle.setAttribute("aria-label",`Mark or clear all Discoveries in Part ${p}`);
 
    const allText=document.createElement("span");
    allText.textContent="All";
@@ -1063,6 +920,7 @@ function renderMainList() {
      cb.type="checkbox";
      cb.checked=!!s.discoveries[x.id];
      cb.disabled=false;
+     cb.setAttribute("aria-label",`Discovery ${x.id}: ${x.name}`);
      cb.addEventListener("change",()=>{
        clearDiscoveryUndo(s);
        s.discoveries[x.id]=cb.checked;
@@ -1119,8 +977,9 @@ function renderNG() {
    cb.type="checkbox";
    cb.checked=!!s.ng[x.id];
    cb.disabled=false;
+   cb.setAttribute("aria-label",`${x.name} (${x.kind} route)`);
    cb.addEventListener("change",()=>{
-     s.ng[x.id]=cb.checked;
+     updateNGState(s,x.id,cb.checked);
      saveDB();
      renderAll();
    });
@@ -1176,8 +1035,20 @@ function compute() {
  const sciTriggered=!!s.ngPlus && books===3 && cardUsed;
  const dogPrepared=!!s.ngPlus && coins===3;
 
- let ending=sciTriggered?"Sci-Fi":dogPrepared?"Dog":score>=20?"Justice":score>=0?"Forever":"Abandoned";
+ const branchUndecided=!sciTriggered && dogPrepared && sciPrepared;
+ let ending=sciTriggered
+   ?"Sci-Fi"
+   :branchUndecided
+     ?"Dog / Sci-Fi"
+     :dogPrepared
+       ?"Dog"
+       :score>=20
+         ?"Justice"
+         :score>=0
+           ?"Forever"
+           :"Abandoned";
  els.ending.textContent=ending;
+ els.ending.classList.toggle("branch",branchUndecided);
  els.score.textContent=score;
  els.bDisc.textContent=signed(discoveries);
  els.bKills.textContent=signed(-kills*2);
@@ -1186,21 +1057,42 @@ function compute() {
 
  const target=s.targetEnding || "Justice";
  const remaining=85-discoveries;
+ const maxPossibleScore=score+remaining;
  let targetText="";
 
  if(target==="Justice") {
    if(score>=20) {
      targetText=`<strong>Target: Justice.</strong> Your score is within the required range, with a ${score-20}-point margin above the 20-point threshold.`;
+   } else if(maxPossibleScore<20) {
+     if(remaining===0) {
+       targetText=`<strong>Target: Justice.</strong> All 85 Discoveries have been found, and your score is ${score}. Since Justice requires a score of at least 20, this ending is no longer reachable.`;
+     } else if(remaining===1) {
+       targetText=`<strong>Target: Justice.</strong> With the current recorded penalties, this ending is no longer reachable through the remaining Discoveries. Even finding the final remaining Discovery would leave a maximum score of ${maxPossibleScore}, below the 20-point threshold.`;
+     } else if(remaining===2) {
+       targetText=`<strong>Target: Justice.</strong> With the current recorded penalties, this ending is no longer reachable through the remaining Discoveries. Even finding both remaining Discoveries would leave a maximum score of ${maxPossibleScore}, below the 20-point threshold.`;
+     } else {
+       targetText=`<strong>Target: Justice.</strong> With the current recorded penalties, this ending is no longer reachable through the remaining Discoveries. Even finding all ${remaining} remaining Discoveries would leave a maximum score of ${maxPossibleScore}, below the 20-point threshold.`;
+     }
    } else {
      targetText=`<strong>Target: Justice.</strong> You need ${20-score} more point${20-score===1?"":"s"} to reach the 20-point threshold. ${remaining} Discover${remaining===1?"y remains":"ies remain"} unchecked.`;
    }
  } else if(target==="Forever") {
    if(score>=0 && score<20) {
      targetText=`<strong>Target: Forever.</strong> Your score is within the required 0–19 range.`;
+   } else if(score<0 && maxPossibleScore<0) {
+     if(remaining===0) {
+       targetText=`<strong>Target: Forever.</strong> All 85 Discoveries have been found, and your score is ${score}. Since Forever requires a score of at least 0, this ending is no longer reachable.`;
+     } else if(remaining===1) {
+       targetText=`<strong>Target: Forever.</strong> With the current recorded penalties, this ending is no longer reachable through the remaining Discoveries. Even finding the final remaining Discovery would leave a maximum score of ${maxPossibleScore}, still below 0.`;
+     } else if(remaining===2) {
+       targetText=`<strong>Target: Forever.</strong> With the current recorded penalties, this ending is no longer reachable through the remaining Discoveries. Even finding both remaining Discoveries would leave a maximum score of ${maxPossibleScore}, still below 0.`;
+     } else {
+       targetText=`<strong>Target: Forever.</strong> With the current recorded penalties, this ending is no longer reachable through the remaining Discoveries. Even finding all ${remaining} remaining Discoveries would leave a maximum score of ${maxPossibleScore}, still below 0.`;
+     }
    } else if(score<0) {
-     targetText=`<strong>Target: Forever.</strong> You need ${-score} more point${-score===1?"":"s"} to return to the 0–19 range.`;
+     targetText=`<strong>Target: Forever.</strong> You need ${-score} more point${-score===1?"":"s"} to return to the 0–19 range. ${remaining} Discover${remaining===1?"y remains":"ies remain"} unchecked.`;
    } else {
-     targetText=`<strong>Target: Forever.</strong> You are ${score-19} point${score-19===1?"":"s"} above the 19-point ceiling.`;
+     targetText=`<strong>Target: Forever.</strong> You are ${score-19} point${score-19===1?"":"s"} above the 19-point ceiling. Additional penalties are needed to enter the 0–19 range.`;
    }
  } else if(target==="Abandoned") {
    if(score<0) {
@@ -1242,6 +1134,8 @@ function compute() {
  let statusText="";
  if(sciTriggered) {
    statusText=`<br><br><strong>Projected ending:</strong> Sci-Fi.`;
+ } else if(branchUndecided) {
+   statusText=`<br><br><strong>Projected ending:</strong> Dog / Sci-Fi. Both special-ending routes are prepared; using or skipping the Part 6 card reader determines the branch.`;
  } else if(dogPrepared) {
    statusText=`<br><br><strong>Projected ending:</strong> Dog.`;
  } else if(sciPrepared) {
@@ -1304,11 +1198,23 @@ els.deleteSave.addEventListener("click",()=>{
  renderAll();
 });
 
-["kills","refills","mistakes"].forEach(id=>els[id].addEventListener("input",()=>{
- active()[id]=num(els[id].value);
- saveDB();
- compute();
-}));
+["kills","refills","mistakes"].forEach(id=>{
+ els[id].addEventListener("input",()=>{
+   active()[id]=num(els[id].value);
+   saveDB();
+   compute();
+ });
+
+ // Normalize manually typed negatives, decimals, blanks, or other invalid values
+ // to the nonnegative integer actually used by the ending calculation.
+ els[id].addEventListener("change",()=>{
+   const value=num(els[id].value);
+   active()[id]=value;
+   els[id].value=value;
+   saveDB();
+   compute();
+ });
+});
 
 els.targetEnding.addEventListener("change",()=>{
  active().targetEnding=els.targetEnding.value;
