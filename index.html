@@ -830,8 +830,21 @@ body.modal-open{overflow:hidden}
 
 <section class="toolbar">
 <div>
-<label class="small" for="saveSelect">Active profile</label>
-<select id="saveSelect"></select>
+<label class="small" id="saveSelectLabel">Active profile</label>
+<div class="ending-select" id="saveSelect">
+  <button
+    class="ending-select-button"
+    id="saveSelectButton"
+    type="button"
+    aria-haspopup="listbox"
+    aria-expanded="false"
+    aria-labelledby="saveSelectLabel saveSelectValue"
+    aria-controls="saveSelectOptions">
+    <span id="saveSelectValue">Profile 1</span>
+    <span class="ending-select-arrow" aria-hidden="true">›</span>
+  </button>
+  <div class="ending-options" id="saveSelectOptions" role="listbox" aria-labelledby="saveSelectLabel" hidden></div>
+</div>
 </div>
 <button class="btn" id="newSave">+ New profile</button>
 <button class="btn" id="renameSave">Rename profile</button>
@@ -1029,7 +1042,9 @@ const STORAGE_KEY = "townfallEndingTracker.v2";
 
 const $ = id => document.getElementById(id);
 const els = {
- saveSelect:$("saveSelect"), newSave:$("newSave"), renameSave:$("renameSave"), deleteSave:$("deleteSave"),
+ saveSelect:$("saveSelect"), saveSelectButton:$("saveSelectButton"),
+ saveSelectValue:$("saveSelectValue"), saveSelectOptions:$("saveSelectOptions"),
+ newSave:$("newSave"), renameSave:$("renameSave"), deleteSave:$("deleteSave"),
  kills:$("kills"), refills:$("refills"), mistakes:$("mistakes"), ngPlus:$("ngPlus"),
  allDiscoveries:$("allDiscoveries"), clearDiscoveries:$("clearDiscoveries"),
  discoveryUndo:$("discoveryUndo"), discoveryUndoText:$("discoveryUndoText"), undoDiscoveries:$("undoDiscoveries"),
@@ -1230,11 +1245,61 @@ function getDialogFocusable(){
  return items.filter(el=>!el.disabled && !el.hidden);
 }
 
+function profileOptionButtons(){
+ return [...els.saveSelectOptions.querySelectorAll(".ending-option")];
+}
+
 function renderSaveSelect() {
- els.saveSelect.innerHTML="";
- db.saves.forEach(s=>{const o=document.createElement("option");o.value=s.id;o.textContent=s.name;els.saveSelect.appendChild(o)});
- els.saveSelect.value=db.active;
- els.saveSelect.disabled=false;
+ const current=active();
+ els.saveSelectValue.textContent=current?.name || "Profile";
+
+ els.saveSelectOptions.innerHTML="";
+ db.saves.forEach(s=>{
+   const option=document.createElement("button");
+   option.className="ending-option";
+   option.type="button";
+   option.setAttribute("role","option");
+   option.dataset.id=s.id;
+   option.setAttribute("aria-selected",String(s.id===db.active));
+   option.textContent=s.name;
+   els.saveSelectOptions.appendChild(option);
+ });
+}
+
+function openSaveSelect({focusSelected=true}={}){
+ els.saveSelectOptions.hidden=false;
+ els.saveSelectButton.setAttribute("aria-expanded","true");
+
+ if(focusSelected){
+   const selected=profileOptionButtons().find(x=>x.getAttribute("aria-selected")==="true")
+     || profileOptionButtons()[0];
+   requestAnimationFrame(()=>selected?.focus());
+ }
+}
+
+function closeSaveSelect({restoreFocus=false}={}){
+ if(els.saveSelectOptions.hidden)return;
+ els.saveSelectOptions.hidden=true;
+ els.saveSelectButton.setAttribute("aria-expanded","false");
+ if(restoreFocus)els.saveSelectButton.focus();
+}
+
+function chooseProfile(id){
+ if(!db.saves.some(s=>s.id===id))return;
+
+ db.active=id;
+ saveDB();
+ closeSaveSelect();
+ renderAll();
+ els.saveSelectButton.focus();
+}
+
+function moveSaveSelectFocus(current,delta){
+ const options=profileOptionButtons();
+ if(!options.length)return;
+ const index=Math.max(0,options.indexOf(current));
+ const next=(index+delta+options.length)%options.length;
+ options[next].focus();
 }
 
 function renderMainList() {
@@ -1617,10 +1682,57 @@ function renderAll() {
  compute();
 }
 
-els.saveSelect.addEventListener("change",()=>{
- db.active=els.saveSelect.value;
- saveDB();
- renderAll();
+els.saveSelectButton.addEventListener("click",()=>{
+ if(els.saveSelectOptions.hidden){
+   openSaveSelect();
+ } else {
+   closeSaveSelect();
+ }
+});
+
+els.saveSelectButton.addEventListener("keydown",e=>{
+ if(e.key==="ArrowDown" || e.key==="ArrowUp"){
+   e.preventDefault();
+   openSaveSelect();
+   const options=profileOptionButtons();
+   const selectedIndex=Math.max(0,options.findIndex(x=>x.getAttribute("aria-selected")==="true"));
+   const offset=e.key==="ArrowDown" ? 1 : -1;
+   options[(selectedIndex+offset+options.length)%options.length]?.focus();
+ }
+});
+
+els.saveSelectOptions.addEventListener("click",e=>{
+ const option=e.target.closest(".ending-option");
+ if(!option || !els.saveSelectOptions.contains(option))return;
+ chooseProfile(option.dataset.id);
+});
+
+els.saveSelectOptions.addEventListener("keydown",e=>{
+ const option=e.target.closest(".ending-option");
+ if(!option || !els.saveSelectOptions.contains(option))return;
+
+ if(e.key==="ArrowDown"){
+   e.preventDefault();
+   moveSaveSelectFocus(option,1);
+ } else if(e.key==="ArrowUp"){
+   e.preventDefault();
+   moveSaveSelectFocus(option,-1);
+ } else if(e.key==="Home"){
+   e.preventDefault();
+   profileOptionButtons()[0]?.focus();
+ } else if(e.key==="End"){
+   e.preventDefault();
+   const options=profileOptionButtons();
+   options[options.length-1]?.focus();
+ } else if(e.key==="Enter" || e.key===" "){
+   e.preventDefault();
+   chooseProfile(option.dataset.id);
+ } else if(e.key==="Escape"){
+   e.preventDefault();
+   closeSaveSelect({restoreFocus:true});
+ } else if(e.key==="Tab"){
+   closeSaveSelect();
+ }
 });
 
 els.newSave.addEventListener("click",()=>{
@@ -1638,7 +1750,7 @@ els.newSave.addEventListener("click",()=>{
      db.active=s.id;
      saveDB();
      renderAll();
-     els.saveSelect.focus();
+     els.saveSelectButton.focus();
    }
  });
 });
@@ -1797,11 +1909,23 @@ targetEndingOptionButtons().forEach(option=>{
 });
 
 document.addEventListener("click",e=>{
+ if(!els.saveSelect.contains(e.target))closeSaveSelect();
+});
+
+document.addEventListener("click",e=>{
  if(!els.targetEndingSelect.contains(e.target))closeTargetEndingSelect();
 });
 
 document.addEventListener("keydown",e=>{
- if(e.key==="Escape" && !els.targetEndingOptions.hidden){
+ if(e.key!=="Escape")return;
+
+ if(!els.saveSelectOptions.hidden){
+   e.preventDefault();
+   closeSaveSelect({restoreFocus:true});
+   return;
+ }
+
+ if(!els.targetEndingOptions.hidden){
    e.preventDefault();
    closeTargetEndingSelect({restoreFocus:true});
  }
