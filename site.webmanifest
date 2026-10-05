@@ -1,0 +1,25 @@
+{
+  "id": "./",
+  "name": "Silent Hill: Townfall — Ending & Progress Tracker",
+  "short_name": "Townfall Tracker",
+  "description": "Silent Hill: Townfall save tracker, complete Discovery checklist, New Game+ route tracker, and ending calculator.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#080607",
+  "theme_color": "#080607",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
