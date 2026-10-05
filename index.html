@@ -1316,8 +1316,11 @@ const NG_ITEMS = [{"id":"bronzeCoin","chapter":"Chapter 1 · Cold Open","name":"
 const STORAGE_KEY = "townfallEndingTracker.v2";
 
 const $ = id => document.getElementById(id);
-const nextMissingCursorByProfile=new Map();
+const nextMissingLastTargetByProfile=new Map();
+const nextMissingUserMovedByProfile=new Map();
 let nextMissingHighlightTimer=null;
+let nextMissingProgrammaticScroll=false;
+let nextMissingScrollTimer=null;
 const els = {
  saveSelect:$("saveSelect"), saveSelectButton:$("saveSelectButton"),
  saveSelectValue:$("saveSelectValue"), saveSelectOptions:$("saveSelectOptions"),
@@ -1868,12 +1871,56 @@ function updateFloatingNextMissing(){
  els.nextMissingFloat.classList.toggle("hidden",!toolbarAboveViewport);
 }
 
+function discoveryNavigationRect(item){
+ const row=$(`discovery-${item.id}`);
+ if(row && row.getClientRects().length) return row.getBoundingClientRect();
+
+ // A row inside a collapsed Part has no useful viewport geometry.
+ // Use that Part's summary as a positional proxy so navigation still
+ // behaves sensibly without forcing every Part open first.
+ const part=els.parts.querySelector(`details.part[data-part="${item.part}"]`);
+ if(!part) return null;
+ const summary=part.querySelector("summary");
+ return summary ? summary.getBoundingClientRect() : part.getBoundingClientRect();
+}
+
+function firstMissingFromViewportTop(missing){
+ for(const item of missing){
+   const rect=discoveryNavigationRect(item);
+   if(rect && rect.bottom>0) return item;
+ }
+ // Every missing item has been completely passed above the viewport.
+ // Wrap to the first unchecked Discovery in checklist order.
+ return missing[0];
+}
+
+function setNextMissingManualMovement(){
+ const s=active();
+ if(!s) return;
+ nextMissingProgrammaticScroll=false;
+ if(nextMissingScrollTimer){
+   clearTimeout(nextMissingScrollTimer);
+   nextMissingScrollTimer=null;
+ }
+ nextMissingUserMovedByProfile.set(s.id,true);
+}
+
+function beginNextMissingProgrammaticScroll(){
+ nextMissingProgrammaticScroll=true;
+ if(nextMissingScrollTimer) clearTimeout(nextMissingScrollTimer);
+ nextMissingScrollTimer=setTimeout(()=>{
+   nextMissingProgrammaticScroll=false;
+   nextMissingScrollTimer=null;
+ },900);
+}
+
 function focusNextMissing(){
  const s=active();
  const missing=COLLECTIBLES.filter(x=>!s.discoveries[x.id]);
 
  if(!missing.length){
-   nextMissingCursorByProfile.set(s.id,0);
+   nextMissingLastTargetByProfile.set(s.id,0);
+   nextMissingUserMovedByProfile.set(s.id,false);
    openAppDialog({
      kicker:"Discoveries",
      title:"Nothing missing",
@@ -1884,9 +1931,24 @@ function focusNextMissing(){
    return;
  }
 
- const lastId=nextMissingCursorByProfile.get(s.id) || 0;
- const target=missing.find(x=>x.id>lastId) || missing[0];
- nextMissingCursorByProfile.set(s.id,target.id);
+ const lastId=nextMissingLastTargetByProfile.get(s.id) || 0;
+ const userMoved=nextMissingUserMovedByProfile.get(s.id)===true;
+
+ let target;
+
+ if(userMoved){
+   // Once the user manually changes their position, restart navigation
+   // from the viewport's top edge. The first unchecked row that has not
+   // been completely passed above the screen wins.
+   target=firstMissingFromViewportTop(missing);
+ } else {
+   // Consecutive presses without manual scrolling keep the convenient
+   // sequential cycling behavior.
+   target=missing.find(x=>x.id>lastId) || missing[0];
+ }
+
+ nextMissingLastTargetByProfile.set(s.id,target.id);
+ nextMissingUserMovedByProfile.set(s.id,false);
 
  const part=els.parts.querySelector(`details.part[data-part="${target.part}"]`);
  if(part && !part.open) part.open=true;
@@ -1911,6 +1973,8 @@ function focusNextMissing(){
      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
    row.classList.add("next-missing-hit");
+
+   beginNextMissingProgrammaticScroll();
    row.scrollIntoView({
      behavior:reduceMotion ? "auto" : "smooth",
      block:"center"
@@ -2400,6 +2464,36 @@ els.collapseParts.addEventListener("click",()=>{
  s.openParts=[];
  saveDB();
 });
+
+const nextMissingScrollKeys=new Set([
+ "ArrowUp","ArrowDown","PageUp","PageDown","Home","End"," "
+]);
+
+window.addEventListener("wheel",setNextMissingManualMovement,{passive:true});
+window.addEventListener("touchmove",setNextMissingManualMovement,{passive:true});
+
+window.addEventListener("keydown",e=>{
+ if(!nextMissingScrollKeys.has(e.key)) return;
+
+ const tag=(document.activeElement?.tagName || "").toLowerCase();
+ const editing=tag==="input" || tag==="textarea" || tag==="select" ||
+   document.activeElement?.isContentEditable;
+ if(!editing) setNextMissingManualMovement();
+});
+
+window.addEventListener("scroll",()=>{
+ if(nextMissingProgrammaticScroll){
+   if(nextMissingScrollTimer) clearTimeout(nextMissingScrollTimer);
+   nextMissingScrollTimer=setTimeout(()=>{
+     nextMissingProgrammaticScroll=false;
+     nextMissingScrollTimer=null;
+   },180);
+   return;
+ }
+
+ const s=active();
+ if(s) nextMissingUserMovedByProfile.set(s.id,true);
+},{passive:true});
 
 els.nextMissing.addEventListener("click",focusNextMissing);
 els.nextMissingFloat.addEventListener("click",focusNextMissing);
