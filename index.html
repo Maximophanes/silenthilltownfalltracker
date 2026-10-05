@@ -594,8 +594,8 @@ input[type=checkbox]{width:19px;height:19px;accent-color:#b85a64;cursor:pointer}
   overflow:visible;
   isolation:isolate;
   width:154px;
-  height:48px;
-  min-height:48px;
+  height:60px;
+  min-height:60px;
   padding:0;
   border-color:#63343c;
   border-radius:14px;
@@ -622,7 +622,7 @@ input[type=checkbox]{width:19px;height:19px;accent-color:#b85a64;cursor:pointer}
   transform:translateY(-1px);
 }
 .next-missing-float:active{transform:translateY(0)}
-.next-missing-float span[aria-hidden="true"]{
+.next-missing-arrow{
   color:#c76773;
   font-size:.92rem;
   line-height:1;
@@ -645,10 +645,40 @@ input[type=checkbox]{width:19px;height:19px;accent-color:#b85a64;cursor:pointer}
   display:flex;
   align-items:center;
   justify-content:center;
-  gap:7px;
   opacity:1;
   transition:opacity .28s ease;
 }
+.next-missing-arrow{
+  position:absolute;
+  left:17px;
+  top:50%;
+  transform:translateY(-50%);
+}
+.next-missing-copy{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:3px;
+  text-align:center;
+}
+.next-missing-primary{
+  color:inherit;
+  font-size:.81rem;
+  font-weight:780;
+  line-height:1;
+  white-space:nowrap;
+}
+.next-missing-scope{
+  color:#9f9295;
+  font-size:.64rem;
+  font-weight:760;
+  line-height:1;
+  letter-spacing:.065em;
+  text-transform:uppercase;
+  transition:color .28s ease;
+}
+.next-missing-float:hover .next-missing-scope{color:#cdbfc2}
 .next-missing-completion{
   position:absolute;
   inset:0;
@@ -747,12 +777,15 @@ input[type=checkbox]{width:19px;height:19px;accent-color:#b85a64;cursor:pointer}
     right:max(12px,env(safe-area-inset-right));
     bottom:max(12px,env(safe-area-inset-bottom));
     width:146px;
-    height:48px;
-    min-height:48px;
+    height:60px;
+    min-height:60px;
     padding:0;
     border-radius:14px;
     font-size:.78rem;
   }
+  .next-missing-arrow{left:15px}
+  .next-missing-primary{font-size:.78rem}
+  .next-missing-scope{font-size:.60rem}
   .next-missing-completion{
     padding:8px 10px 9px;
   }
@@ -762,6 +795,8 @@ input[type=checkbox]{width:19px;height:19px;accent-color:#b85a64;cursor:pointer}
   }
 }
 @media(prefers-reduced-motion:reduce){
+  .ng-checklist-collapse,
+  .ng-checklist-chevron,
   .next-missing-float,
   .next-missing-float::before,
   .next-missing-default,
@@ -966,6 +1001,79 @@ input[type=checkbox]{width:19px;height:19px;accent-color:#b85a64;cursor:pointer}
 }
 #ngList{
   overflow-anchor:none;
+}
+
+.ng-checklist-summary{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:center;
+  gap:16px;
+  padding:14px 22px;
+  border-top:1px solid var(--line);
+  border-bottom:1px solid var(--line-soft);
+  background:rgba(88,28,38,.055);
+}
+.ng-checklist-toggle{
+  appearance:none;
+  -webkit-appearance:none;
+  display:inline-flex;
+  align-items:center;
+  gap:9px;
+  min-width:0;
+  justify-self:stretch;
+  padding:4px 0;
+  border:0;
+  background:transparent;
+  color:#ded3d5;
+  font:inherit;
+  font-size:.88rem;
+  font-weight:820;
+  letter-spacing:.005em;
+  text-align:left;
+  cursor:pointer;
+}
+.ng-checklist-toggle:hover{color:#fff}
+.ng-checklist-toggle:focus-visible{
+  outline:2px solid rgba(202,102,113,.62);
+  outline-offset:5px;
+  border-radius:5px;
+}
+.ng-checklist-chevron{
+  flex:0 0 auto;
+  color:#9a8589;
+  font:700 1.35rem/1 Georgia,serif;
+  transform:rotate(0deg);
+  transform-origin:center;
+  transition:transform .20s ease,color .20s ease;
+}
+.ng-checklist-toggle[aria-expanded="true"] .ng-checklist-chevron{
+  transform:rotate(90deg);
+  color:#d7b6bb;
+}
+.ng-checklist-collapse{
+  display:grid;
+  grid-template-rows:1fr;
+  opacity:1;
+  transition:
+    grid-template-rows .28s cubic-bezier(.20,.72,.24,1),
+    opacity .20s ease;
+}
+.ng-checklist-collapse-inner{
+  min-height:0;
+  overflow:hidden;
+}
+.ng-checklist-collapse.collapsed{
+  grid-template-rows:0fr;
+  opacity:0;
+  pointer-events:none;
+}
+.ng-group-heading{
+  padding:13px 16px 6px;
+  color:#a6abad;
+  font-size:.74rem;
+  font-weight:850;
+  text-transform:uppercase;
+  letter-spacing:.075em;
 }
 .ngprogress-count{
   width:50px;
@@ -1567,7 +1675,11 @@ body.modal-open{overflow:hidden}
   .statgrid{grid-template-columns:1fr}
   .item{grid-template-columns:auto 1fr}
   .guide{grid-column:2;justify-self:start}
-  .ngprogress{width:100%;margin-left:0;justify-content:flex-end}
+  .ng-checklist-summary{padding-left:16px;padding-right:16px;gap:12px}
+  .ng-checklist-summary .ngprogress{width:auto;margin-left:auto;justify-content:flex-end}
+  .ng-checklist-summary .ngsegments{grid-template-columns:repeat(11,8px);gap:3px}
+  .ng-checklist-summary .ngsegment{width:8px;height:13px}
+  .ng-checklist-summary .ngprogress-count{width:46px;flex-basis:46px}
 }
 @media(max-width:520px){
   .toolbar{grid-template-columns:1fr}
@@ -1578,6 +1690,13 @@ body.modal-open{overflow:hidden}
     padding:7px 10px;
   }
   details.part>summary{grid-template-columns:16px minmax(0,1fr) auto}
+  .ng-checklist-summary{
+    grid-template-columns:1fr;
+    gap:8px;
+    padding-top:12px;
+    padding-bottom:12px;
+  }
+  .ng-checklist-summary .ngprogress{justify-self:end}
   .ending{font-size:3rem}
 }
 </style>
@@ -1729,15 +1848,25 @@ body.modal-open{overflow:hidden}
 <button class="btn" id="markDogNG">Mark Dog steps complete</button>
 <button class="btn" id="markSciFiNG">Mark Sci-Fi steps complete</button>
 <button class="btn" id="clearNG">Clear New Game+ progress</button>
-<div class="ngprogress" id="ngProgress" role="status" aria-live="polite" aria-label="New Game+ progress: 0 of 11 items complete">
-  <div class="ngsegments" id="ngSegments" aria-hidden="true">
-    <span class="ngsegment"></span><span class="ngsegment"></span><span class="ngsegment"></span><span class="ngsegment"></span><span class="ngsegment"></span><span class="ngsegment"></span><span class="ngsegment"></span><span class="ngsegment"></span><span class="ngsegment"></span><span class="ngsegment"></span><span class="ngsegment"></span>
+</div>
+</div>
+<div class="ng-checklist-summary">
+  <button class="ng-checklist-toggle" id="ngChecklistToggle" type="button" aria-expanded="true" aria-controls="ngChecklistCollapse">
+    <span class="ng-checklist-chevron" aria-hidden="true">›</span>
+    <span>New Game+ checklist</span>
+  </button>
+  <div class="ngprogress" id="ngProgress" role="status" aria-live="polite" aria-label="New Game+ progress: 0 of 11 items complete">
+    <div class="ngsegments" id="ngSegments" aria-hidden="true">
+      <span class="ngsegment"></span><span class="ngsegment"></span><span class="ngsegment"></span><span class="ngsegment"></span><span class="ngsegment"></span><span class="ngsegment"></span><span class="ngsegment"></span><span class="ngsegment"></span><span class="ngsegment"></span><span class="ngsegment"></span><span class="ngsegment"></span>
+    </div>
+    <span class="ngprogress-count" id="ngProgressCount">0 / 11</span>
   </div>
-  <span class="ngprogress-count" id="ngProgressCount">0 / 11</span>
 </div>
+<div class="ng-checklist-collapse" id="ngChecklistCollapse">
+  <div class="ng-checklist-collapse-inner">
+    <div class="parts" id="ngList"></div>
+  </div>
 </div>
-</div>
-<div class="parts" id="ngList"></div>
 </div>
 
 <div class="card sourcebox">
@@ -1805,8 +1934,11 @@ body.modal-open{overflow:hidden}
   title="Jump to the next unchecked Discovery"
   aria-label="Next missing Discovery">
   <span class="next-missing-default">
-    <span aria-hidden="true">↓</span>
-    <span>Next missing</span>
+    <span class="next-missing-arrow" aria-hidden="true">↓</span>
+    <span class="next-missing-copy">
+      <span class="next-missing-primary">Next missing</span>
+      <span class="next-missing-scope">Discovery</span>
+    </span>
   </span>
   <span class="next-missing-completion" aria-hidden="true">
     <span class="next-missing-completion-result">100% COMPLETE</span>
@@ -1872,7 +2004,7 @@ const els = {
  discoveryUndo:$("discoveryUndo"), discoveryUndoText:$("discoveryUndoText"), undoDiscoveries:$("undoDiscoveries"),
  expandParts:$("expandParts"), collapseParts:$("collapseParts"), nextMissing:$("nextMissing"),
  nextMissingFloat:$("nextMissingFloat"), discoveryToolbar:$("discoveryToolbar"),
- parts:$("parts"), ngCard:$("ngCard"), ngList:$("ngList"), markDogNG:$("markDogNG"), markSciFiNG:$("markSciFiNG"), clearNG:$("clearNG"), ngProgress:$("ngProgress"), ngSegments:$("ngSegments"), ngProgressCount:$("ngProgressCount"),
+ parts:$("parts"), ngCard:$("ngCard"), ngList:$("ngList"), ngChecklistToggle:$("ngChecklistToggle"), ngChecklistCollapse:$("ngChecklistCollapse"), markDogNG:$("markDogNG"), markSciFiNG:$("markSciFiNG"), clearNG:$("clearNG"), ngProgress:$("ngProgress"), ngSegments:$("ngSegments"), ngProgressCount:$("ngProgressCount"),
  discoveryReadout:$("discoveryReadout"), discoveryCount:$("discoveryCount"), discoveryPercent:$("discoveryPercent"), discoveryBar:$("discoveryBar"),
  targetEndingSelect:$("targetEndingSelect"), targetEndingButton:$("targetEndingButton"),
  targetEndingValue:$("targetEndingValue"), targetEndingOptions:$("targetEndingOptions"),
@@ -1893,7 +2025,8 @@ function blankSave(name="Profile 1") {
    mistakes:0,
    discoveries:{},
    ng:{},
-   openParts:[1]
+   openParts:[1],
+   ngChecklistOpen:true
  };
 }
 function loadDB() {
@@ -2555,11 +2688,24 @@ function markNGRouteComplete(s,route){
  }
 }
 
+function syncNGChecklistDisclosure(s){
+ const isOpen=s.ngChecklistOpen!==false;
+ els.ngChecklistToggle.setAttribute("aria-expanded",String(isOpen));
+ els.ngChecklistToggle.setAttribute(
+   "aria-label",
+   `${isOpen ? "Collapse" : "Expand"} New Game+ checklist`
+ );
+ els.ngChecklistCollapse.classList.toggle("collapsed",!isOpen);
+ els.ngChecklistCollapse.setAttribute("aria-hidden",String(!isOpen));
+ els.ngChecklistCollapse.inert=!isOpen;
+}
+
 function renderNG() {
  const s=currentSave();
  els.ngCard.classList.toggle("hidden",!s.ngPlus);
  els.ngList.innerHTML="";
 
+ syncNGChecklistDisclosure(s);
  updateNGProgressUI(s,{detectCompletion:false});
 
  if(!s.ngPlus) return;
@@ -2569,7 +2715,7 @@ function renderNG() {
    const group=`Part ${x.part}: ${x.partName} · ${x.chapter}`;
    if(group!==lastGroup) {
      const h=document.createElement("div");
-     h.style.cssText="padding:13px 16px 6px;color:#a6abad;font-size:.74rem;font-weight:850;text-transform:uppercase;letter-spacing:.075em";
+     h.className="ng-group-heading";
      h.textContent=group;
      els.ngList.appendChild(h);
      lastGroup=group;
@@ -2590,7 +2736,7 @@ function renderNG() {
    });
 
    const body=document.createElement("div");
-   body.innerHTML=`<div class="itemname">${escapeHtml(x.name)} <span class="ngtag">${x.kind}</span></div><div class="meta">Part ${x.part}: ${escapeHtml(x.partName)} · ${escapeHtml(x.chapter)}</div><div class="where">${escapeHtml(x.where)}</div>`;
+   body.innerHTML=`<div class="itemname">${escapeHtml(x.name)} <span class="ngtag">${x.kind}</span></div><div class="where">${escapeHtml(x.where)}</div>`;
 
    const a=document.createElement("a");
    a.className="guide";
@@ -3614,6 +3760,13 @@ els.ngPlus.addEventListener("change",()=>{
  s.ngPlus=els.ngPlus.checked;
  saveDB();
  renderAll();
+});
+
+els.ngChecklistToggle.addEventListener("click",()=>{
+ const s=active();
+ s.ngChecklistOpen=s.ngChecklistOpen===false;
+ saveDB();
+ syncNGChecklistDisclosure(s);
 });
 
 els.markDogNG.addEventListener("click",()=>{
