@@ -1248,6 +1248,7 @@ details.part>summary:hover{background:rgba(190,70,82,.025)}
   font-size:.84rem;
 }
 .notice strong{color:#f0e7e8}
+.notice .ending-unreachable{color:#f25566;font-weight:800}
 .storage{margin-top:15px;color:#81777a;font-size:.73rem;line-height:1.5}
 .sourcebox{padding:16px 19px;margin-top:20px;color:var(--muted);font-size:.79rem}
 .sourcebox strong{color:#b9aaad;margin-right:8px}
@@ -3238,13 +3239,13 @@ function compute() {
      targetText=`<strong>Target: Justice.</strong> Your score is within the required range, with a ${score-20}-point margin above the 20-point threshold.`;
    } else if(maxPossibleScore<20) {
      if(remaining===0) {
-       targetText=`<strong>Target: Justice.</strong> All 85 Discoveries have been found, and your score is ${score}. Since Justice requires a score of at least 20, this ending is no longer reachable.`;
+       targetText=`<strong>Target: Justice.</strong> All 85 Discoveries have been found, and your score is ${score}. Since Justice requires a score of at least 20, this ending is <span class="ending-unreachable">no longer reachable</span>.`;
      } else if(remaining===1) {
-       targetText=`<strong>Target: Justice.</strong> With the current recorded penalties, this ending is no longer reachable through the remaining Discoveries. Even finding the final remaining Discovery would leave a maximum score of ${maxPossibleScore}, below the 20-point threshold.`;
+       targetText=`<strong>Target: Justice.</strong> With the current recorded penalties, this ending is <span class="ending-unreachable">no longer reachable</span> through the remaining Discoveries. Even finding the final remaining Discovery would leave a maximum score of ${maxPossibleScore}, below the 20-point threshold.`;
      } else if(remaining===2) {
-       targetText=`<strong>Target: Justice.</strong> With the current recorded penalties, this ending is no longer reachable through the remaining Discoveries. Even finding both remaining Discoveries would leave a maximum score of ${maxPossibleScore}, below the 20-point threshold.`;
+       targetText=`<strong>Target: Justice.</strong> With the current recorded penalties, this ending is <span class="ending-unreachable">no longer reachable</span> through the remaining Discoveries. Even finding both remaining Discoveries would leave a maximum score of ${maxPossibleScore}, below the 20-point threshold.`;
      } else {
-       targetText=`<strong>Target: Justice.</strong> With the current recorded penalties, this ending is no longer reachable through the remaining Discoveries. Even finding all ${remaining} remaining Discoveries would leave a maximum score of ${maxPossibleScore}, below the 20-point threshold.`;
+       targetText=`<strong>Target: Justice.</strong> With the current recorded penalties, this ending is <span class="ending-unreachable">no longer reachable</span> through the remaining Discoveries. Even finding all ${remaining} remaining Discoveries would leave a maximum score of ${maxPossibleScore}, below the 20-point threshold.`;
      }
    } else {
      targetText=`<strong>Target: Justice.</strong> You need ${20-score} more point${20-score===1?"":"s"} to reach the 20-point threshold. ${remaining} Discover${remaining===1?"y remains":"ies remain"} unchecked.`;
@@ -3254,13 +3255,13 @@ function compute() {
      targetText=`<strong>Target: Forever.</strong> Your score is within the required 0–19 range.`;
    } else if(score<0 && maxPossibleScore<0) {
      if(remaining===0) {
-       targetText=`<strong>Target: Forever.</strong> All 85 Discoveries have been found, and your score is ${score}. Since Forever requires a score of at least 0, this ending is no longer reachable.`;
+       targetText=`<strong>Target: Forever.</strong> All 85 Discoveries have been found, and your score is ${score}. Since Forever requires a score of at least 0, this ending is <span class="ending-unreachable">no longer reachable</span>.`;
      } else if(remaining===1) {
-       targetText=`<strong>Target: Forever.</strong> With the current recorded penalties, this ending is no longer reachable through the remaining Discoveries. Even finding the final remaining Discovery would leave a maximum score of ${maxPossibleScore}, still below 0.`;
+       targetText=`<strong>Target: Forever.</strong> With the current recorded penalties, this ending is <span class="ending-unreachable">no longer reachable</span> through the remaining Discoveries. Even finding the final remaining Discovery would leave a maximum score of ${maxPossibleScore}, still below 0.`;
      } else if(remaining===2) {
-       targetText=`<strong>Target: Forever.</strong> With the current recorded penalties, this ending is no longer reachable through the remaining Discoveries. Even finding both remaining Discoveries would leave a maximum score of ${maxPossibleScore}, still below 0.`;
+       targetText=`<strong>Target: Forever.</strong> With the current recorded penalties, this ending is <span class="ending-unreachable">no longer reachable</span> through the remaining Discoveries. Even finding both remaining Discoveries would leave a maximum score of ${maxPossibleScore}, still below 0.`;
      } else {
-       targetText=`<strong>Target: Forever.</strong> With the current recorded penalties, this ending is no longer reachable through the remaining Discoveries. Even finding all ${remaining} remaining Discoveries would leave a maximum score of ${maxPossibleScore}, still below 0.`;
+       targetText=`<strong>Target: Forever.</strong> With the current recorded penalties, this ending is <span class="ending-unreachable">no longer reachable</span> through the remaining Discoveries. Even finding all ${remaining} remaining Discoveries would leave a maximum score of ${maxPossibleScore}, still below 0.`;
      }
    } else if(score<0) {
      targetText=`<strong>Target: Forever.</strong> You need ${-score} more point${-score===1?"":"s"} to return to the 0–19 range. ${remaining} Discover${remaining===1?"y remains":"ies remain"} unchecked.`;
