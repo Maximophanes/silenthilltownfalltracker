@@ -535,9 +535,48 @@ input[type=checkbox]{width:19px;height:19px;accent-color:#b85a64;cursor:pointer}
     transition:none;
   }
 }
-.progress{margin-left:auto;color:var(--muted);font-size:.85rem}
-.progress strong{color:var(--text)}
 
+.discovery-readout{
+  display:inline-flex;
+  align-items:center;
+  gap:9px;
+  flex:0 0 auto;
+  min-height:37px;
+  margin-left:auto;
+  padding:8px 11px;
+  border:1px solid #4a3035;
+  border-radius:999px;
+  background:#100b0c;
+  color:#9f9295;
+  font-size:.76rem;
+  line-height:1;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.018);
+  transition:
+    background-color .22s ease,
+    border-color .22s ease,
+    color .22s ease,
+    box-shadow .22s ease;
+}
+.discovery-readout-label{
+  font-size:.67rem;
+  font-weight:820;
+  letter-spacing:.09em;
+  text-transform:uppercase;
+}
+.discovery-readout strong{
+  color:#d2c6c8;
+  font-size:.79rem;
+  font-weight:820;
+  font-variant-numeric:tabular-nums;
+  letter-spacing:.01em;
+  transition:color .22s ease,text-shadow .22s ease;
+}
+@media(prefers-reduced-motion:reduce){
+  .discovery-readout,
+  .discovery-readout strong{
+    transition:none;
+  }
+}
 .next-missing-float{
   position:fixed;
   right:max(18px,env(safe-area-inset-right));
@@ -893,18 +932,30 @@ input[type=checkbox]{width:19px;height:19px;accent-color:#b85a64;cursor:pointer}
   border-color:rgba(205,101,112,.58);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 0 8px rgba(165,55,68,.055);
 }
-.ngsegment:nth-child(1).filled{background:#5e3036}
-.ngsegment:nth-child(2).filled{background:#673239}
-.ngsegment:nth-child(3).filled{background:#70353d}
-.ngsegment:nth-child(4).filled{background:#793841}
-.ngsegment:nth-child(5).filled{background:#823b46}
-.ngsegment:nth-child(6).filled{background:#8b3f4a}
-.ngsegment:nth-child(7).filled{background:#95434f}
-.ngsegment:nth-child(8).filled{background:#9f4754}
-.ngsegment:nth-child(9).filled{background:#aa4c59}
-.ngsegment:nth-child(10).filled{background:#b65160}
+.ngsegment:nth-child(1){--ng-fill:#5e3036}
+.ngsegment:nth-child(2){--ng-fill:#673239}
+.ngsegment:nth-child(3){--ng-fill:#70353d}
+.ngsegment:nth-child(4){--ng-fill:#793841}
+.ngsegment:nth-child(5){--ng-fill:#823b46}
+.ngsegment:nth-child(6){--ng-fill:#8b3f4a}
+.ngsegment:nth-child(7){--ng-fill:#95434f}
+.ngsegment:nth-child(8){--ng-fill:#9f4754}
+.ngsegment:nth-child(9){--ng-fill:#aa4c59}
+.ngsegment:nth-child(10){--ng-fill:#b65160}
+.ngsegment:nth-child(11){--ng-fill:#c05a68}
+
+.ngsegment:nth-child(1).filled{background:var(--ng-fill)}
+.ngsegment:nth-child(2).filled{background:var(--ng-fill)}
+.ngsegment:nth-child(3).filled{background:var(--ng-fill)}
+.ngsegment:nth-child(4).filled{background:var(--ng-fill)}
+.ngsegment:nth-child(5).filled{background:var(--ng-fill)}
+.ngsegment:nth-child(6).filled{background:var(--ng-fill)}
+.ngsegment:nth-child(7).filled{background:var(--ng-fill)}
+.ngsegment:nth-child(8).filled{background:var(--ng-fill)}
+.ngsegment:nth-child(9).filled{background:var(--ng-fill)}
+.ngsegment:nth-child(10).filled{background:var(--ng-fill)}
 .ngsegment:nth-child(11).filled{
-  background:#c05a68;
+  background:var(--ng-fill);
   border-color:rgba(220,119,130,.72);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.045),0 0 10px rgba(177,60,74,.075);
 }
@@ -936,6 +987,58 @@ input[type=checkbox]{width:19px;height:19px;accent-color:#b85a64;cursor:pointer}
   text-shadow:
     0 0 5px rgba(231,75,94,.44),
     0 0 12px rgba(165,25,46,.26);
+}
+
+/* One-time 11/11 charge-up. The checklist remains logically complete;
+   this class only replays the eleven visual cells from empty to powered. */
+.ngprogress.complete.ng-charging .ngsegments{
+  filter:none;
+}
+.ngprogress.complete.ng-charging .ngprogress-count{
+  color:#cfc2c5;
+  font-weight:760;
+  text-shadow:none;
+}
+.ngprogress.ng-charging .ngsegment.filled{
+  animation:ngChargeSegment .22s cubic-bezier(.20,.72,.24,1) both;
+}
+.ngprogress.ng-charging .ngsegment:nth-child(1){animation-delay:.06s}
+.ngprogress.ng-charging .ngsegment:nth-child(2){animation-delay:.125s}
+.ngprogress.ng-charging .ngsegment:nth-child(3){animation-delay:.19s}
+.ngprogress.ng-charging .ngsegment:nth-child(4){animation-delay:.255s}
+.ngprogress.ng-charging .ngsegment:nth-child(5){animation-delay:.32s}
+.ngprogress.ng-charging .ngsegment:nth-child(6){animation-delay:.385s}
+.ngprogress.ng-charging .ngsegment:nth-child(7){animation-delay:.45s}
+.ngprogress.ng-charging .ngsegment:nth-child(8){animation-delay:.515s}
+.ngprogress.ng-charging .ngsegment:nth-child(9){animation-delay:.58s}
+.ngprogress.ng-charging .ngsegment:nth-child(10){animation-delay:.645s}
+.ngprogress.ng-charging .ngsegment:nth-child(11){animation-delay:.71s}
+
+@keyframes ngChargeSegment{
+  0%{
+    background:#0a0607;
+    border-color:rgba(189,98,107,.24);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.012);
+    filter:brightness(.82);
+  }
+  55%{
+    background:var(--ng-fill);
+    border-color:rgba(235,111,126,.86);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.09),
+      0 0 7px rgba(242,76,96,.64),
+      0 0 13px rgba(176,27,50,.38);
+    filter:brightness(1.23);
+  }
+  100%{
+    background:var(--ng-fill);
+    border-color:rgba(229,99,114,.76);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.05),
+      0 0 5px rgba(219,61,80,.26),
+      0 0 10px rgba(150,20,41,.15);
+    filter:brightness(1);
+  }
 }
 
 .ngprogress.ng-complete-flash .ngsegments{
@@ -993,6 +1096,7 @@ input[type=checkbox]{width:19px;height:19px;accent-color:#b85a64;cursor:pointer}
 }
 
 @media(prefers-reduced-motion:reduce){
+  .ngprogress.ng-charging .ngsegment.filled,
   .ngprogress.ng-complete-flash .ngsegments,
   .ngprogress.ng-complete-flash .ngsegment.filled,
   .ngprogress.ng-complete-flash .ngprogress-count{
@@ -1455,12 +1559,16 @@ body.modal-open{overflow:hidden}
   .statgrid{grid-template-columns:1fr}
   .item{grid-template-columns:auto 1fr}
   .guide{grid-column:2;justify-self:start}
-  .progress{width:100%;margin-left:29px}
   .ngprogress{width:100%;margin-left:0;justify-content:flex-end}
 }
 @media(max-width:520px){
   .toolbar{grid-template-columns:1fr}
   .toolbar .btn{width:100%}
+  .discovery-readout{
+    margin-left:auto;
+    min-height:35px;
+    padding:7px 10px;
+  }
   details.part>summary{grid-template-columns:16px minmax(0,1fr) auto}
   .ending{font-size:3rem}
 }
@@ -1520,7 +1628,10 @@ body.modal-open{overflow:hidden}
     <span class="ngplus-active-wrap" aria-hidden="true"><span class="ngplus-active-text">· ACTIVE</span></span>
   </span>
 </label>
-<span class="progress">Discoveries: <strong id="discoveryCount">0 / 85</strong></span>
+<span class="discovery-readout" id="discoveryReadout" aria-label="Discoveries found: 0 of 85">
+  <span class="discovery-readout-label">Discoveries</span>
+  <strong id="discoveryCount">0 / 85</strong>
+</span>
 </div>
 </div>
 </div>
@@ -1592,7 +1703,7 @@ body.modal-open{overflow:hidden}
 <button class="btn" id="expandParts">Expand all</button>
 <button class="btn" id="collapseParts">Collapse all</button>
 <button class="btn" id="nextMissing" title="Jump to the next unchecked Discovery">Next missing</button>
-<span class="progress" id="discoveryPercent" title="Discovery completion">0%</span>
+<span id="discoveryPercent" title="Discovery completion">0%</span>
 </div>
 <div class="bulkundo hidden" id="discoveryUndo" role="status" aria-live="polite">
 <span id="discoveryUndoText"></span>
@@ -1736,6 +1847,7 @@ let discoveryCompletionFloatHideTimer=null;
 let discoveryCompletionFloatProfileId=null;
 
 const ngCompletedCountByProfile=new Map();
+let ngCompletionChargeTimer=null;
 let ngCompletionFlashTimer=null;
 let ngCompletionFlashProfileId=null;
 let ngCompletionPendingProfileId=null;
@@ -1751,7 +1863,7 @@ const els = {
  expandParts:$("expandParts"), collapseParts:$("collapseParts"), nextMissing:$("nextMissing"),
  nextMissingFloat:$("nextMissingFloat"), discoveryToolbar:$("discoveryToolbar"),
  parts:$("parts"), ngCard:$("ngCard"), ngList:$("ngList"), clearNG:$("clearNG"), ngProgress:$("ngProgress"), ngSegments:$("ngSegments"), ngProgressCount:$("ngProgressCount"),
- discoveryCount:$("discoveryCount"), discoveryPercent:$("discoveryPercent"), discoveryBar:$("discoveryBar"),
+ discoveryReadout:$("discoveryReadout"), discoveryCount:$("discoveryCount"), discoveryPercent:$("discoveryPercent"), discoveryBar:$("discoveryBar"),
  targetEndingSelect:$("targetEndingSelect"), targetEndingButton:$("targetEndingButton"),
  targetEndingValue:$("targetEndingValue"), targetEndingOptions:$("targetEndingOptions"),
  ending:$("ending"), score:$("score"), bDisc:$("bDisc"), bKills:$("bKills"), bRefills:$("bRefills"), bMistakes:$("bMistakes"), notice:$("notice"),
@@ -2124,23 +2236,62 @@ function triggerNGCompletionIgnition(profileId){
  const completed=NG_ITEMS.filter(x=>!!s.ng[x.id]).length;
  if(completed!==NG_ITEMS.length) return;
 
+ if(ngCompletionChargeTimer){
+   clearTimeout(ngCompletionChargeTimer);
+   ngCompletionChargeTimer=null;
+ }
  if(ngCompletionFlashTimer){
    clearTimeout(ngCompletionFlashTimer);
    ngCompletionFlashTimer=null;
  }
 
  ngCompletionFlashProfileId=profileId;
- els.ngProgress.classList.remove("ng-complete-flash");
- void els.ngProgress.offsetWidth;
- els.ngProgress.classList.add("ng-complete-flash");
+ els.ngProgress.classList.remove("ng-charging","ng-complete-flash");
 
- ngCompletionFlashTimer=setTimeout(()=>{
-   if(ngCompletionFlashProfileId===profileId){
-     els.ngProgress.classList.remove("ng-complete-flash");
-     ngCompletionFlashProfileId=null;
+ const reduceMotion=window.matchMedia &&
+   window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+ if(reduceMotion){
+   // The persistent 11/11 completed treatment is already present.
+   ngCompletionFlashProfileId=null;
+   return;
+ }
+
+ // Replay the completed cells visually from empty to full without altering
+ // any stored NG+ state. The eleventh segment finishes at about 930 ms.
+ void els.ngProgress.offsetWidth;
+ els.ngProgress.classList.add("ng-charging");
+
+ ngCompletionChargeTimer=setTimeout(()=>{
+   ngCompletionChargeTimer=null;
+
+   const current=active();
+   if(
+     !current ||
+     current.id!==profileId ||
+     NG_ITEMS.filter(x=>!!current.ng[x.id]).length!==NG_ITEMS.length
+   ){
+     els.ngProgress.classList.remove("ng-charging","ng-complete-flash");
+     if(ngCompletionFlashProfileId===profileId){
+       ngCompletionFlashProfileId=null;
+     }
+     return;
    }
-   ngCompletionFlashTimer=null;
- },1400);
+
+   // Once all eleven cells are powered, hand off to the existing full-row
+   // crimson ignition and then settle into the persistent completed glow.
+   els.ngProgress.classList.remove("ng-charging");
+   void els.ngProgress.offsetWidth;
+   els.ngProgress.classList.add("ng-complete-flash");
+
+   ngCompletionFlashTimer=setTimeout(()=>{
+     if(ngCompletionFlashProfileId===profileId){
+       els.ngProgress.classList.remove("ng-complete-flash");
+       ngCompletionFlashProfileId=null;
+     }
+     ngCompletionFlashTimer=null;
+   },1400);
+ },960);
 }
 
 function stopNGCompletionAutoScroll({preservePending=true}={}){
@@ -2165,12 +2316,16 @@ function cancelNGCompletionSequence(profileId){
  }
 
  if(ngCompletionFlashProfileId===profileId){
+   if(ngCompletionChargeTimer){
+     clearTimeout(ngCompletionChargeTimer);
+     ngCompletionChargeTimer=null;
+   }
    if(ngCompletionFlashTimer){
      clearTimeout(ngCompletionFlashTimer);
      ngCompletionFlashTimer=null;
    }
    ngCompletionFlashProfileId=null;
-   els.ngProgress.classList.remove("ng-complete-flash");
+   els.ngProgress.classList.remove("ng-charging","ng-complete-flash");
  }
 }
 
@@ -2309,12 +2464,16 @@ function updateNGProgressUI(s,{detectCompletion=false}={}){
  ngCompletedCountByProfile.set(s.id,completed);
 
  if(ngCompletionFlashProfileId && ngCompletionFlashProfileId!==s.id){
+   if(ngCompletionChargeTimer){
+     clearTimeout(ngCompletionChargeTimer);
+     ngCompletionChargeTimer=null;
+   }
    if(ngCompletionFlashTimer){
      clearTimeout(ngCompletionFlashTimer);
      ngCompletionFlashTimer=null;
    }
    ngCompletionFlashProfileId=null;
-   els.ngProgress.classList.remove("ng-complete-flash");
+   els.ngProgress.classList.remove("ng-charging","ng-complete-flash");
  }
 
  if(ngCompletionPendingProfileId && ngCompletionPendingProfileId!==s.id){
@@ -2806,6 +2965,7 @@ function syncInputs() {
  els.allDiscoveries.checked=count===85;
  els.allDiscoveries.indeterminate=count>0 && count<85;
  els.discoveryCount.textContent=`${count} / 85`;
+ els.discoveryReadout.setAttribute("aria-label",`Discoveries found: ${count} of 85`);
  const percent=Math.round(count/85*100);
 
  const completionEffectActive=
@@ -2819,6 +2979,38 @@ function syncInputs() {
  els.discoveryBar.style.width=percent+"%";
 
  const completion=count/85;
+
+ // Quiet summary treatment in Ending variables. It follows completion without
+ // competing with the primary percentage badge or its completion flourish.
+ els.discoveryReadout.style.backgroundColor=interpolateHex3(
+   completion,
+   "#100b0c",
+   "#241015",
+   "#3a151d"
+ );
+ els.discoveryReadout.style.borderColor=interpolateHex3(
+   completion,
+   "#4a3035",
+   "#60343b",
+   "#7a3d48"
+ );
+ els.discoveryReadout.style.color=interpolateHex3(
+   completion,
+   "#9f9295",
+   "#b3a1a5",
+   "#c9adb2"
+ );
+ els.discoveryCount.style.color=interpolateHex3(
+   completion,
+   "#d2c6c8",
+   "#e1d2d5",
+   "#f1bcc4"
+ );
+ els.discoveryReadout.style.boxShadow=
+   `inset 0 1px 0 rgba(255,255,255,.018), 0 0 ${Math.round(2+completion*6)}px rgba(143,38,53,${(completion*0.085).toFixed(3)})`;
+ els.discoveryCount.style.textShadow=
+   completion===1 ? "0 0 7px rgba(218,70,89,.22)" : "none";
+
  els.discoveryPercent.style.backgroundColor=interpolateHex3(
    completion,
    "#120c0e",
