@@ -142,6 +142,20 @@ header::before{
   font-size:.72rem;
 }
 .eyebrow::before{content:"";width:22px;height:1px;background:#7c444b}
+.eyebrow-nine{
+  display:grid;
+  grid-template-columns:repeat(3,4px);
+  grid-template-rows:repeat(3,4px);
+  gap:2px;
+  width:max-content;
+  flex:0 0 auto;
+  opacity:.67;
+}
+.eyebrow-nine span{
+  width:4px;
+  height:4px;
+  background:#802a34;
+}
 h1{
   position:relative;
   font:500 clamp(2.45rem,5vw,4.6rem)/.97 Georgia,"Times New Roman",serif;
@@ -1857,7 +1871,14 @@ body.modal-open{overflow:hidden}
 <body>
 <main class="wrap" id="top">
 <header>
-<div class="eyebrow">Silent Hill: Townfall</div>
+<div class="eyebrow">
+  <span>Silent Hill: Townfall</span>
+  <span class="eyebrow-nine" aria-hidden="true">
+    <span></span><span></span><span></span>
+    <span></span><span></span><span></span>
+    <span></span><span></span><span></span>
+  </span>
+</div>
 <h1>Ending & Progress Tracker</h1>
 <p class="lead">Track all 85 scoring Discoveries in story order, follow the New Game+ special-ending routes, and see your projected ending update as you play. Use named profiles to keep separate playthroughs and ending routes independent.</p>
 </header>
