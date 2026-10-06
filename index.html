@@ -33,6 +33,15 @@
 *{box-sizing:border-box}
 html{scroll-behavior:smooth;background:#020202}
 html.ng-auto-scrolling{scroll-behavior:auto !important}
+html.discovery-layout-coordinating{scroll-behavior:auto !important}
+html.discovery-layout-coordinating,
+html.discovery-layout-coordinating body,
+html.discovery-layout-coordinating #discoveryToolbar,
+html.discovery-layout-coordinating #discoveryUndo,
+html.discovery-layout-coordinating #parts,
+html.discovery-layout-coordinating #parts *{
+  overflow-anchor:none !important;
+}
 body{
   margin:0;
   min-height:100vh;
@@ -406,6 +415,75 @@ input[type=number]:focus,input[type=text]:focus{border-color:#9e525c;box-shadow:
 }
 .btn:hover{border-color:#8a4a54;background:#28171b;transform:translateY(-1px)}
 .btn:active{transform:translateY(0)}
+#showMissingOnly{
+  position:relative;
+  overflow:hidden;
+}
+#showMissingOnly[aria-pressed="true"],
+#showMissingOnly[aria-pressed="true"]:hover{
+  color:#f5dde1;
+  border-color:#9a4a57;
+  background:linear-gradient(180deg,#12090b,#211015);
+  transform:none;
+  box-shadow:
+    inset 0 4px 8px rgba(0,0,0,.74),
+    inset 0 0 0 1px rgba(226,92,108,.16),
+    0 0 0 1px rgba(110,35,47,.10);
+}
+#showMissingOnly[aria-pressed="true"]::after{
+  content:"";
+  position:absolute;
+  left:14px;
+  right:14px;
+  bottom:6px;
+  height:2px;
+  border-radius:999px;
+  pointer-events:none;
+  background:linear-gradient(90deg,rgba(145,48,62,.30),rgba(232,91,108,.88),rgba(145,48,62,.30));
+  box-shadow:0 0 7px rgba(199,68,84,.22);
+}
+.missing-only-empty{
+  margin:9px 0;
+  padding:22px 18px;
+  border:1px solid var(--line);
+  border-radius:13px;
+  background:linear-gradient(180deg,#130c0e,#0d0809);
+  color:#b9aeb0;
+  text-align:center;
+  font-size:.88rem;
+}
+.missing-only-empty strong{color:#eadcdf}
+.missing-only-empty-content{display:block}
+
+.item.missing-filter-out{
+  pointer-events:none;
+  transform-origin:center top;
+  overflow:hidden;
+  animation:missingFilterRowOut .19s cubic-bezier(.32,.02,.62,.98) forwards;
+}
+@keyframes missingFilterRowOut{
+  0%{
+    opacity:1;
+    filter:brightness(1);
+    max-height:180px;
+    margin-top:0;
+    margin-bottom:0;
+  }
+  52%{
+    opacity:.38;
+    filter:brightness(.28);
+  }
+  100%{
+    opacity:0;
+    filter:brightness(.08);
+    max-height:0;
+    padding-top:0;
+    padding-bottom:0;
+    margin-top:0;
+    margin-bottom:0;
+    border-width:0;
+  }
+}
 .btn.danger{color:#e5a1a8}
 .btn.danger:hover{border-color:#9a5059;background:#2a1519}
 .layout{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:20px;align-items:start}
@@ -430,7 +508,21 @@ input[type=number]:focus,input[type=text]:focus{border-color:#9e525c;box-shadow:
 .stat label{display:block;font-weight:770;margin-bottom:7px}
 .stat small{color:var(--muted);display:block;margin-top:6px}
 .quick{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-top:16px;padding-top:16px;border-top:1px solid var(--line)}
-#discoveryToolbar > .checkline{margin-right:14px}
+#discoveryToolbar{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:10px;
+  align-items:stretch;
+}
+.discovery-toolbar-row{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:9px;
+  min-width:0;
+}
+.discovery-toolbar-primary > .checkline{margin-right:14px}
+.discovery-toolbar-secondary #discoveryPercent{margin-left:auto}
 .bulkundo{
   display:flex;
   align-items:center;
@@ -447,6 +539,11 @@ input[type=number]:focus,input[type=text]:focus{border-color:#9e525c;box-shadow:
 .bulkundo .btn{
   flex:0 0 auto;
   padding:7px 11px;
+}
+.bulkundo.undo-layout-transition{
+  overflow:hidden;
+  box-sizing:border-box;
+  will-change:height,opacity,margin,padding;
 }
 .checkline{display:flex;gap:10px;align-items:center;cursor:pointer}
 input[type=checkbox]{width:19px;height:19px;accent-color:#b85a64;cursor:pointer}
@@ -607,12 +704,32 @@ input[type=checkbox]{width:19px;height:19px;accent-color:#b85a64;cursor:pointer}
     inset 0 1px 0 rgba(255,255,255,.025);
   backdrop-filter:blur(8px);
   -webkit-backdrop-filter:blur(8px);
+  opacity:1;
+  visibility:visible;
+  pointer-events:auto;
+  transform:translateY(0);
   transition:
     border-color .34s ease,
     background .34s ease,
     box-shadow .34s ease,
     color .28s ease,
-    opacity .42s ease;
+    opacity .22s ease,
+    transform .22s cubic-bezier(.20,.72,.24,1),
+    visibility 0s linear 0s;
+}
+.next-missing-float.float-hidden{
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+  transform:translateY(4px);
+  transition:
+    border-color .34s ease,
+    background .34s ease,
+    box-shadow .34s ease,
+    color .28s ease,
+    opacity .20s ease,
+    transform .20s cubic-bezier(.20,.72,.24,1),
+    visibility 0s linear .20s;
 }
 .next-missing-float:hover{
   border-color:#8a4650;
@@ -767,6 +884,12 @@ input[type=checkbox]{width:19px;height:19px;accent-color:#b85a64;cursor:pointer}
 .next-missing-float.completion-fading{
   opacity:0;
   border-color:rgba(215,78,97,.16);
+  transition:
+    border-color .34s ease,
+    background .34s ease,
+    box-shadow .34s ease,
+    color .28s ease,
+    opacity .42s ease;
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,.018),
     0 0 5px rgba(143,38,53,.12);
@@ -795,6 +918,7 @@ input[type=checkbox]{width:19px;height:19px;accent-color:#b85a64;cursor:pointer}
   }
 }
 @media(prefers-reduced-motion:reduce){
+  .item.missing-filter-out,
   .ng-checklist-collapse,
   .ng-checklist-chevron,
   .next-missing-float,
@@ -1547,7 +1671,25 @@ details.part>summary:hover{background:rgba(190,70,82,.025)}
 .mechanics-source a{color:#c7afb3}
 .mechanics-source a:hover{color:#fff}
 @media(max-width:700px){
-  #discoveryToolbar > .checkline{margin-right:0}
+  .discovery-toolbar-primary,
+  .discovery-toolbar-secondary{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:9px;
+  }
+  .discovery-toolbar-primary > .checkline{
+    grid-column:1/-1;
+    margin-right:0;
+  }
+  .discovery-toolbar-primary .btn,
+  .discovery-toolbar-secondary .btn{
+    width:100%;
+  }
+  .discovery-toolbar-secondary #discoveryPercent{
+    grid-column:1/-1;
+    justify-self:end;
+    margin-left:0;
+  }
   .mechanicgrid{grid-template-columns:1fr}
   .mechanics-card .cardhead{display:block}
   .sourcebadge{margin-top:10px}
@@ -1684,6 +1826,17 @@ body.modal-open{overflow:hidden}
 @media(max-width:520px){
   .toolbar{grid-template-columns:1fr}
   .toolbar .btn{width:100%}
+  .discovery-toolbar-primary,
+  .discovery-toolbar-secondary{
+    grid-template-columns:1fr;
+  }
+  .discovery-toolbar-primary > .checkline{
+    grid-column:auto;
+  }
+  .discovery-toolbar-secondary #discoveryPercent{
+    grid-column:auto;
+    justify-self:end;
+  }
   .discovery-readout{
     margin-left:auto;
     min-height:35px;
@@ -1825,18 +1978,23 @@ body.modal-open{overflow:hidden}
 <div class="cardhead"><h2>Discoveries — all 85</h2><p>All scoring Documents and Clues are listed in story order. Each checked Discovery adds +1 point to the normal-ending score.</p></div>
 <div class="controls">
 <div class="quick" id="discoveryToolbar" style="margin:0;padding:0;border:0">
-<label class="checkline"><input id="allDiscoveries" type="checkbox"> <strong>Mark all 85 as found</strong></label>
-<button class="btn" id="clearDiscoveries">Clear all</button>
-<button class="btn" id="expandParts">Expand all</button>
-<button class="btn" id="collapseParts">Collapse all</button>
-<button class="btn" id="nextMissing" title="Jump to the next unchecked Discovery">Next missing</button>
-<span id="discoveryPercent" title="Discovery completion">0%</span>
+  <div class="discovery-toolbar-row discovery-toolbar-primary">
+    <label class="checkline"><input id="allDiscoveries" type="checkbox"> <strong>Mark all 85 as found</strong></label>
+    <button class="btn" id="clearDiscoveries">Clear all</button>
+    <button class="btn" id="expandParts">Expand all</button>
+    <button class="btn" id="collapseParts">Collapse all</button>
+  </div>
+  <div class="discovery-toolbar-row discovery-toolbar-secondary">
+    <button class="btn" id="showMissingOnly" type="button" aria-pressed="false" title="Show only unchecked Discoveries">Show missing only</button>
+    <button class="btn" id="nextMissing" title="Jump to the next unchecked Discovery">Next missing</button>
+    <span id="discoveryPercent" title="Discovery completion">0%</span>
+  </div>
 </div>
+<div class="progressbar" aria-hidden="true"><span id="discoveryBar"></span></div>
 <div class="bulkundo hidden" id="discoveryUndo" role="status" aria-live="polite">
 <span id="discoveryUndoText"></span>
 <button class="btn" id="undoDiscoveries">Undo</button>
 </div>
-<div class="progressbar" aria-hidden="true"><span id="discoveryBar"></span></div>
 </div>
 <div class="parts" id="parts"></div>
 </div>
@@ -1928,11 +2086,12 @@ body.modal-open{overflow:hidden}
 </main>
 
 <button
-  class="btn next-missing-float hidden"
+  class="btn next-missing-float float-hidden"
   id="nextMissingFloat"
   type="button"
   title="Jump to the next unchecked Discovery"
-  aria-label="Next missing Discovery">
+  aria-label="Next missing Discovery"
+  aria-hidden="true">
   <span class="next-missing-default">
     <span class="next-missing-arrow" aria-hidden="true">↓</span>
     <span class="next-missing-copy">
@@ -1987,6 +2146,15 @@ let discoveryCompletionFloatResultTimer=null;
 let discoveryCompletionFloatFadeTimer=null;
 let discoveryCompletionFloatHideTimer=null;
 let discoveryCompletionFloatProfileId=null;
+let discoveryUndoTransitionTimer=null;
+let discoveryUndoTransitionMode=null;
+let discoveryFilterTransitionTimer=null;
+let discoveryToolbarAnchorRaf=null;
+let discoveryToolbarAnchorState=null;
+let discoveryLayoutCoordinationRaf=null;
+let discoveryLayoutCoordinationTimer=null;
+let discoveryLayoutCoordinationState=null;
+let discoveryPartRemovalFlipActive=false;
 
 const ngCompletedCountByProfile=new Map();
 let ngCompletionChargeTimer=null;
@@ -2002,7 +2170,7 @@ const els = {
  kills:$("kills"), refills:$("refills"), mistakes:$("mistakes"), ngPlus:$("ngPlus"),
  allDiscoveries:$("allDiscoveries"), clearDiscoveries:$("clearDiscoveries"),
  discoveryUndo:$("discoveryUndo"), discoveryUndoText:$("discoveryUndoText"), undoDiscoveries:$("undoDiscoveries"),
- expandParts:$("expandParts"), collapseParts:$("collapseParts"), nextMissing:$("nextMissing"),
+ expandParts:$("expandParts"), collapseParts:$("collapseParts"), showMissingOnly:$("showMissingOnly"), nextMissing:$("nextMissing"),
  nextMissingFloat:$("nextMissingFloat"), discoveryToolbar:$("discoveryToolbar"),
  parts:$("parts"), ngCard:$("ngCard"), ngList:$("ngList"), ngChecklistToggle:$("ngChecklistToggle"), ngChecklistCollapse:$("ngChecklistCollapse"), markDogNG:$("markDogNG"), markSciFiNG:$("markSciFiNG"), clearNG:$("clearNG"), ngProgress:$("ngProgress"), ngSegments:$("ngSegments"), ngProgressCount:$("ngProgressCount"),
  discoveryReadout:$("discoveryReadout"), discoveryCount:$("discoveryCount"), discoveryPercent:$("discoveryPercent"), discoveryBar:$("discoveryBar"),
@@ -2026,7 +2194,8 @@ function blankSave(name="Profile 1") {
    discoveries:{},
    ng:{},
    openParts:[1],
-   ngChecklistOpen:true
+   ngChecklistOpen:true,
+   showMissingOnly:false
  };
 }
 function loadDB() {
@@ -2087,8 +2256,167 @@ function setDiscoveryUndo(s,message) {
  };
 }
 
+function resetDiscoveryUndoTransitionStyles(){
+ const el=els.discoveryUndo;
+ el.classList.remove("undo-layout-transition");
+ [
+   "height","overflow","boxSizing","opacity","marginTop",
+   "paddingTop","paddingBottom","borderTopWidth","borderBottomWidth",
+   "transition"
+ ].forEach(prop=>el.style[prop]="");
+}
+
+function animateDiscoveryUndoBanner(show){
+ const el=els.discoveryUndo;
+ if(!el)return;
+
+ const reduceMotion=window.matchMedia &&
+   window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+ if(discoveryUndoTransitionTimer){
+   clearTimeout(discoveryUndoTransitionTimer);
+   discoveryUndoTransitionTimer=null;
+ }
+
+ if(reduceMotion){
+   resetDiscoveryUndoTransitionStyles();
+   el.classList.toggle("hidden",!show);
+   if(!show) els.discoveryUndoText.textContent="";
+   discoveryUndoTransitionMode=null;
+   return;
+ }
+
+ if(show){
+   if(!el.classList.contains("hidden") && discoveryUndoTransitionMode!=="hiding"){
+     discoveryUndoTransitionMode=null;
+     return;
+   }
+
+   // If reversing a hide, start from the element's current rendered geometry.
+   resetDiscoveryUndoTransitionStyles();
+   el.classList.remove("hidden");
+
+   const cs=getComputedStyle(el);
+   const targetHeight=Math.ceil(el.getBoundingClientRect().height);
+   const targetMarginTop=cs.marginTop;
+   const targetPaddingTop=cs.paddingTop;
+   const targetPaddingBottom=cs.paddingBottom;
+   const targetBorderTop=cs.borderTopWidth;
+   const targetBorderBottom=cs.borderBottomWidth;
+
+   el.classList.add("undo-layout-transition");
+   el.style.transition="none";
+   el.style.height="0px";
+   el.style.opacity="0";
+   el.style.marginTop="0px";
+   el.style.paddingTop="0px";
+   el.style.paddingBottom="0px";
+   el.style.borderTopWidth="0px";
+   el.style.borderBottomWidth="0px";
+   el.getBoundingClientRect();
+
+   discoveryUndoTransitionMode="showing";
+   requestAnimationFrame(()=>{
+     el.style.transition=[
+       "height .24s cubic-bezier(.20,.72,.24,1)",
+       "opacity .16s ease-out",
+       "margin-top .24s cubic-bezier(.20,.72,.24,1)",
+       "padding-top .24s cubic-bezier(.20,.72,.24,1)",
+       "padding-bottom .24s cubic-bezier(.20,.72,.24,1)",
+       "border-top-width .24s cubic-bezier(.20,.72,.24,1)",
+       "border-bottom-width .24s cubic-bezier(.20,.72,.24,1)"
+     ].join(",");
+     el.style.height=`${targetHeight}px`;
+     el.style.opacity="1";
+     el.style.marginTop=targetMarginTop;
+     el.style.paddingTop=targetPaddingTop;
+     el.style.paddingBottom=targetPaddingBottom;
+     el.style.borderTopWidth=targetBorderTop;
+     el.style.borderBottomWidth=targetBorderBottom;
+
+     discoveryUndoTransitionTimer=window.setTimeout(()=>{
+       resetDiscoveryUndoTransitionStyles();
+       discoveryUndoTransitionTimer=null;
+       discoveryUndoTransitionMode=null;
+     },250);
+   });
+   return;
+ }
+
+ if(el.classList.contains("hidden")){
+   discoveryUndoTransitionMode=null;
+   els.discoveryUndoText.textContent="";
+   return;
+ }
+ if(discoveryUndoTransitionMode==="hiding")return;
+
+ const cs=getComputedStyle(el);
+ const startHeight=Math.ceil(el.getBoundingClientRect().height);
+
+ el.classList.add("undo-layout-transition");
+ el.style.height=`${startHeight}px`;
+ el.style.opacity=cs.opacity;
+ el.style.marginTop=cs.marginTop;
+ el.style.paddingTop=cs.paddingTop;
+ el.style.paddingBottom=cs.paddingBottom;
+ el.style.borderTopWidth=cs.borderTopWidth;
+ el.style.borderBottomWidth=cs.borderBottomWidth;
+ el.style.transition="none";
+ el.getBoundingClientRect();
+
+ discoveryUndoTransitionMode="hiding";
+ requestAnimationFrame(()=>{
+   el.style.transition=[
+     "height .24s cubic-bezier(.20,.72,.24,1)",
+     "opacity .15s ease-out",
+     "margin-top .24s cubic-bezier(.20,.72,.24,1)",
+     "padding-top .24s cubic-bezier(.20,.72,.24,1)",
+     "padding-bottom .24s cubic-bezier(.20,.72,.24,1)",
+     "border-top-width .24s cubic-bezier(.20,.72,.24,1)",
+     "border-bottom-width .24s cubic-bezier(.20,.72,.24,1)"
+   ].join(",");
+   el.style.height="0px";
+   el.style.opacity="0";
+   el.style.marginTop="0px";
+   el.style.paddingTop="0px";
+   el.style.paddingBottom="0px";
+   el.style.borderTopWidth="0px";
+   el.style.borderBottomWidth="0px";
+
+   discoveryUndoTransitionTimer=window.setTimeout(()=>{
+     el.classList.add("hidden");
+     resetDiscoveryUndoTransitionStyles();
+     els.discoveryUndoText.textContent="";
+     discoveryUndoTransitionTimer=null;
+     discoveryUndoTransitionMode=null;
+   },250);
+ });
+}
+
+function syncDiscoveryUndoBanner(undo){
+ if(undo){
+   els.discoveryUndoText.textContent=undo.message;
+   if(els.discoveryUndo.classList.contains("hidden") ||
+      discoveryUndoTransitionMode==="hiding"){
+     animateDiscoveryUndoBanner(true);
+   }
+ } else if(!els.discoveryUndo.classList.contains("hidden") &&
+           discoveryUndoTransitionMode!=="hiding"){
+   animateDiscoveryUndoBanner(false);
+ }
+}
+
 function clearDiscoveryUndo(s) {
- if(s && s.discoveryUndo) delete s.discoveryUndo;
+ if(!s || !s.discoveryUndo)return;
+ delete s.discoveryUndo;
+
+ // Keep the entire Discovery area in one coordinated layout transaction.
+ // Calls made by a Part/row action may already have chosen a safer anchor;
+ // in that case this simply extends the same transaction.
+ if(active()?.id===s.id){
+   beginDiscoveryLayoutCoordination({duration:320});
+   animateDiscoveryUndoBanner(false);
+ }
 }
 
 function num(v) { const n=parseInt(v,10); return Number.isFinite(n)&&n>0?n:0; }
@@ -2258,8 +2586,753 @@ function moveSaveSelectFocus(current,delta){
  options[next].focus();
 }
 
+function syncDiscoveryLayoutCoordinationClass(){
+ document.documentElement.classList.toggle(
+   "discovery-layout-coordinating",
+   !!discoveryToolbarAnchorState ||
+   !!discoveryLayoutCoordinationState ||
+   discoveryPartRemovalFlipActive
+ );
+}
+
+function discoveryLayoutAnchorCandidate(exclude=[]){
+ const excluded=new Set(exclude.filter(Boolean));
+ const isExcluded=el=>{
+   if(!el)return true;
+   if(excluded.has(el))return true;
+   const part=el.closest?.("details.part");
+   return !!part && excluded.has(part);
+ };
+ const isVisible=el=>{
+   if(!el || isExcluded(el) || !el.isConnected)return false;
+   const r=el.getBoundingClientRect();
+   return r.height>0 && r.bottom>0 && r.top<window.innerHeight;
+ };
+
+ if(isVisible(els.discoveryToolbar)) return els.discoveryToolbar;
+
+ const candidates=[
+   ...els.parts.querySelectorAll("details.part > summary"),
+   ...els.parts.querySelectorAll(".missing-only-empty")
+ ].filter(isVisible);
+
+ if(!candidates.length)return null;
+
+ // Prefer the stable visible element nearest the top of the viewport.
+ candidates.sort((a,b)=>{
+   const ar=a.getBoundingClientRect();
+   const br=b.getBoundingClientRect();
+   const ad=Math.abs(Math.max(ar.top,0));
+   const bd=Math.abs(Math.max(br.top,0));
+   return ad-bd;
+ });
+ return candidates[0];
+}
+
+function endDiscoveryLayoutCoordination(){
+ if(discoveryLayoutCoordinationRaf){
+   cancelAnimationFrame(discoveryLayoutCoordinationRaf);
+   discoveryLayoutCoordinationRaf=null;
+ }
+ if(discoveryLayoutCoordinationTimer){
+   clearTimeout(discoveryLayoutCoordinationTimer);
+   discoveryLayoutCoordinationTimer=null;
+ }
+
+ const state=discoveryLayoutCoordinationState;
+ if(state?.anchor?.isConnected){
+   const current=state.anchor.getBoundingClientRect();
+   const delta=current.top-state.top;
+   if(Math.abs(delta)>.5) window.scrollBy(0,delta);
+ }
+
+ discoveryLayoutCoordinationState=null;
+ syncDiscoveryLayoutCoordinationClass();
+}
+
+function beginDiscoveryLayoutCoordination({exclude=[],duration=320}={}){
+ if(discoveryLayoutCoordinationTimer){
+   clearTimeout(discoveryLayoutCoordinationTimer);
+   discoveryLayoutCoordinationTimer=null;
+ }
+
+ // If a transaction is already active, keep its original visual anchor and
+ // simply extend its lifetime so all overlapping layout changes settle together.
+ if(discoveryLayoutCoordinationState){
+   discoveryLayoutCoordinationTimer=window.setTimeout(
+     endDiscoveryLayoutCoordination,
+     duration
+   );
+   return;
+ }
+
+ const anchor=discoveryLayoutAnchorCandidate(exclude);
+ discoveryLayoutCoordinationState=anchor
+   ? {anchor,top:anchor.getBoundingClientRect().top}
+   : {anchor:null,top:0};
+
+ syncDiscoveryLayoutCoordinationClass();
+
+ const tick=()=>{
+   const state=discoveryLayoutCoordinationState;
+   if(!state){
+     discoveryLayoutCoordinationRaf=null;
+     return;
+   }
+
+   if(state.anchor?.isConnected){
+     const current=state.anchor.getBoundingClientRect();
+     const delta=current.top-state.top;
+     if(Math.abs(delta)>.5){
+       window.scrollBy(0,delta);
+     }
+   }
+
+   discoveryLayoutCoordinationRaf=requestAnimationFrame(tick);
+ };
+
+ discoveryLayoutCoordinationRaf=requestAnimationFrame(tick);
+ discoveryLayoutCoordinationTimer=window.setTimeout(
+   endDiscoveryLayoutCoordination,
+   duration
+ );
+}
+
+function beginDiscoveryToolbarAnchorLock(){
+ if(discoveryToolbarAnchorRaf){
+   cancelAnimationFrame(discoveryToolbarAnchorRaf);
+   discoveryToolbarAnchorRaf=null;
+ }
+ discoveryToolbarAnchorState=null;
+
+ const toolbar=els.discoveryToolbar;
+ if(!toolbar)return;
+
+ const rect=toolbar.getBoundingClientRect();
+ const visible=rect.bottom>0 && rect.top<window.innerHeight;
+ if(!visible)return;
+
+ discoveryToolbarAnchorState={top:rect.top};
+ syncDiscoveryLayoutCoordinationClass();
+
+ const tick=()=>{
+   if(!discoveryToolbarAnchorState){
+     discoveryToolbarAnchorRaf=null;
+     return;
+   }
+
+   const current=toolbar.getBoundingClientRect();
+   const delta=current.top-discoveryToolbarAnchorState.top;
+
+   if(Math.abs(delta)>.5){
+     window.scrollBy(0,delta);
+   }
+
+   discoveryToolbarAnchorRaf=requestAnimationFrame(tick);
+ };
+
+ discoveryToolbarAnchorRaf=requestAnimationFrame(tick);
+}
+
+function endDiscoveryToolbarAnchorLock(){
+ if(discoveryToolbarAnchorRaf){
+   cancelAnimationFrame(discoveryToolbarAnchorRaf);
+   discoveryToolbarAnchorRaf=null;
+ }
+
+ if(discoveryToolbarAnchorState){
+   const current=els.discoveryToolbar?.getBoundingClientRect();
+   if(current){
+     const delta=current.top-discoveryToolbarAnchorState.top;
+     if(Math.abs(delta)>.5){
+       window.scrollBy(0,delta);
+     }
+   }
+ }
+
+ discoveryToolbarAnchorState=null;
+ syncDiscoveryLayoutCoordinationClass();
+}
+
+function finishDiscoveryFilterTransition(){
+ if(discoveryFilterTransitionTimer){
+   clearTimeout(discoveryFilterTransitionTimer);
+   discoveryFilterTransitionTimer=null;
+ }
+ endDiscoveryToolbarAnchorLock();
+ els.showMissingOnly.disabled=false;
+ els.parts.style.pointerEvents="";
+ requestAnimationFrame(updateFloatingNextMissing);
+}
+
+function prepareFilterReveal(el,kind){
+ if(!el || !el.isConnected)return null;
+
+ const rect=el.getBoundingClientRect();
+ if(rect.height<=0)return null;
+
+ const cs=getComputedStyle(el);
+ const state={
+   el,
+   kind,
+   height:Math.ceil(rect.height),
+   opacity:cs.opacity,
+   marginTop:cs.marginTop,
+   marginBottom:cs.marginBottom,
+   paddingTop:cs.paddingTop,
+   paddingBottom:cs.paddingBottom,
+   borderTopWidth:cs.borderTopWidth,
+   borderBottomWidth:cs.borderBottomWidth
+ };
+
+ el.style.boxSizing="border-box";
+ el.style.overflow="hidden";
+ el.style.transition="none";
+ el.style.height="0px";
+ el.style.opacity="0";
+
+ if(kind==="part" || kind==="message"){
+   el.style.marginTop="0px";
+   el.style.marginBottom="0px";
+   el.style.borderTopWidth="0px";
+   el.style.borderBottomWidth="0px";
+ }
+
+ if(kind==="row" || kind==="message"){
+   el.style.paddingTop="0px";
+   el.style.paddingBottom="0px";
+   el.style.borderTopWidth="0px";
+   el.style.borderBottomWidth="0px";
+ }
+
+ return state;
+}
+
+function playFilterReveal(states,onDone){
+ const prepared=states.filter(Boolean);
+ if(!prepared.length){
+   onDone();
+   return;
+ }
+
+ // Commit all zero-geometry starts before restoring their natural sizes.
+ document.body.getBoundingClientRect();
+
+ requestAnimationFrame(()=>{
+   prepared.forEach(state=>{
+     const {el,kind}=state;
+     if(!el.isConnected)return;
+
+     const transitions=[
+       "height .24s cubic-bezier(.20,.72,.24,1)",
+       "opacity .18s ease-out"
+     ];
+
+     if(kind==="part" || kind==="message"){
+       transitions.push(
+         "margin-top .24s cubic-bezier(.20,.72,.24,1)",
+         "margin-bottom .24s cubic-bezier(.20,.72,.24,1)"
+       );
+     }
+     if(kind==="row" || kind==="message"){
+       transitions.push(
+         "padding-top .24s cubic-bezier(.20,.72,.24,1)",
+         "padding-bottom .24s cubic-bezier(.20,.72,.24,1)"
+       );
+     }
+     transitions.push(
+       "border-top-width .24s cubic-bezier(.20,.72,.24,1)",
+       "border-bottom-width .24s cubic-bezier(.20,.72,.24,1)"
+     );
+
+     el.style.transition=transitions.join(",");
+     el.style.height=`${state.height}px`;
+     el.style.opacity=state.opacity;
+     el.style.marginTop=state.marginTop;
+     el.style.marginBottom=state.marginBottom;
+     el.style.paddingTop=state.paddingTop;
+     el.style.paddingBottom=state.paddingBottom;
+     el.style.borderTopWidth=state.borderTopWidth;
+     el.style.borderBottomWidth=state.borderBottomWidth;
+   });
+
+   discoveryFilterTransitionTimer=window.setTimeout(()=>{
+     prepared.forEach(({el})=>{
+       if(!el.isConnected)return;
+       [
+         "height","opacity","marginTop","marginBottom","paddingTop","paddingBottom",
+         "borderTopWidth","borderBottomWidth","overflow","boxSizing","transition"
+       ].forEach(prop=>el.style[prop]="");
+     });
+     onDone();
+   },255);
+ });
+}
+
+function resetDiscoveryFilterContainerStyles(){
+ [
+   "height","overflow","opacity","transition","willChange"
+ ].forEach(prop=>els.parts.style[prop]="");
+}
+
+function discoveryFilterTransitionKind(s){
+ const openParts=new Set(
+   (Array.isArray(s.openParts) ? s.openParts : [1])
+     .map(Number)
+     .filter(p=>Number.isInteger(p) && p>=1 && p<=6)
+ );
+
+ let hasVisibleRowChange=false;
+
+ for(let p=1;p<=6;p++){
+   const items=COLLECTIBLES.filter(x=>x.part===p);
+   const got=items.filter(x=>!!s.discoveries[x.id]).length;
+
+   // Entire Parts appear/disappear between normal and missing-only views.
+   // Keep the container-level transition for this structural change.
+   if(got===items.length) return "structure";
+
+   // In a partial Part, checked rows differ between modes only when the Part
+   // is expanded. This is a local row change, not a reason to fade the whole list.
+   if(got>0 && got<items.length && openParts.has(p)){
+     hasVisibleRowChange=true;
+   }
+ }
+
+ return hasVisibleRowChange ? "rows" : "none";
+}
+
+function structuralPartRects(){
+ const map=new Map();
+
+ els.parts.querySelectorAll("details.part").forEach(part=>{
+   const p=Number(part.dataset.part);
+   if(!Number.isInteger(p))return;
+
+   const rect=part.getBoundingClientRect();
+   if(rect.height<=0)return;
+
+   map.set(p,{
+     top:rect.top,
+     left:rect.left,
+     width:rect.width,
+     height:rect.height
+   });
+ });
+
+ return map;
+}
+
+function structuralVisiblePartIds(){
+ return new Set(
+   [...els.parts.querySelectorAll("details.part")]
+     .map(part=>Number(part.dataset.part))
+     .filter(Number.isInteger)
+ );
+}
+
+function prepareStructuralFadeIn(el){
+ if(!el || !el.isConnected)return;
+
+ // Keep the Part frame itself fully painted. Animate only its direct contents
+ // so borders, rounded corners and background never look like they are being drawn.
+ // Preserve each child's own resting opacity (for example, completed rows are .55).
+ [...el.children].forEach(child=>{
+   child._structuralRevealOpacity=getComputedStyle(child).opacity || "1";
+   child.style.transition="none";
+   child.style.opacity="0";
+   child.style.transform="translateY(3px)";
+   child.style.willChange="opacity,transform";
+ });
+}
+
+function prepareAllFoundReveal(el){
+ if(!el || !el.isConnected)return;
+
+ const content=el.querySelector(".missing-only-empty-content");
+ if(!content)return;
+
+ content.style.transition="none";
+ content.style.opacity="0";
+ content.style.transform="translateY(3px)";
+ content.style.willChange="opacity,transform";
+}
+
+function cleanupStructuralFlipStyles(){
+ els.parts.querySelectorAll("details.part").forEach(part=>{
+   part.style.transform="";
+   part.style.transition="";
+   part.style.willChange="";
+   part.style.opacity="";
+   part.style.clipPath="";
+   part.style.webkitClipPath="";
+   part.style.transformOrigin="";
+
+   [...part.children].forEach(child=>{
+     child.style.transition="";
+     child.style.willChange="";
+     child.style.opacity="";
+     child.style.transform="";
+     delete child._structuralRevealOpacity;
+   });
+ });
+
+ const empty=els.parts.querySelector(".missing-only-empty");
+ if(empty){
+   const content=empty.querySelector(".missing-only-empty-content");
+   if(content){
+     content.style.transition="";
+     content.style.willChange="";
+     content.style.opacity="";
+     content.style.transform="";
+   }
+ }
+}
+
+function runStructuralFlip({
+ beforeRects,
+ beforeIds,
+ nextMissingOnly,
+ onDone
+}){
+ const afterRects=structuralPartRects();
+ const afterIds=structuralVisiblePartIds();
+ const persistent=[];
+
+ afterIds.forEach(p=>{
+   if(!beforeIds.has(p))return;
+
+   const part=els.parts.querySelector(`details.part[data-part="${p}"]`);
+   const first=beforeRects.get(p);
+   const last=afterRects.get(p);
+   if(!part || !first || !last)return;
+
+   const dy=first.top-last.top;
+
+   if(Math.abs(dy)>.5){
+     part.style.transition="none";
+     part.style.transform=`translateY(${dy}px)`;
+     part.style.willChange="transform";
+     persistent.push(part);
+   }
+ });
+
+ // Parts that exist only in the destination should not alter geometry while
+ // animating. They simply fade into their already-final slots.
+ const enteringParts=[
+   ...els.parts.querySelectorAll("details.part")
+ ].filter(part=>!beforeIds.has(Number(part.dataset.part)));
+
+ enteringParts.forEach(prepareStructuralFadeIn);
+
+ const empty=els.parts.querySelector(".missing-only-empty");
+ if(empty && nextMissingOnly){
+   prepareAllFoundReveal(empty);
+ }
+
+ // Commit every inverse transform / initial opacity before starting motion.
+ document.body.getBoundingClientRect();
+
+ requestAnimationFrame(()=>{
+   persistent.forEach(part=>{
+     part.style.transition="transform .26s cubic-bezier(.20,.72,.24,1)";
+     part.style.transform="translateY(0)";
+   });
+
+   enteringParts.forEach(part=>{
+     [...part.children].forEach(child=>{
+       child.style.transition=[
+         "opacity .16s ease-out",
+         "transform .18s cubic-bezier(.20,.72,.24,1)"
+       ].join(",");
+       child.style.opacity=child._structuralRevealOpacity || "1";
+       child.style.transform="translateY(0)";
+     });
+   });
+
+   if(empty && nextMissingOnly){
+     const content=empty.querySelector(".missing-only-empty-content");
+     if(content){
+       content.style.transition=[
+         "opacity .16s ease-out",
+         "transform .18s cubic-bezier(.20,.72,.24,1)"
+       ].join(",");
+       content.style.opacity="1";
+       content.style.transform="translateY(0)";
+     }
+   }
+
+   discoveryFilterTransitionTimer=window.setTimeout(()=>{
+     discoveryFilterTransitionTimer=null;
+     cleanupStructuralFlipStyles();
+     onDone();
+   },275);
+ });
+}
+
+function animateStructuralFilterOn(s){
+ els.showMissingOnly.disabled=true;
+ els.parts.style.pointerEvents="none";
+ beginDiscoveryToolbarAnchorLock();
+
+ const beforeRects=structuralPartRects();
+ const beforeIds=structuralVisiblePartIds();
+
+ s.showMissingOnly=true;
+ saveDB();
+
+ // Render the destination immediately. Persistent Parts now occupy their
+ // final document-flow positions; FLIP visually places them back where they
+ // came from and moves each survivor exactly once to its final position.
+ renderMainList();
+
+ runStructuralFlip({
+   beforeRects,
+   beforeIds,
+   nextMissingOnly:true,
+   onDone:finishDiscoveryFilterTransition
+ });
+}
+
+function animateStructuralFilterOff(s){
+ els.showMissingOnly.disabled=true;
+ els.parts.style.pointerEvents="none";
+ beginDiscoveryToolbarAnchorLock();
+
+ const beforeRects=structuralPartRects();
+ const beforeIds=structuralVisiblePartIds();
+
+ s.showMissingOnly=false;
+ saveDB();
+
+ // Rebuild the full checklist in its final layout, then animate only surviving
+ // Parts from their previous screen positions. Restored Parts fade in without
+ // participating in layout animation.
+ renderMainList();
+
+ runStructuralFlip({
+   beforeRects,
+   beforeIds,
+   nextMissingOnly:false,
+   onDone:finishDiscoveryFilterTransition
+ });
+}
+
+function animateDiscoveryFilterMode(s,nextMissingOnly){
+ const reduceMotion=window.matchMedia &&
+   window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+ if(discoveryFilterTransitionTimer){
+   clearTimeout(discoveryFilterTransitionTimer);
+   discoveryFilterTransitionTimer=null;
+ }
+
+ const transitionKind=discoveryFilterTransitionKind(s);
+
+ // Nothing currently visible would change. Update only the filter state/button.
+ if(transitionKind==="none"){
+   s.showMissingOnly=nextMissingOnly;
+   saveDB();
+   renderMainList();
+   resetDiscoveryFilterContainerStyles();
+   finishDiscoveryFilterTransition();
+   return;
+ }
+
+ if(reduceMotion){
+   s.showMissingOnly=nextMissingOnly;
+   saveDB();
+   renderMainList();
+   resetDiscoveryFilterContainerStyles();
+   finishDiscoveryFilterTransition();
+   return;
+ }
+
+ // Row-only mode: keep every unaffected Part/header fully visible.
+ // Only the checked rows that differ between modes animate.
+ if(transitionKind==="rows"){
+   els.showMissingOnly.disabled=true;
+   els.parts.style.pointerEvents="none";
+   beginDiscoveryToolbarAnchorLock();
+
+   if(nextMissingOnly){
+     // Normal -> missing-only: animate currently visible checked rows out,
+     // then commit the filtered render after their existing crisp exit effect.
+     const rows=[
+       ...els.parts.querySelectorAll('details.part[open] > .item.done')
+     ];
+
+     s.showMissingOnly=true;
+     saveDB();
+     els.showMissingOnly.setAttribute("aria-pressed","true");
+     els.showMissingOnly.title="Show all Discoveries";
+
+     rows.forEach(row=>row.classList.add("missing-filter-out"));
+
+     discoveryFilterTransitionTimer=window.setTimeout(()=>{
+       discoveryFilterTransitionTimer=null;
+       renderMainList();
+       finishDiscoveryFilterTransition();
+     },195);
+     return;
+   }
+
+   // Missing-only -> normal: render the full view, but collapse only the
+   // returning checked rows to zero before the browser paints them.
+   s.showMissingOnly=false;
+   saveDB();
+   renderMainList();
+
+   const reveals=[
+     ...els.parts.querySelectorAll('details.part[open] > .item.done')
+   ].map(row=>prepareFilterReveal(row,"row"));
+
+   playFilterReveal(reveals,finishDiscoveryFilterTransition);
+   return;
+ }
+
+ // Structural mode: animate geometry separately from visibility. Persistent
+ // content never fades merely because neighboring completed Parts change.
+ if(nextMissingOnly){
+   animateStructuralFilterOn(s);
+ } else {
+   animateStructuralFilterOff(s);
+ }
+}
+
+function animateMissingFilterOn(s){
+ animateDiscoveryFilterMode(s,true);
+}
+
+function animateMissingFilterOff(s){
+ animateDiscoveryFilterMode(s,false);
+}
+
+function animateCompletedMissingFilterPart(part,{hadUndo=false,onDone=()=>{}}={}){
+ const reduceMotion=window.matchMedia &&
+   window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+ const release=()=>{
+   discoveryPartRemovalFlipActive=false;
+   syncDiscoveryLayoutCoordinationClass();
+   els.parts.style.pointerEvents="";
+   onDone();
+ };
+
+ if(reduceMotion){
+   if(discoveryLayoutCoordinationState) endDiscoveryLayoutCoordination();
+   renderAll();
+   release();
+   return;
+ }
+
+ if(!part || !part.isConnected){
+   if(discoveryLayoutCoordinationState) endDiscoveryLayoutCoordination();
+   renderAll();
+   release();
+   return;
+ }
+
+ discoveryPartRemovalFlipActive=true;
+ syncDiscoveryLayoutCoordinationClass();
+ els.parts.style.pointerEvents="none";
+ part.style.pointerEvents="none";
+
+ const commitRemoval=()=>{
+   // Undo has its own measured collapse. If it is disappearing at the same
+   // time, stop that anchor-correction loop before beginning the Part FLIP.
+   if(hadUndo && discoveryLayoutCoordinationState){
+     endDiscoveryLayoutCoordination();
+   }
+
+   if(!part.isConnected){
+     renderAll();
+     release();
+     return;
+   }
+
+   // The outgoing Part is still full-size in layout here; only its paint is
+   // transparent. Capture stable pre-removal positions for every visible Part.
+   const beforeRects=structuralPartRects();
+   const beforeIds=structuralVisiblePartIds();
+
+   // Remove the completed Part in one render, then FLIP survivors from their
+   // exact old viewport positions to their final positions.
+   renderAll();
+
+   runStructuralFlip({
+     beforeRects,
+     beforeIds,
+     nextMissingOnly:true,
+     onDone:release
+   });
+ };
+
+ const fadePart=()=>{
+   if(!part.isConnected){
+     commitRemoval();
+     return;
+   }
+
+   // Static-box exit only. No height, margin, border, clip-path or child motion.
+   part.style.transition="opacity .11s ease-out";
+   part.style.willChange="opacity";
+   part.style.opacity="0";
+
+   window.setTimeout(commitRemoval,115);
+ };
+
+ // If Undo is also disappearing, let most of its 240 ms layout change finish
+ // first. The Part then fades so FLIP begins from settled geometry.
+ if(hadUndo){
+   window.setTimeout(fadePart,140);
+ } else {
+   requestAnimationFrame(fadePart);
+ }
+}
+
+function animateMissingFilterRemoval(s,row,part,partItems,{hadUndo=false}={}){
+ const reduceMotion=window.matchMedia &&
+   window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+ if(reduceMotion){
+   renderAll();
+   return;
+ }
+
+ const remaining=partItems.filter(x=>!s.discoveries[x.id]).length;
+
+ if(remaining===0){
+   animateCompletedMissingFilterPart(part,{hadUndo});
+   return;
+ }
+
+ row.classList.add("missing-filter-out");
+
+ const finish=()=>{
+   renderAll();
+   if(discoveryLayoutCoordinationState){
+     beginDiscoveryLayoutCoordination({duration:90});
+   }
+ };
+
+ window.setTimeout(finish,190);
+}
+
+function createMissingOnlyEmptyState(){
+ const empty=document.createElement("div");
+ empty.className="missing-only-empty";
+ empty.innerHTML='<div class="missing-only-empty-content"><strong>All 85 Discoveries found.</strong> There are no missing Discoveries to show.</div>';
+ return empty;
+}
+
 function renderMainList() {
  const s=currentSave();
+ const missingOnly=s.showMissingOnly===true;
+ els.showMissingOnly.setAttribute("aria-pressed",String(missingOnly));
+ els.showMissingOnly.title=missingOnly
+   ? "Show all Discoveries"
+   : "Show only unchecked Discoveries";
 
  // Older profiles did not store accordion state. Give them the
  // same sensible first-use default as a new profile: Part 1 open.
@@ -2276,16 +3349,17 @@ function renderMainList() {
 
  els.parts.innerHTML="";
 
- const rememberOpenParts=()=>{
-   s.openParts=[...els.parts.querySelectorAll("details.part[open]")]
-     .map(d=>Number(d.dataset.part))
-     .filter(p=>Number.isInteger(p));
-   saveDB();
- };
+ let visiblePartCount=0;
 
  for(let p=1;p<=6;p++) {
    const items=COLLECTIBLES.filter(x=>x.part===p);
    const got=items.filter(x=>!!s.discoveries[x.id]).length;
+   const visibleItems=missingOnly
+     ? items.filter(x=>!s.discoveries[x.id])
+     : items;
+
+   if(missingOnly && visibleItems.length===0) continue;
+   visiblePartCount++;
 
    const d=document.createElement("details");
    d.className="part";
@@ -2323,10 +3397,22 @@ function renderMainList() {
    partToggle.addEventListener("change",e=>{
      e.stopPropagation();
      const mark=partToggle.checked;
+     const hadUndo=!!s.discoveryUndo;
+
+     if(hadUndo && s.showMissingOnly===true && mark){
+       beginDiscoveryLayoutCoordination({exclude:[d],duration:340});
+     }
+
      clearDiscoveryUndo(s);
      items.forEach(x=>s.discoveries[x.id]=mark);
      saveDB();
-     renderAll();
+
+     if(s.showMissingOnly===true && mark){
+       partToggle.disabled=true;
+       animateCompletedMissingFilterPart(d,{hadUndo});
+     } else {
+       renderAll();
+     }
    });
 
    allLabel.append(partToggle,allText);
@@ -2334,7 +3420,7 @@ function renderMainList() {
    summary.append(title,actions);
    d.appendChild(summary);
 
-   items.forEach(x=>{
+   visibleItems.forEach(x=>{
      const row=document.createElement("div");
      row.id=`discovery-${x.id}`;
      row.className="item"+(s.discoveries[x.id]?" done":"");
@@ -2345,10 +3431,28 @@ function renderMainList() {
      cb.disabled=false;
      cb.setAttribute("aria-label",`Discovery ${x.id}: ${x.name}`);
      cb.addEventListener("change",()=>{
+       const hadUndo=!!s.discoveryUndo;
+       const checkingMissingInFilter=s.showMissingOnly===true && cb.checked;
+       const completesPart=checkingMissingInFilter &&
+         items.every(item=>item.id===x.id || !!s.discoveries[item.id]);
+
+       if(hadUndo && checkingMissingInFilter){
+         beginDiscoveryLayoutCoordination({
+           exclude:completesPart ? [d] : [],
+           duration:completesPart ? 470 : 330
+         });
+       }
+
        clearDiscoveryUndo(s);
        s.discoveries[x.id]=cb.checked;
        saveDB();
-       renderAll();
+
+       if(s.showMissingOnly===true && cb.checked){
+         cb.disabled=true;
+         animateMissingFilterRemoval(s,row,d,items,{hadUndo});
+       } else {
+         renderAll();
+       }
      });
 
      const body=document.createElement("div");
@@ -2365,10 +3469,30 @@ function renderMainList() {
      d.appendChild(row);
    });
 
-   // Save the user's accordion choice whenever this Part is opened or closed.
-   d.addEventListener("toggle",rememberOpenParts);
+   // Persist only this Part's accordion state. Parts temporarily omitted by
+   // Show missing only keep their previous state instead of being forgotten.
+   d.addEventListener("toggle",()=>{
+     const remembered=new Set(
+       (Array.isArray(s.openParts)?s.openParts:[])
+         .map(Number)
+         .filter(n=>Number.isInteger(n)&&n>=1&&n<=6)
+     );
+
+     if(d.open){
+       remembered.add(p);
+     } else {
+       remembered.delete(p);
+     }
+
+     s.openParts=[...remembered].sort((a,b)=>a-b);
+     saveDB();
+   });
 
    els.parts.appendChild(d);
+ }
+
+ if(missingOnly && visiblePartCount===0){
+   els.parts.appendChild(createMissingOnlyEmptyState());
  }
 }
 
@@ -2928,7 +4052,7 @@ function resetDiscoveryCompletionFloat({hide=false}={}){
  button.setAttribute("title","Jump to the next unchecked Discovery");
  button.setAttribute("aria-label","Next missing Discovery");
 
- if(hide) button.classList.add("hidden");
+ if(hide) setNextMissingFloatVisible(false);
  discoveryCompletionFloatProfileId=null;
 }
 
@@ -2940,11 +4064,11 @@ function triggerDiscoveryCompletionFloat(profileId){
  discoveryCompletionFloatProfileId=profileId;
 
  button.classList.remove(
-   "hidden",
    "completion-bar-filling",
    "completion-finished",
    "completion-fading"
  );
+ setNextMissingFloatVisible(true);
  button.setAttribute("aria-disabled","true");
  button.setAttribute("title","Discovery completion");
  button.setAttribute("aria-label","All 85 Discoveries complete");
@@ -3212,15 +4336,22 @@ function syncInputs() {
  }
 
  const undo=s.discoveryUndo;
- els.discoveryUndo.classList.toggle("hidden",!undo);
- els.discoveryUndoText.textContent=undo ? undo.message : "";
+ syncDiscoveryUndoBanner(undo);
+}
+
+function setNextMissingFloatVisible(visible){
+ const button=els.nextMissingFloat;
+ if(!button)return;
+
+ button.classList.toggle("float-hidden",!visible);
+ button.setAttribute("aria-hidden",visible ? "false" : "true");
 }
 
 function updateFloatingNextMissing(){
  if(!els.discoveryToolbar || !els.nextMissingFloat) return;
 
  if(discoveryCompletionFloatProfileId){
-   els.nextMissingFloat.classList.remove("hidden");
+   setNextMissingFloatVisible(true);
    return;
  }
 
@@ -3233,10 +4364,7 @@ function updateFloatingNextMissing(){
    resetDiscoveryCompletionFloat({hide:false});
  }
 
- els.nextMissingFloat.classList.toggle(
-   "hidden",
-   !toolbarAboveViewport || !hasMissing
- );
+ setNextMissingFloatVisible(toolbarAboveViewport && hasMissing);
 }
 
 function discoveryNavigationRect(item){
@@ -3863,22 +4991,50 @@ els.undoDiscoveries.addEventListener("click",()=>{
  if(!undo)return;
 
  s.discoveries={...(undo.discoveries || {})};
- delete s.discoveryUndo;
+ clearDiscoveryUndo(s);
  saveDB();
  renderAll();
 });
 
+els.showMissingOnly.addEventListener("click",()=>{
+ const s=active();
+ if(!s || els.showMissingOnly.disabled)return;
+
+ if(s.showMissingOnly===true){
+   animateMissingFilterOff(s);
+ } else {
+   animateMissingFilterOn(s);
+ }
+});
+
 els.expandParts.addEventListener("click",()=>{
  const s=active();
- els.parts.querySelectorAll("details.part").forEach(d=>d.open=true);
- s.openParts=[1,2,3,4,5,6];
+ const visible=[...els.parts.querySelectorAll("details.part")];
+ visible.forEach(d=>d.open=true);
+
+ if(s.showMissingOnly===true){
+   const remembered=new Set(Array.isArray(s.openParts)?s.openParts.map(Number):[]);
+   visible.forEach(d=>remembered.add(Number(d.dataset.part)));
+   s.openParts=[...remembered].filter(p=>Number.isInteger(p)&&p>=1&&p<=6).sort((a,b)=>a-b);
+ } else {
+   s.openParts=[1,2,3,4,5,6];
+ }
  saveDB();
 });
 
 els.collapseParts.addEventListener("click",()=>{
  const s=active();
- els.parts.querySelectorAll("details.part").forEach(d=>d.open=false);
- s.openParts=[];
+ const visible=[...els.parts.querySelectorAll("details.part")];
+ visible.forEach(d=>d.open=false);
+
+ if(s.showMissingOnly===true){
+   const visibleParts=new Set(visible.map(d=>Number(d.dataset.part)));
+   s.openParts=(Array.isArray(s.openParts)?s.openParts:[])
+     .map(Number)
+     .filter(p=>Number.isInteger(p)&&p>=1&&p<=6&&!visibleParts.has(p));
+ } else {
+   s.openParts=[];
+ }
  saveDB();
 });
 
@@ -3941,7 +5097,7 @@ if("IntersectionObserver" in window){
  const discoveryToolbarObserver=new IntersectionObserver(entries=>{
    const entry=entries[0];
    if(entry.isIntersecting){
-     els.nextMissingFloat.classList.add("hidden");
+     setNextMissingFloatVisible(false);
    } else {
      updateFloatingNextMissing();
    }
