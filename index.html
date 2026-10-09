@@ -4656,6 +4656,22 @@ function compute() {
    }
  }
 
+ // Normal endings use the score only when neither special NG+ ending takes priority.
+ // Preserve the score guidance, but flag special-ending overrides on this save state.
+ if(["Justice","Forever","Abandoned"].includes(target)) {
+   let routeNotice="";
+   if(sciTriggered) {
+     routeNotice=`<strong>Warning:</strong> Sci-Fi has been triggered on this save state, so ${target} is <span class="ending-unreachable">no longer reachable</span>, regardless of your score. Reload a save from before using the Strange Access Card and skip the card reader.${dogPrepared ? " Since all three coins have also been inserted, reload to before the final coin insertion to avoid triggering Dog instead." : " Ensure all three Dog coins have not been inserted."}`;
+   } else if(branchUndecided) {
+     routeNotice=`<strong>Warning:</strong> Both special-ending routes are prepared. Using the Strange Access Card triggers Sci-Fi; skipping it results in Dog after the final boss. ${target} is <span class="ending-unreachable">no longer reachable</span> on this save state. Reload a save from before the final coin insertion to keep a normal ending available, and skip the card reader.`;
+   } else if(dogPrepared) {
+     routeNotice=`<strong>Warning:</strong> All three coins have been inserted, triggering the Dog ending after the final boss. ${target} is <span class="ending-unreachable">no longer reachable</span> on this save state, regardless of your score. Reload a save from before the final coin insertion to keep ${target} available.`;
+   } else if(sciPrepared) {
+     routeNotice=`<strong>Note:</strong> The Sci-Fi route is prepared. Avoid using the Strange Access Card at the Part 6 card reader to preserve your normal ending.`;
+   }
+   if(routeNotice) targetText+=`<br><br>${routeNotice}`;
+ }
+
  let statusText="";
  if(sciTriggered) {
    statusText=`<br><br><strong>Projected ending:</strong> <span class="projected-ending-value">Sci-Fi</span>.`;
