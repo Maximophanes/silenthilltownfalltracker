@@ -9,27 +9,22 @@
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <link rel="manifest" href="site.webmanifest">
 <title>Silent Hill: Townfall — Collectibles & Secrets Tracker</title>
-<!-- v32: Hide the pre-hydrated Story Route during startup. On reload, prevent
-     Safari's native scroll restoration racing the dynamically built checklist. -->
+<!-- v33: Scope the initial paint guard to checklist view elements only.
+     Do not hide the document, override history.scrollRestoration, or force page scroll. -->
 <script>
-(function(){
-  const entry=performance.getEntriesByType?.('navigation')?.[0];
-  const legacy=performance.navigation;
-  const isReload=entry ? entry.type==='reload' : legacy?.type===1;
-  window.__townfallV32Reload=Boolean(isReload);
-  document.documentElement.classList.add('tracker-booting');
-  if(isReload){try{history.scrollRestoration='manual';}catch(_){}}
-  // Never strand the page hidden if an unrelated startup error occurs.
-  window.setTimeout(()=>document.documentElement.classList.remove('tracker-booting'),4000);
-})();
+  document.documentElement.classList.add('townfall-preinit-checklist');
+  window.setTimeout(() => document.documentElement.classList.remove('townfall-preinit-checklist'), 1200);
 </script>
 <style>
-/* v32: Prevent a single incorrect checklist frame during initialization.
-   visibility (not display) preserves geometry for scroll restoration. */
-html.tracker-booting,html.tracker-booting *{scroll-behavior:auto!important}
-html.tracker-booting{overflow-anchor:none}
-html.tracker-booting body{visibility:hidden}
-
+  html.townfall-preinit-checklist .checklist-views,
+  html.townfall-preinit-checklist #storyView,
+  html.townfall-preinit-checklist #categoryView,
+  html.townfall-preinit-checklist #galleryView,
+  html.townfall-preinit-checklist #storyContent,
+  html.townfall-preinit-checklist #categoryContent,
+  html.townfall-preinit-checklist #galleryContent { visibility: hidden; }
+</style>
+<style>
 /* EXACT v109 CSS — unmodified */
 
 :root{
@@ -3985,94 +3980,57 @@ document.addEventListener('click',e=>{
  anim.oncancel=()=>{el.style.overflow='';};
 });
 
-// v32: Refresh-specific scroll restoration for Safari standalone/Dock apps.
-// sessionStorage is scoped to this browser tab. Existing profile/localStorage
-// data, view selections and gallery reopening behavior are not changed.
-const refreshPositionKey='townfallCollectibles.v32.reloadPosition';
-const isRefreshReload=Boolean(window.__townfallV32Reload);
-let refreshPosition=null;
-if(isRefreshReload){
- try{refreshPosition=JSON.parse(sessionStorage.getItem(refreshPositionKey)||'null');}
- catch(_){refreshPosition=null;}
-}
-function refreshAnchorAtViewport(){
- const hit=document.elementFromPoint(Math.round(innerWidth*.42),Math.round(innerHeight*.36));
- const el=hit?.closest('[data-entry-id], details.part, #checklistTools, #filters, #galleryView, #storyView, #categoryView, .achievements-card');
- if(!el)return null;
- let selector=null;
- if(el.hasAttribute('data-entry-id')){
-  selector=`[data-entry-id="${CSS.escape(el.dataset.entryId)}"]`;
- }else if(el.matches('details.part') && el.dataset.part){
-  selector=`#storyContent details.part[data-part="${CSS.escape(el.dataset.part)}"]`;
- }else if(el.matches('details.part') && el.dataset.kind){
-  selector=`#categoryContent details.part[data-kind="${CSS.escape(el.dataset.kind)}"]`;
- }else if(el.id){selector='#'+CSS.escape(el.id);}
- else if(el.classList.contains('achievements-card'))selector='.achievements-card';
- return selector?{selector,top:el.getBoundingClientRect().top}:null;
-}
-function rememberRefreshPosition(){
- if(document.documentElement.classList.contains('tracker-booting'))return;
- try{
-  sessionStorage.setItem(refreshPositionKey,JSON.stringify({
-   path:location.pathname,
-   profile:profile().id,
-   view,
-   y:Math.max(0,window.scrollY),
-   anchor:refreshAnchorAtViewport()
-  }));
- }catch(_){/* Private browsing may restrict sessionStorage. */}
-}
-let refreshScrollSaveTimer=null;
-window.addEventListener('scroll',()=>{
- if(refreshScrollSaveTimer!==null)return;
- refreshScrollSaveTimer=setTimeout(()=>{
-  refreshScrollSaveTimer=null;
-  rememberRefreshPosition();
- },120);
-},{passive:true});
-function saveRefreshBeforeLeaving(){
- if(refreshScrollSaveTimer!==null){clearTimeout(refreshScrollSaveTimer);refreshScrollSaveTimer=null;}
- rememberRefreshPosition();
- // Restore browser-native history behavior for subsequent navigations.
- try{history.scrollRestoration='auto';}catch(_){}
-}
-window.addEventListener('pagehide',saveRefreshBeforeLeaving);
-window.addEventListener('beforeunload',rememberRefreshPosition);
-function restoreRefreshPosition(){
- const state=refreshPosition;
- if(!isRefreshReload||!state||state.path!==location.pathname||state.profile!==profile().id||state.view!==view)return;
- let y=Number(state.y);
- if(!Number.isFinite(y)||y<0)return;
- if(state.anchor?.selector&&Number.isFinite(state.anchor.top)){
-  try{
-   const node=document.querySelector(state.anchor.selector);
-   if(node)y=window.scrollY+node.getBoundingClientRect().top-state.anchor.top;
-  }catch(_){/* Older snapshot: use the absolute offset. */}
- }
- window.scrollTo({top:Math.max(0,Math.min(Math.round(y),Math.max(0,document.documentElement.scrollHeight-innerHeight))),behavior:'instant'});
-}
 applyProfileUI();profileSelectRender();render();save();
-// Wait for the browser's reload/pageshow scroll phase before the first visible
-// frame, then reveal only the correctly restored view and position.
-let refreshStartupFinished=false;
-function revealRestoredTracker(){
- if(refreshStartupFinished)return;
- refreshStartupFinished=true;
- restoreRefreshPosition();
- requestAnimationFrame(()=>{
-  restoreRefreshPosition();
-  requestAnimationFrame(()=>{
-   restoreRefreshPosition();
-   document.documentElement.classList.remove('tracker-booting');
-   rememberRefreshPosition();
-  });
- });
-}
-window.addEventListener('pageshow',revealRestoredTracker,{once:true});
-if(document.readyState==='complete')revealRestoredTracker();
-// pageshow normally fires on every page load; provide a bounded fallback.
-setTimeout(revealRestoredTracker,1500);
+// Correct saved view is now constructed. Reveal its controls immediately;
+// unlike v32, do not hold the whole document through multiple animation frames.
+document.documentElement.classList.remove('townfall-preinit-checklist');
 
+// v33: Low-priority, bounded image preparation. No saved data, scroll state,
+// or gallery DOM is altered. Cache priming is best-effort, never required.
+(function warmReferenceArtwork(){
+ const achievementAssets=[
+  'assets/achievements/blur-your-eyes.png',
+  'assets/achievements/cold-calling.png',
+  'assets/achievements/sweeping-signals.png',
+  'assets/achievements/resourceful.png'
+ ];
+ const warmed=[];
+ window.__townfallV33WarmImages=warmed; // Keep the small prepared images alive for this page session.
+ function warm(src){
+  const img=new Image();
+  img.decoding='async';
+  img.src=src;
+  warmed.push(img);
+  return img.decode ? img.decode().catch(()=>{}) : new Promise(resolve=>{
+   if(img.complete)return resolve();
+   img.onload=img.onerror=resolve;
+  });
+ }
+ // Prioritize the four small achievement images; their <details> is collapsed
+ // and the regular <img loading="lazy"> tags could otherwise fetch on expand.
+ setTimeout(()=>{achievementAssets.forEach(src=>{warm(src);});},100);
+ // The thumbnail set is ~1.9 MB. Defer network activity until idle and
+ // request no more than three thumbnails at a time; preserve existing lazy
+ // loading in the actual gallery for users who open it immediately.
+ const warmThumbnails=()=>{
+  if(navigator.connection?.saveData)return;
+  const paths=Array.from({length:15},(_,i)=>thumbImage(i+1));
+  let next=0;
+  async function worker(){
+   while(next<paths.length){
+    const src=paths[next++];
+    await warm(src);
+    if(document.visibilityState==='hidden')await new Promise(r=>setTimeout(r,250));
+   }
+  }
+  Promise.allSettled([worker(),worker(),worker()]);
+ };
+ const enqueue=()=>{
+  if(typeof requestIdleCallback==='function')requestIdleCallback(warmThumbnails,{timeout:3000});
+  else setTimeout(warmThumbnails,750);
+ };
+ setTimeout(enqueue,450);
+})();
 
 const nextMissingScrollKeys=new Set(['ArrowUp','ArrowDown','PageUp','PageDown','Home','End',' ']);
 window.addEventListener('wheel',setNextMissingManualMovement,{passive:true});
