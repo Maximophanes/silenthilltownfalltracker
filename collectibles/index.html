@@ -2125,7 +2125,10 @@ body.modal-open{overflow:hidden}
 
 /* v4: the shared v109 system is unchanged; these are layout-only accommodations. */
 .gallery-shortcut{margin-left:auto;appearance:none;cursor:pointer;background:linear-gradient(180deg,#201015,#120a0c);border:1px solid #64404a;border-radius:11px;padding:9px 14px;color:#e4c6cc;font-size:.77rem;font-weight:800;letter-spacing:.01em}
-.gallery-shortcut:hover,.gallery-shortcut[aria-selected="true"]{border-color:#ad5663;color:#fff1f2;background:#3a1821}
+.gallery-shortcut[aria-selected="true"]{border-color:#ad5663;color:#fff1f2;background:#3a1821}
+@media (hover:hover) and (pointer:fine){
+ .gallery-shortcut:hover{border-color:#ad5663;color:#fff1f2;background:#3a1821}
+}
 .dashboard{grid-template-columns:minmax(0,1.12fr) minmax(0,1fr)}
 .dash-main{display:flex;flex-direction:column;justify-content:center;gap:8px;min-height:0}
 .dash-main .progress-num{margin:0 0 8px;font-size:clamp(2.4rem,3.4vw,3.2rem)}
@@ -2450,12 +2453,10 @@ body.modal-open{overflow:hidden}
   .checklist-tools .checklist-views button{white-space:nowrap;flex-shrink:0}
   .checklist-tools .completion-pill-slot{margin-left:auto;flex:0 0 82px}
 
-  /* Stabilize the postcard viewer header, including long solution descriptions. */
-  .viewer-head{min-height:116px;box-sizing:border-box;align-items:flex-start}
+  /* Compact mobile viewer heading: classifications do not include solutions. */
+  .viewer-head{box-sizing:border-box;align-items:flex-start}
   .viewer-head>div:first-child{min-width:0;flex:1 1 auto}
   .viewer-head small{line-height:1.43;margin-top:3px}
-  .viewer-subtitle-solution{display:block}
-  .viewer-subtitle-join{display:none}
   .viewer-head #closeViewer{flex:0 0 auto;white-space:nowrap}
 
   /* The group label should not share a line with the first reference pill. */
@@ -2464,11 +2465,27 @@ body.modal-open{overflow:hidden}
   #galleryView .gallery-nav-return{scroll-margin-top:14px}
 }
 @media (max-width:360px){
-  .viewer-head{min-height:140px}
   .viewer-head #closeViewer{padding:6px 8px}
   .checklist-tools .checklist-views{gap:6px}
   .checklist-tools .checklist-views button{padding:9px 8px;font-size:.72rem}
 }
+/* v27: Mobile refinements. Desktop completion cards and entry layout remain untouched. */
+@media (max-width:650px){
+ /* Free the dedicated Guide action row from double bottom margins. */
+ .entry .entry-guide{margin:5px 0 0}
+ .entry .entry-guide + .entry-where{margin-top:5px}
+
+ /* Category checkbox in the upper-right like desktop; the track remains full-width. */
+ .mini-stat{position:relative}
+ .mini-stat .overview-all{position:absolute;top:12px;right:10px;margin-top:0}
+ .mini-stat .val{padding-right:43px}
+ .mini-stat .name{padding-right:0}
+}
+/* Prevent a postcard viewer at either scroll limit from scrolling the document. */
+.viewer{overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+body.viewer-scroll-locked{position:fixed;left:0;right:0;width:100%;top:var(--viewer-scroll-lock-top,0px);overflow:hidden}
+html.viewer-scroll-locked{overflow:hidden}
+
 </style>
 </head>
 <body>
@@ -3299,12 +3316,34 @@ function nextMissing(){
  nextMissingUserMovedByProfile.set(s.id,false);
  navigateHighlight(target);
 }
+// v27: Lock background scroll while keeping the native viewer scrollable.
+// Mobile Safari can scroll the document behind a modal dialog unless its
+// scroll container is explicitly frozen. Release BEFORE a View Location
+// programmatic jump, while the viewer still hides the checklist underneath.
+let viewerLockedScrollY=null;
+function lockViewerBackground(){
+ if(viewerLockedScrollY!==null)return;
+ viewerLockedScrollY=window.scrollY;
+ document.body.style.setProperty('--viewer-scroll-lock-top',`-${viewerLockedScrollY}px`);
+ document.documentElement.classList.add('viewer-scroll-locked');
+ document.body.classList.add('viewer-scroll-locked');
+}
+function unlockViewerBackground(){
+ if(viewerLockedScrollY===null)return;
+ const y=viewerLockedScrollY;
+ viewerLockedScrollY=null;
+ document.body.classList.remove('viewer-scroll-locked');
+ document.documentElement.classList.remove('viewer-scroll-locked');
+ document.body.style.removeProperty('--viewer-scroll-lock-top');
+ window.scrollTo({top:y,behavior:'instant'});
+}
 function openPostcard(n){
  viewerPostcard=n;viewerDisplayedPostcard=null;viewerReturn=document.activeElement;
  $('brightness').value=String(viewerBrightness);
  $('brightnessLabel').textContent=`${viewerBrightness}%`;
  $('viewerImages').replaceChildren(createViewerLoading());
  $('viewer').showModal();
+ lockViewerBackground();
  viewerRender();
 }
 // Keep ready-to-paint full-resolution images in a bounded, session-local LRU.
@@ -3391,17 +3430,9 @@ async function viewerRender(){
  $('viewerImages').replaceChildren(fragment);
  viewerDisplayedPostcard=n;
  $('viewerTitle').textContent=`Strange Postcard ${formatNo(n)}`;
- const subtitle=$('viewerSubtitle');
- subtitle.replaceChildren();
- const subtitleBase=document.createElement('span');
- subtitleBase.className='viewer-subtitle-base';
- subtitleBase.textContent=`Part ${store.get('postcard-'+formatNo(n)).part} · ${has?'Autostereogram':'Strange Postcard · Original artwork'}`;
- subtitle.appendChild(subtitleBase);
- if(has){
-  const join=document.createElement('span');join.className='viewer-subtitle-join';join.textContent=' · ';
-  const solution=document.createElement('span');solution.className='viewer-subtitle-solution';solution.textContent=`Solution: ${SOLVED[n]}`;
-  subtitle.append(join,solution);
- }
+ // Keep type/classification separate from the image-specific captions below.
+ // The solution name appears only beside the solved reconstruction image.
+ $('viewerSubtitle').textContent=`Part ${store.get('postcard-'+formatNo(n)).part} · ${has?'Autostereogram':'Standard postcard'}`;
  document.querySelectorAll('.viewer-modes button').forEach(b=>{
   // Keep all three mode controls in stable positions. Conventional postcards
   // have no solution, but do NOT overwrite the user's remembered preference.
@@ -3491,9 +3522,12 @@ $('viewerLocation').addEventListener('click',()=>{
  viewerLocationInProgress=true;
  // Build and position the checklist under the modal, then close the modal.
  // Closing first was the cause of the intervening gallery flash in v8.
+ // Unfreeze the page beneath the still-open dialog so navigateHighlight may scroll.
+ unlockViewerBackground();
  goToRoute('postcard-'+formatNo(viewerDisplayedPostcard??viewerPostcard),true);
 });
 $('viewer').addEventListener('close',()=>{
+ unlockViewerBackground();
  viewerRenderToken++;
  const wasLocationJump=viewerLocationInProgress;
  viewerLocationInProgress=false;
