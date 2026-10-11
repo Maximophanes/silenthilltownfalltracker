@@ -1,0 +1,3583 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#120507">
+<meta name="description" content="Silent Hill: Townfall collectibles and secrets tracker — 15 Strange Postcards, 13 telephone calls, 19 CRTV signals, and 7 Resource Containers with their keys.">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2064%2064%27%3E%0A%3Crect%20width%3D%2764%27%20height%3D%2764%27%20rx%3D%2711%27%20fill%3D%27%23080607%27%2F%3E%0A%3Ccircle%20cx%3D%2732%27%20cy%3D%2732%27%20r%3D%2725%27%20fill%3D%27%2326070c%27%20opacity%3D%27.55%27%2F%3E%0A%3Cg%20fill%3D%27%23c63f4d%27%20stroke%3D%27%236f1922%27%20stroke-width%3D%271%27%3E%0A%3Crect%20x%3D%2712%27%20y%3D%2712%27%20width%3D%2710%27%20height%3D%2710%27%2F%3E%3Crect%20x%3D%2727%27%20y%3D%2712%27%20width%3D%2710%27%20height%3D%2710%27%2F%3E%3Crect%20x%3D%2742%27%20y%3D%2712%27%20width%3D%2710%27%20height%3D%2710%27%2F%3E%0A%3Crect%20x%3D%2712%27%20y%3D%2727%27%20width%3D%2710%27%20height%3D%2710%27%2F%3E%3Crect%20x%3D%2727%27%20y%3D%2727%27%20width%3D%2710%27%20height%3D%2710%27%2F%3E%3Crect%20x%3D%2742%27%20y%3D%2727%27%20width%3D%2710%27%20height%3D%2710%27%2F%3E%0A%3Crect%20x%3D%2712%27%20y%3D%2742%27%20width%3D%2710%27%20height%3D%2710%27%2F%3E%3Crect%20x%3D%2727%27%20y%3D%2742%27%20width%3D%2710%27%20height%3D%2710%27%2F%3E%3Crect%20x%3D%2742%27%20y%3D%2742%27%20width%3D%2710%27%20height%3D%2710%27%2F%3E%0A%3C%2Fg%3E%3C%2Fsvg%3E">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
+<title>Silent Hill: Townfall — Collectibles & Secrets Tracker</title>
+<style>
+/* EXACT v109 CSS — unmodified */
+
+:root{
+  --bg:#080607;
+  --bg-deep:#040304;
+  --panel:rgba(21,13,15,.95);
+  --panel-solid:#140e10;
+  --panel-raised:#1b1114;
+  --soft:#0d080a;
+  --soft2:#090607;
+  --text:#eee9e7;
+  --muted:#9e9698;
+  --muted2:#786f72;
+  --line:#3a272c;
+  --line-soft:rgba(204,83,96,.085);
+  --accent:#bd626b;
+  --accent-dim:#7f4249;
+  --good:#91ad94;
+  --warn:#c5a66a;
+  --bad:#cc6670;
+  --shadow:0 18px 55px rgba(0,0,0,.34);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;background:#020202}
+html.ng-auto-scrolling{scroll-behavior:auto !important}
+html.discovery-layout-coordinating{scroll-behavior:auto !important}
+html.discovery-layout-coordinating,
+html.discovery-layout-coordinating body,
+html.discovery-layout-coordinating #discoveryToolbar,
+html.discovery-layout-coordinating #discoveryUndo,
+html.discovery-layout-coordinating #parts,
+html.discovery-layout-coordinating #parts *{
+  overflow-anchor:none !important;
+}
+body{
+  margin:0;
+  min-height:100vh;
+  color:var(--text);
+  background-color:#020202;
+  font:15px/1.55 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background:
+    radial-gradient(ellipse at 18% 25%,
+      rgba(110,0,14,.045) 0%,
+      transparent 38%),
+    radial-gradient(ellipse at 82% 24%,
+      rgba(110,0,14,.04) 0%,
+      transparent 36%),
+    linear-gradient(180deg,
+      #0b0607 0%,
+      #120507 15%,
+      #210509 22%,
+      #3d070d 27%,
+      #230509 32%,
+      #100506 40%,
+      var(--bg) 55%,
+      var(--bg-deep) 100%);
+}
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  opacity:.20;
+  background:
+    linear-gradient(112deg,
+      transparent 0 40%,
+      rgba(190,40,55,.018) 46%,
+      transparent 53% 69%,
+      rgba(140,0,18,.012) 75%,
+      transparent 81%),
+    repeating-linear-gradient(0deg,
+      rgba(190,40,55,.009) 0 1px,
+      transparent 1px 4px);
+  mix-blend-mode:soft-light;
+}
+body::after{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:-1;
+  background:
+    linear-gradient(180deg,
+      transparent 0%,
+      transparent 21%,
+      rgba(255,0,22,.015) 24%,
+      rgba(255,0,22,.055) 27%,
+      rgba(255,0,22,.09) 29%,
+      rgba(200,0,20,.045) 31%,
+      rgba(90,0,10,.018) 34%,
+      transparent 38%);
+  filter:blur(16px);
+}
+a{color:#d9b9bd;text-decoration:none}
+a:hover{text-decoration:none;color:#fff}
+button,input,select{font:inherit}
+button,select,input{transition:border-color .16s ease,background .16s ease,box-shadow .16s ease,transform .16s ease}
+button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,textarea:focus-visible{
+  outline:2px solid rgba(189,98,107,.78);
+  outline-offset:2px;
+}
+.wrap{width:min(1240px,calc(100% - 30px));margin:auto;padding:44px 0 76px;position:relative}
+header{
+  margin-bottom:24px;
+  padding:4px 2px;
+  position:relative;
+}
+header::before{
+  content:"";
+  position:absolute;
+  left:-3%;
+  right:-3%;
+  top:-20px;
+  height:150px;
+  pointer-events:none;
+  z-index:-1;
+  background:
+    radial-gradient(ellipse at 50% 50%,
+      rgba(210,0,24,.035) 0%,
+      rgba(110,0,14,.018) 38%,
+      transparent 72%);
+  filter:blur(20px);
+}
+.eyebrow{
+  display:inline-flex;
+  align-items:center;
+  gap:9px;
+  text-transform:uppercase;
+  letter-spacing:.18em;
+  color:#a99da0;
+  font-weight:800;
+  font-size:.72rem;
+}
+.eyebrow::before{content:"";width:22px;height:1px;background:#7c444b}
+.eyebrow-nine{
+  display:grid;
+  grid-template-columns:repeat(3,4px);
+  grid-template-rows:repeat(3,4px);
+  gap:2px;
+  width:max-content;
+  flex:0 0 auto;
+  opacity:.67;
+}
+.eyebrow-nine span{
+  width:4px;
+  height:4px;
+  background:#802a34;
+}
+h1{
+  position:relative;
+  font:500 clamp(2.45rem,5vw,4.6rem)/.97 Georgia,"Times New Roman",serif;
+  letter-spacing:-.038em;
+  margin:10px 0 13px;
+  text-wrap:balance;
+}
+h1{
+  animation:titleNeonFlicker 10s linear infinite;
+  color:#f5eeee;
+  text-shadow:
+    0 0 2px rgba(255,250,250,.38),
+    0 0 5px rgba(225,48,67,.42),
+    0 0 11px rgba(157,20,41,.30),
+    0 0 21px rgba(91,7,24,.18),
+    0 0 32px rgba(53,3,15,.10);
+}
+@keyframes titleNeonFlicker{
+  0%,21.6%,100%{
+    color:#f5eeee;
+    opacity:1;
+    text-shadow:
+      0 0 2px rgba(255,250,250,.38),
+      0 0 5px rgba(225,48,67,.42),
+      0 0 11px rgba(157,20,41,.30),
+      0 0 21px rgba(91,7,24,.18),
+      0 0 32px rgba(53,3,15,.10);
+  }
+
+  /* First quick power dip */
+  22.4%{
+    color:#a53c4b;
+    opacity:.88;
+    text-shadow:
+      0 0 1px rgba(236,88,104,.16),
+      0 0 4px rgba(145,20,39,.28),
+      0 0 9px rgba(76,6,20,.17);
+  }
+  23.2%{
+    color:#fff7f7;
+    opacity:1;
+    text-shadow:
+      0 0 3px rgba(255,255,255,.48),
+      0 0 6px rgba(236,54,73,.56),
+      0 0 14px rgba(164,20,42,.36),
+      0 0 24px rgba(92,7,24,.21),
+      0 0 34px rgba(54,3,15,.11);
+  }
+
+  /* Second quick dip */
+  24.8%{
+    color:#b44958;
+    opacity:.90;
+    text-shadow:
+      0 0 1px rgba(240,95,110,.17),
+      0 0 4px rgba(151,21,40,.29),
+      0 0 9px rgba(79,6,21,.17);
+  }
+  25.6%{
+    color:#fff7f7;
+    opacity:1;
+    text-shadow:
+      0 0 3px rgba(255,255,255,.47),
+      0 0 6px rgba(233,51,70,.54),
+      0 0 14px rgba(161,19,41,.35),
+      0 0 24px rgba(89,7,23,.20),
+      0 0 34px rgba(52,3,14,.10);
+  }
+
+  /* Longer low-power phase */
+  28%{
+    color:#9a3040;
+    opacity:.92;
+    text-shadow:
+      0 0 1px rgba(218,64,82,.14),
+      0 0 4px rgba(126,14,32,.24),
+      0 0 9px rgba(66,5,18,.14);
+  }
+  29.6%{
+    color:#6f1b2a;
+    opacity:.80;
+    text-shadow:
+      0 0 1px rgba(183,42,59,.10),
+      0 0 3px rgba(104,9,26,.19),
+      0 0 7px rgba(54,4,16,.12);
+  }
+  31.6%{
+    color:#822536;
+    opacity:.85;
+    text-shadow:
+      0 0 1px rgba(199,50,68,.12),
+      0 0 3px rgba(115,11,29,.21),
+      0 0 8px rgba(59,4,17,.13);
+  }
+
+  /* Gradual recovery: burgundy -> crimson -> warm ivory -> full white/red */
+  33.6%{
+    color:#b84b5a;
+    opacity:.93;
+    text-shadow:
+      0 0 2px rgba(232,92,106,.18),
+      0 0 5px rgba(156,22,41,.29),
+      0 0 11px rgba(82,6,21,.17);
+  }
+  35.6%{
+    color:#e2a0a8;
+    opacity:.98;
+    text-shadow:
+      0 0 2px rgba(255,185,192,.25),
+      0 0 5px rgba(199,37,57,.38),
+      0 0 12px rgba(132,14,34,.24),
+      0 0 20px rgba(73,5,20,.14);
+  }
+  37.6%{
+    color:#fff4f4;
+    opacity:1;
+    text-shadow:
+      0 0 3px rgba(255,255,255,.46),
+      0 0 6px rgba(235,52,72,.55),
+      0 0 14px rgba(163,19,42,.36),
+      0 0 24px rgba(91,7,24,.21),
+      0 0 34px rgba(53,3,15,.11);
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  .item.next-missing-hit{
+    animation:none;
+    background:rgba(78,17,29,.22);
+    box-shadow:inset 0 0 0 1px rgba(147,51,65,.20);
+  }
+  h1{
+    animation:none;
+    color:#f5eeee;
+    opacity:1;
+    text-shadow:
+      0 0 2px rgba(255,250,250,.38),
+      0 0 5px rgba(225,48,67,.42),
+      0 0 11px rgba(157,20,41,.30),
+      0 0 21px rgba(91,7,24,.18),
+      0 0 32px rgba(53,3,15,.10);
+  }
+}
+.lead{color:#afa1a4;max-width:860px;margin:0;font-size:.98rem}
+.toolbar{
+  display:grid;
+  grid-template-columns:minmax(220px,1fr) auto auto auto;
+  gap:10px;
+  align-items:end;
+  background:linear-gradient(180deg,rgba(27,17,20,.97),rgba(16,10,12,.97));
+  border:1px solid var(--line);
+  border-radius:18px;
+  padding:16px;
+  margin:22px 0;
+  box-shadow:var(--shadow);
+}
+label.small{
+  display:block;
+  color:var(--muted);
+  font-size:.7rem;
+  font-weight:850;
+  text-transform:uppercase;
+  letter-spacing:.105em;
+  margin-bottom:7px;
+}
+input[type=number],input[type=text]{
+  width:100%;
+  background:#0b0708;
+  color:var(--text);
+  border:1px solid #4a3035;
+  border-radius:10px;
+  padding:10px 12px;
+  outline:none;
+}
+input[type=number]:hover,input[type=text]:hover{border-color:#74414a}
+input[type=number]:focus,input[type=text]:focus{border-color:#9e525c;box-shadow:0 0 0 3px rgba(189,98,107,.12)}
+
+.ending-select{
+  position:relative;
+}
+.ending-select-button{
+  width:100%;
+  min-height:43px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  border:1px solid #4a3035;
+  border-radius:10px;
+  padding:10px 12px;
+  background:linear-gradient(180deg,#100a0c,#0a0608);
+  color:var(--text);
+  cursor:pointer;
+  font-weight:720;
+  text-align:left;
+}
+.ending-select-button:hover{
+  border-color:#74414a;
+  background:linear-gradient(180deg,#150c0f,#0d0709);
+}
+.ending-select-button[aria-expanded="true"]{
+  border-color:#8f4b55;
+  background:linear-gradient(180deg,#170d10,#0e080a);
+  box-shadow:0 0 0 3px rgba(189,98,107,.10);
+}
+.ending-select-arrow{
+  flex:0 0 auto;
+  color:#a98f94;
+  font:700 1rem/1 Georgia,"Times New Roman",serif;
+  transform:rotate(90deg);
+  transition:transform .16s ease,color .16s ease;
+}
+.ending-select-button[aria-expanded="true"] .ending-select-arrow{
+  transform:rotate(-90deg);
+  color:#d3afb5;
+}
+.ending-options{
+  position:absolute;
+  z-index:80;
+  top:calc(100% + 7px);
+  left:0;
+  right:0;
+  padding:6px;
+  border:1px solid #56353c;
+  border-radius:11px;
+  background:
+    radial-gradient(circle at 18% 0%,rgba(172,49,65,.07),transparent 42%),
+    linear-gradient(180deg,#171013,#0d080a);
+  box-shadow:0 16px 42px rgba(0,0,0,.48);
+}
+.ending-options[hidden]{display:none}
+.ending-option{
+  width:100%;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  border:0;
+  border-radius:7px;
+  padding:9px 10px;
+  background:transparent;
+  color:#c7bbbd;
+  cursor:pointer;
+  text-align:left;
+  font-weight:680;
+}
+.ending-option:hover,
+.ending-option:focus-visible{
+  outline:none;
+  background:rgba(189,98,107,.11);
+  color:#fff;
+}
+.ending-option[aria-selected="true"]{
+  background:rgba(189,98,107,.16);
+  color:#f3e7e9;
+}
+.ending-option[aria-selected="true"]::after{
+  content:"✓";
+  color:#d1737d;
+  font-size:.78rem;
+  font-weight:900;
+}
+.btn{
+  border:1px solid #55333a;
+  background:linear-gradient(180deg,#211417,#170f11);
+  color:var(--text);
+  border-radius:10px;
+  padding:10px 13px;
+  cursor:pointer;
+  font-weight:750;
+  line-height:1.2;
+}
+.btn:hover{border-color:#8a4a54;background:#28171b;transform:translateY(-1px)}
+.btn:active{transform:translateY(0)}
+#showMissingOnly{
+  position:relative;
+  overflow:hidden;
+}
+#showMissingOnly[aria-pressed="true"],
+#showMissingOnly[aria-pressed="true"]:hover{
+  color:#f5dde1;
+  border-color:#9a4a57;
+  background:linear-gradient(180deg,#12090b,#211015);
+  transform:none;
+  box-shadow:
+    inset 0 4px 8px rgba(0,0,0,.74),
+    inset 0 0 0 1px rgba(226,92,108,.16),
+    0 0 0 1px rgba(110,35,47,.10);
+}
+#showMissingOnly[aria-pressed="true"]::after{
+  content:"";
+  position:absolute;
+  left:14px;
+  right:14px;
+  bottom:6px;
+  height:2px;
+  border-radius:999px;
+  pointer-events:none;
+  background:linear-gradient(90deg,rgba(145,48,62,.30),rgba(232,91,108,.88),rgba(145,48,62,.30));
+  box-shadow:0 0 7px rgba(199,68,84,.22);
+}
+.missing-only-empty{
+  margin:9px 0;
+  padding:22px 18px;
+  border:1px solid var(--line);
+  border-radius:13px;
+  background:linear-gradient(180deg,#130c0e,#0d0809);
+  color:#b9aeb0;
+  text-align:center;
+  font-size:.88rem;
+}
+.missing-only-empty strong{color:#eadcdf}
+.missing-only-empty-content{display:block}
+
+.item.missing-filter-out{
+  pointer-events:none;
+  transform-origin:center top;
+  overflow:hidden;
+  animation:missingFilterRowOut .19s cubic-bezier(.32,.02,.62,.98) forwards;
+}
+@keyframes missingFilterRowOut{
+  0%{
+    opacity:1;
+    filter:brightness(1);
+    max-height:180px;
+    margin-top:0;
+    margin-bottom:0;
+  }
+  52%{
+    opacity:.38;
+    filter:brightness(.28);
+  }
+  100%{
+    opacity:0;
+    filter:brightness(.08);
+    max-height:0;
+    padding-top:0;
+    padding-bottom:0;
+    margin-top:0;
+    margin-bottom:0;
+    border-width:0;
+  }
+}
+.btn.danger{color:#e5a1a8}
+.btn.danger:hover{border-color:#9a5059;background:#2a1519}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:20px;align-items:start}
+.card{
+  background:linear-gradient(180deg,rgba(22,14,16,.98),rgba(13,8,10,.98));
+  border:1px solid var(--line);
+  border-radius:18px;
+  overflow:hidden;
+  box-shadow:var(--shadow);
+}
+.cardhead{padding:21px 22px 19px;border-bottom:1px solid var(--line)}
+.cardhead h2{margin:0;font-size:1.08rem;letter-spacing:-.01em}
+.cardhead p{color:#9f9698;margin:6px 0 0;font-size:.86rem;max-width:850px}
+.controls{padding:18px 22px}
+.statgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.stat{
+  padding:13px;
+  border:1px solid var(--line-soft);
+  border-radius:12px;
+  background:rgba(190,70,82,.025);
+}
+.stat label{display:block;font-weight:770;margin-bottom:7px}
+.stat small{color:var(--muted);display:block;margin-top:6px}
+.quick{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-top:16px;padding-top:16px;border-top:1px solid var(--line)}
+#discoveryToolbar{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:10px;
+  align-items:stretch;
+}
+.discovery-toolbar-row{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:9px;
+  min-width:0;
+}
+.discovery-toolbar-primary > .checkline{margin-right:14px}
+.discovery-toolbar-secondary #discoveryPercent{margin-left:auto}
+.bulkundo{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-top:12px;
+  padding:10px 12px;
+  border:1px solid rgba(189,98,107,.24);
+  border-radius:10px;
+  background:rgba(95,22,32,.12);
+  color:#cdbfc1;
+  font-size:.86rem;
+}
+.bulkundo .btn{
+  flex:0 0 auto;
+  padding:7px 11px;
+}
+.bulkundo.undo-layout-transition{
+  overflow:hidden;
+  box-sizing:border-box;
+  will-change:height,opacity,margin,padding;
+}
+.checkline{display:flex;gap:10px;align-items:center;cursor:pointer}
+input[type=checkbox]{width:19px;height:19px;accent-color:#b85a64;cursor:pointer}
+.ngplus-toggle{
+  position:relative;
+  isolation:isolate;
+  overflow:hidden;
+  padding:9px 13px;
+  border:1px solid rgba(189,98,107,.32);
+  border-radius:999px;
+  background:linear-gradient(180deg,rgba(52,22,28,.34),rgba(24,13,16,.34));
+  color:#d2c3c5;
+  font-weight:780;
+  letter-spacing:.01em;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.018);
+  transition:
+    border-color .32s ease,
+    color .32s ease,
+    box-shadow .32s ease;
+}
+.ngplus-toggle::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:0;
+  border-radius:inherit;
+  background:
+    radial-gradient(circle at 16% 50%,rgba(201,93,104,.13),transparent 44%),
+    linear-gradient(180deg,rgba(77,27,36,.56),rgba(35,14,19,.54));
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .32s ease;
+}
+.ngplus-toggle:hover{
+  border-color:rgba(201,93,104,.58);
+  color:#eee5e6;
+}
+.ngplus-toggle input{
+  position:relative;
+  z-index:1;
+  flex:0 0 auto;
+}
+.ngplus-copy{
+  position:relative;
+  z-index:1;
+  display:inline-flex;
+  align-items:baseline;
+  white-space:nowrap;
+}
+.ngplus-active-wrap{
+  display:inline-block;
+  overflow:hidden;
+  max-width:0;
+  margin-left:0;
+  opacity:0;
+  vertical-align:baseline;
+  white-space:nowrap;
+  transition:
+    max-width .34s cubic-bezier(.20,.72,.24,1),
+    margin-left .34s cubic-bezier(.20,.72,.24,1),
+    opacity .24s ease;
+}
+.ngplus-active-text{
+  display:inline-block;
+  color:#d66b76;
+  font-size:.68rem;
+  font-weight:850;
+  letter-spacing:.09em;
+  line-height:1;
+}
+.ngplus-toggle.active{
+  border-color:rgba(201,93,104,.78);
+  color:#f1e7e9;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.025),
+    0 0 0 1px rgba(201,93,104,.06),
+    0 0 24px rgba(155,44,58,.08);
+}
+.ngplus-toggle.active::before{
+  opacity:1;
+}
+.ngplus-toggle.active .ngplus-active-wrap{
+  max-width:72px;
+  margin-left:6px;
+  opacity:1;
+}
+@media(prefers-reduced-motion:reduce){
+  .ngplus-toggle,
+  .ngplus-toggle::before,
+  .ngplus-active-wrap{
+    transition:none;
+  }
+}
+
+.discovery-readout{
+  display:inline-flex;
+  align-items:center;
+  gap:9px;
+  flex:0 0 auto;
+  min-height:37px;
+  margin-left:auto;
+  padding:8px 11px;
+  border:1px solid #4a3035;
+  border-radius:999px;
+  background:#100b0c;
+  color:#9f9295;
+  font-size:.76rem;
+  line-height:1;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.018);
+  transition:
+    background-color .22s ease,
+    border-color .22s ease,
+    color .22s ease,
+    box-shadow .22s ease;
+}
+.discovery-readout-label{
+  font-size:.67rem;
+  font-weight:820;
+  letter-spacing:.09em;
+  text-transform:uppercase;
+}
+.discovery-readout strong{
+  color:#d2c6c8;
+  font-size:.79rem;
+  font-weight:820;
+  font-variant-numeric:tabular-nums;
+  letter-spacing:.01em;
+  transition:color .22s ease,text-shadow .22s ease;
+}
+@media(prefers-reduced-motion:reduce){
+  .discovery-readout,
+  .discovery-readout strong{
+    transition:none;
+  }
+}
+.next-missing-float{
+  position:fixed;
+  right:max(18px,env(safe-area-inset-right));
+  bottom:max(18px,env(safe-area-inset-bottom));
+  z-index:70;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  overflow:visible;
+  isolation:isolate;
+  width:154px;
+  height:60px;
+  min-height:60px;
+  padding:0;
+  border-color:#63343c;
+  border-radius:14px;
+  background:
+    linear-gradient(180deg,rgba(37,20,24,.96),rgba(16,9,11,.96));
+  color:#d4c7ca;
+  box-shadow:
+    0 8px 24px rgba(0,0,0,.34),
+    inset 0 1px 0 rgba(255,255,255,.025);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+  opacity:1;
+  visibility:visible;
+  pointer-events:auto;
+  transform:translateY(0);
+  transition:
+    border-color .34s ease,
+    background .34s ease,
+    box-shadow .34s ease,
+    color .28s ease,
+    opacity .22s ease,
+    transform .22s cubic-bezier(.20,.72,.24,1),
+    visibility 0s linear 0s;
+}
+.next-missing-float.float-hidden{
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+  transform:translateY(4px);
+  transition:
+    border-color .34s ease,
+    background .34s ease,
+    box-shadow .34s ease,
+    color .28s ease,
+    opacity .20s ease,
+    transform .20s cubic-bezier(.20,.72,.24,1),
+    visibility 0s linear .20s;
+}
+.next-missing-float:hover{
+  border-color:#8a4650;
+  background:
+    linear-gradient(180deg,rgba(54,25,31,.98),rgba(23,11,14,.98));
+  color:#fff;
+  transform:translateY(-1px);
+}
+.next-missing-float:active{transform:translateY(0)}
+.next-missing-arrow{
+  color:#c76773;
+  font-size:.92rem;
+  line-height:1;
+}
+.next-missing-float::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:0;
+  border-radius:inherit;
+  background:linear-gradient(180deg,rgba(95,24,36,.98),rgba(30,10,15,.98));
+  opacity:0;
+  transition:opacity .34s ease;
+  pointer-events:none;
+}
+.next-missing-default{
+  position:absolute;
+  inset:0;
+  z-index:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  opacity:1;
+  transition:opacity .28s ease;
+}
+.next-missing-arrow{
+  position:absolute;
+  left:17px;
+  top:50%;
+  transform:translateY(-50%);
+}
+.next-missing-copy{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:3px;
+  text-align:center;
+}
+.next-missing-primary{
+  color:inherit;
+  font-size:.81rem;
+  font-weight:780;
+  line-height:1;
+  white-space:nowrap;
+}
+.next-missing-scope{
+  color:#9f9295;
+  font-size:.64rem;
+  font-weight:760;
+  line-height:1;
+  letter-spacing:.065em;
+  text-transform:uppercase;
+  transition:color .28s ease;
+}
+.next-missing-float:hover .next-missing-scope{color:#cdbfc2}
+.next-missing-completion{
+  position:absolute;
+  inset:0;
+  z-index:1;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  padding:8px 12px 9px;
+  opacity:0;
+  transition:opacity .24s ease;
+  pointer-events:none;
+}
+.next-missing-completion-result{
+  display:block;
+  min-height:15px;
+  color:#fff7f8;
+  font-size:.76rem;
+  font-weight:860;
+  letter-spacing:.045em;
+  line-height:15px;
+  text-align:center;
+  text-transform:uppercase;
+  white-space:nowrap;
+  opacity:0;
+  transition:opacity .34s ease;
+  text-shadow:
+    0 0 2px rgba(255,255,255,.70),
+    0 0 6px rgba(237,65,87,.68),
+    0 0 14px rgba(171,24,49,.46);
+}
+.next-missing-completion-bar{
+  position:relative;
+  height:4px;
+  margin-top:8px;
+  overflow:visible;
+  border-radius:999px;
+  background:#1a080c;
+  border:1px solid rgba(220,86,104,.24);
+  box-shadow:
+    0 0 4px rgba(225,59,80,.18),
+    0 0 10px rgba(165,24,47,.12);
+}
+.next-missing-completion-bar>span{
+  position:absolute;
+  inset:-1px;
+  border-radius:inherit;
+  transform:scaleX(0);
+  transform-origin:left center;
+  background:linear-gradient(90deg,#9a2b3b,#ec6273);
+  box-shadow:
+    0 0 6px rgba(242,79,98,.78),
+    0 0 15px rgba(190,35,58,.52);
+  transition:transform .84s cubic-bezier(.22,.70,.24,1);
+}
+
+.next-missing-float.completion-morph{
+  border-color:rgba(215,78,97,.72);
+  background:linear-gradient(180deg,rgba(37,20,24,.96),rgba(16,9,11,.96));
+  color:#fff7f8;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.055),
+    0 0 8px rgba(226,54,76,.48),
+    0 0 20px rgba(157,20,42,.34),
+    0 0 34px rgba(82,6,23,.20);
+  pointer-events:none;
+  cursor:default;
+}
+.next-missing-float.completion-morph::before{opacity:1}
+.next-missing-float.completion-morph .next-missing-default{opacity:0}
+.next-missing-float.completion-morph .next-missing-completion{opacity:1}
+
+.next-missing-float.completion-bar-filling .next-missing-completion-bar>span{
+  transform:scaleX(1);
+}
+.next-missing-float.completion-finished .next-missing-completion-result{
+  opacity:1;
+}
+
+.next-missing-float.completion-morph:hover,
+.next-missing-float.completion-morph:active{
+  transform:none;
+  border-color:rgba(215,78,97,.72);
+  color:#fff7f8;
+}
+
+.next-missing-float.completion-fading{
+  opacity:0;
+  border-color:rgba(215,78,97,.16);
+  transition:
+    border-color .34s ease,
+    background .34s ease,
+    box-shadow .34s ease,
+    color .28s ease,
+    opacity .42s ease;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.018),
+    0 0 5px rgba(143,38,53,.12);
+}
+
+@media(max-width:520px){
+  .next-missing-float{
+    right:max(12px,env(safe-area-inset-right));
+    bottom:max(12px,env(safe-area-inset-bottom));
+    width:146px;
+    height:60px;
+    min-height:60px;
+    padding:0;
+    border-radius:14px;
+    font-size:.78rem;
+  }
+  .next-missing-arrow{left:15px}
+  .next-missing-primary{font-size:.78rem}
+  .next-missing-scope{font-size:.60rem}
+  .next-missing-completion{
+    padding:8px 10px 9px;
+  }
+  .next-missing-completion-result{
+    font-size:.72rem;
+    letter-spacing:.035em;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  .item.missing-filter-out,
+  .ng-checklist-collapse,
+  .ng-checklist-chevron,
+  .next-missing-float,
+  .next-missing-float::before,
+  .next-missing-default,
+  .next-missing-completion,
+  .next-missing-completion-result,
+  .next-missing-completion-bar>span{
+    transition:none !important;
+  }
+}
+
+#discoveryPercent.discovery-complete-flash{
+  min-width:76px;
+  color:#fff7f8 !important;
+  border-color:#d45b6c !important;
+  background:#711d2a !important;
+  text-shadow:
+    0 0 2px rgba(255,255,255,.72),
+    0 0 6px rgba(237,65,87,.72),
+    0 0 13px rgba(171,24,49,.50),
+    0 0 24px rgba(92,7,25,.30);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.06),
+    0 0 7px rgba(226,54,76,.48),
+    0 0 18px rgba(157,20,42,.34),
+    0 0 30px rgba(82,6,23,.20) !important;
+  animation:discoveryCompleteBadgeGlow 1.85s ease-out 1;
+}
+
+#discoveryPercent.discovery-complete-contracting{
+  white-space:nowrap;
+  transition:
+    width .52s cubic-bezier(.20,.72,.24,1),
+    min-width .52s cubic-bezier(.20,.72,.24,1);
+}
+
+#discoveryPercent.discovery-complete-fading{
+  transition:
+    background-color .42s ease,
+    border-color .42s ease,
+    color .42s ease,
+    box-shadow .42s ease,
+    text-shadow .42s ease,
+    filter .42s ease;
+}
+
+.progressbar.discovery-complete-flash{
+  overflow:visible;
+  animation:discoveryCompleteTrackGlow 1.85s ease-out 1;
+}
+.progressbar.discovery-complete-flash>span{
+  background:linear-gradient(90deg,#8e2735,#e15b6c);
+  animation:discoveryCompleteFillGlow 1.85s ease-out 1;
+}
+
+@keyframes discoveryCompleteBadgeGlow{
+  0%{
+    filter:brightness(1);
+  }
+  18%{
+    filter:brightness(1.20);
+  }
+  42%{
+    filter:brightness(1.08);
+  }
+  100%{
+    filter:brightness(1);
+  }
+}
+@keyframes discoveryCompleteTrackGlow{
+  0%{
+    border-color:rgba(190,70,82,.045);
+    box-shadow:none;
+  }
+  20%{
+    border-color:rgba(218,78,96,.48);
+    box-shadow:
+      0 0 7px rgba(225,59,80,.58),
+      0 0 18px rgba(165,24,47,.42),
+      0 0 30px rgba(88,6,24,.24);
+  }
+  52%{
+    border-color:rgba(199,66,84,.28);
+    box-shadow:
+      0 0 5px rgba(211,50,72,.34),
+      0 0 12px rgba(139,17,39,.24);
+  }
+  100%{
+    border-color:rgba(190,70,82,.045);
+    box-shadow:none;
+  }
+}
+@keyframes discoveryCompleteFillGlow{
+  0%{
+    filter:brightness(1);
+    box-shadow:none;
+  }
+  20%{
+    filter:brightness(1.22);
+    box-shadow:
+      0 0 6px rgba(242,79,98,.82),
+      0 0 15px rgba(190,35,58,.58);
+  }
+  55%{
+    filter:brightness(1.08);
+    box-shadow:0 0 8px rgba(186,31,53,.34);
+  }
+  100%{
+    filter:brightness(1);
+    box-shadow:none;
+  }
+}
+
+@media(prefers-reduced-motion:reduce){
+  #discoveryPercent.discovery-complete-flash,
+  .progressbar.discovery-complete-flash,
+  .progressbar.discovery-complete-flash>span{
+    animation:none;
+  }
+  #discoveryPercent.discovery-complete-contracting,
+  #discoveryPercent.discovery-complete-fading{
+    transition:none;
+  }
+}
+
+#discoveryPercent{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  flex:0 0 auto;
+  width:auto;
+  min-width:54px;
+  min-height:32px;
+  margin-left:auto;
+  padding:5px 10px;
+  border:1px solid #4a3035;
+  border-radius:999px;
+  background:#120c0e;
+  color:#b7aaad;
+  font-size:.82rem;
+  font-weight:800;
+  font-variant-numeric:tabular-nums;
+  letter-spacing:.015em;
+  line-height:1;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.018),
+    0 0 0 rgba(143,38,53,0);
+}
+.ngprogress{
+  margin-left:auto;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  color:var(--muted);
+  font-size:.82rem;
+  font-variant-numeric:tabular-nums;
+}
+.ngsegments{
+  display:grid;
+  grid-template-columns:repeat(11,10px);
+  gap:4px;
+  align-items:center;
+}
+.ngsegment{
+  width:10px;
+  height:14px;
+  border:1px solid rgba(189,98,107,.24);
+  border-radius:2px;
+  background:#0a0607;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.012);
+  transition:background .18s ease,border-color .18s ease,box-shadow .18s ease;
+}
+.ngsegment.filled{
+  border-color:rgba(205,101,112,.58);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 0 8px rgba(165,55,68,.055);
+}
+.ngsegment:nth-child(1){--ng-fill:#5e3036}
+.ngsegment:nth-child(2){--ng-fill:#673239}
+.ngsegment:nth-child(3){--ng-fill:#70353d}
+.ngsegment:nth-child(4){--ng-fill:#793841}
+.ngsegment:nth-child(5){--ng-fill:#823b46}
+.ngsegment:nth-child(6){--ng-fill:#8b3f4a}
+.ngsegment:nth-child(7){--ng-fill:#95434f}
+.ngsegment:nth-child(8){--ng-fill:#9f4754}
+.ngsegment:nth-child(9){--ng-fill:#aa4c59}
+.ngsegment:nth-child(10){--ng-fill:#b65160}
+.ngsegment:nth-child(11){--ng-fill:#c05a68}
+
+.ngsegment:nth-child(1).filled{background:var(--ng-fill)}
+.ngsegment:nth-child(2).filled{background:var(--ng-fill)}
+.ngsegment:nth-child(3).filled{background:var(--ng-fill)}
+.ngsegment:nth-child(4).filled{background:var(--ng-fill)}
+.ngsegment:nth-child(5).filled{background:var(--ng-fill)}
+.ngsegment:nth-child(6).filled{background:var(--ng-fill)}
+.ngsegment:nth-child(7).filled{background:var(--ng-fill)}
+.ngsegment:nth-child(8).filled{background:var(--ng-fill)}
+.ngsegment:nth-child(9).filled{background:var(--ng-fill)}
+.ngsegment:nth-child(10).filled{background:var(--ng-fill)}
+.ngsegment:nth-child(11).filled{
+  background:var(--ng-fill);
+  border-color:rgba(220,119,130,.72);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.045),0 0 10px rgba(177,60,74,.075);
+}
+#ngList{
+  overflow-anchor:none;
+}
+
+.ng-checklist-summary{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:center;
+  gap:16px;
+  padding:14px 22px;
+  border-top:1px solid var(--line);
+  border-bottom:1px solid var(--line-soft);
+  background:rgba(88,28,38,.055);
+}
+.ng-checklist-toggle{
+  appearance:none;
+  -webkit-appearance:none;
+  display:inline-flex;
+  align-items:center;
+  gap:9px;
+  min-width:0;
+  justify-self:stretch;
+  padding:4px 0;
+  border:0;
+  background:transparent;
+  color:#ded3d5;
+  font:inherit;
+  font-size:.88rem;
+  font-weight:820;
+  letter-spacing:.005em;
+  text-align:left;
+  cursor:pointer;
+}
+.ng-checklist-toggle:hover{color:#fff}
+.ng-checklist-toggle:focus-visible{
+  outline:2px solid rgba(202,102,113,.62);
+  outline-offset:5px;
+  border-radius:5px;
+}
+.ng-checklist-chevron{
+  flex:0 0 auto;
+  color:#9a8589;
+  font:700 1.35rem/1 Georgia,serif;
+  transform:rotate(0deg);
+  transform-origin:center;
+  transition:transform .20s ease,color .20s ease;
+}
+.ng-checklist-toggle[aria-expanded="true"] .ng-checklist-chevron{
+  transform:rotate(90deg);
+  color:#d7b6bb;
+}
+.ng-checklist-collapse{
+  display:grid;
+  grid-template-rows:1fr;
+  opacity:1;
+  transition:
+    grid-template-rows .28s cubic-bezier(.20,.72,.24,1),
+    opacity .20s ease;
+}
+.ng-checklist-collapse-inner{
+  min-height:0;
+  overflow:hidden;
+}
+.ng-checklist-collapse.collapsed{
+  grid-template-rows:0fr;
+  opacity:0;
+  pointer-events:none;
+}
+.ng-group-heading{
+  padding:13px 16px 6px;
+  color:#a6abad;
+  font-size:.74rem;
+  font-weight:850;
+  text-transform:uppercase;
+  letter-spacing:.075em;
+}
+.ngprogress-count{
+  width:50px;
+  flex:0 0 50px;
+  text-align:right;
+  white-space:nowrap;
+  color:#cfc2c5;
+  font-weight:760;
+  transition:color .18s ease,text-shadow .18s ease,font-weight .18s ease;
+}
+.ngprogress.complete .ngsegments{
+  filter:drop-shadow(0 0 5px rgba(196,44,62,.24));
+}
+.ngprogress.complete .ngsegment:nth-child(1).filled{background:#742a33}
+.ngprogress.complete .ngsegment:nth-child(2).filled{background:#7e2c36}
+.ngprogress.complete .ngsegment:nth-child(3).filled{background:#882f3a}
+.ngprogress.complete .ngsegment:nth-child(4).filled{background:#92313e}
+.ngprogress.complete .ngsegment:nth-child(5).filled{background:#9c3543}
+.ngprogress.complete .ngsegment:nth-child(6).filled{background:#a73848}
+.ngprogress.complete .ngsegment:nth-child(7).filled{background:#b13b4d}
+.ngprogress.complete .ngsegment:nth-child(8).filled{background:#bc4052}
+.ngprogress.complete .ngsegment:nth-child(9).filled{background:#c64458}
+.ngprogress.complete .ngsegment:nth-child(10).filled{background:#d0495d}
+.ngprogress.complete .ngsegment:nth-child(11).filled{background:#da5064}
+.ngprogress.complete .ngsegment.filled{
+  border-color:rgba(229,99,114,.76);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.05),
+    0 0 5px rgba(219,61,80,.26),
+    0 0 10px rgba(150,20,41,.15);
+}
+.ngprogress.complete .ngprogress-count{
+  color:#f0a1ab;
+  font-weight:830;
+  text-shadow:
+    0 0 5px rgba(231,75,94,.44),
+    0 0 12px rgba(165,25,46,.26);
+}
+
+/* One-time 11/11 charge-up. The checklist remains logically complete;
+   this class only replays the eleven visual cells from empty to powered. */
+.ngprogress.complete.ng-charging .ngsegments{
+  filter:none;
+}
+.ngprogress.complete.ng-charging .ngprogress-count{
+  color:#cfc2c5;
+  font-weight:760;
+  text-shadow:none;
+}
+.ngprogress.ng-charging .ngsegment.filled{
+  animation:ngChargeSegment .22s cubic-bezier(.20,.72,.24,1) both;
+}
+.ngprogress.ng-charging .ngsegment:nth-child(1){animation-delay:.06s}
+.ngprogress.ng-charging .ngsegment:nth-child(2){animation-delay:.125s}
+.ngprogress.ng-charging .ngsegment:nth-child(3){animation-delay:.19s}
+.ngprogress.ng-charging .ngsegment:nth-child(4){animation-delay:.255s}
+.ngprogress.ng-charging .ngsegment:nth-child(5){animation-delay:.32s}
+.ngprogress.ng-charging .ngsegment:nth-child(6){animation-delay:.385s}
+.ngprogress.ng-charging .ngsegment:nth-child(7){animation-delay:.45s}
+.ngprogress.ng-charging .ngsegment:nth-child(8){animation-delay:.515s}
+.ngprogress.ng-charging .ngsegment:nth-child(9){animation-delay:.58s}
+.ngprogress.ng-charging .ngsegment:nth-child(10){animation-delay:.645s}
+.ngprogress.ng-charging .ngsegment:nth-child(11){animation-delay:.71s}
+
+@keyframes ngChargeSegment{
+  0%{
+    background:#0a0607;
+    border-color:rgba(189,98,107,.24);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.012);
+    filter:brightness(.82);
+  }
+  55%{
+    background:var(--ng-fill);
+    border-color:rgba(235,111,126,.86);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.09),
+      0 0 7px rgba(242,76,96,.64),
+      0 0 13px rgba(176,27,50,.38);
+    filter:brightness(1.23);
+  }
+  100%{
+    background:var(--ng-fill);
+    border-color:rgba(229,99,114,.76);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.05),
+      0 0 5px rgba(219,61,80,.26),
+      0 0 10px rgba(150,20,41,.15);
+    filter:brightness(1);
+  }
+}
+
+.ngprogress.ng-complete-flash .ngsegments{
+  animation:ngCompleteSegmentsIgnition 1.35s ease-out 1;
+}
+.ngprogress.ng-complete-flash .ngsegment.filled{
+  animation:ngCompleteSegmentIgnition 1.35s ease-out 1;
+}
+.ngprogress.ng-complete-flash .ngprogress-count{
+  animation:ngCompleteCountIgnition 1.35s ease-out 1;
+}
+
+@keyframes ngCompleteSegmentsIgnition{
+  0%{filter:drop-shadow(0 0 4px rgba(196,44,62,.20))}
+  22%{filter:drop-shadow(0 0 10px rgba(242,69,90,.72)) drop-shadow(0 0 19px rgba(160,20,42,.44))}
+  56%{filter:drop-shadow(0 0 7px rgba(220,54,74,.46)) drop-shadow(0 0 13px rgba(139,17,39,.28))}
+  100%{filter:drop-shadow(0 0 5px rgba(196,44,62,.24))}
+}
+@keyframes ngCompleteSegmentIgnition{
+  0%{filter:brightness(1)}
+  22%{
+    filter:brightness(1.32);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.10),
+      0 0 7px rgba(245,76,96,.78),
+      0 0 14px rgba(185,30,53,.52);
+  }
+  58%{
+    filter:brightness(1.12);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.065),
+      0 0 6px rgba(229,61,82,.44),
+      0 0 11px rgba(160,22,44,.28);
+  }
+  100%{filter:brightness(1)}
+}
+@keyframes ngCompleteCountIgnition{
+  0%{filter:brightness(1)}
+  22%{
+    color:#fff2f4;
+    filter:brightness(1.18);
+    text-shadow:
+      0 0 3px rgba(255,255,255,.58),
+      0 0 8px rgba(239,73,93,.78),
+      0 0 16px rgba(171,24,49,.50);
+  }
+  58%{
+    color:#f7c0c7;
+    filter:brightness(1.08);
+    text-shadow:
+      0 0 6px rgba(231,75,94,.58),
+      0 0 13px rgba(165,25,46,.34);
+  }
+  100%{filter:brightness(1)}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .ngprogress.ng-charging .ngsegment.filled,
+  .ngprogress.ng-complete-flash .ngsegments,
+  .ngprogress.ng-complete-flash .ngsegment.filled,
+  .ngprogress.ng-complete-flash .ngprogress-count{
+    animation:none;
+  }
+}
+.progressbar{
+  height:5px;
+  margin-top:14px;
+  overflow:hidden;
+  border-radius:999px;
+  background:#0b0708;
+  border:1px solid rgba(190,70,82,.045);
+}
+.progressbar>span{
+  display:block;
+  width:0;
+  height:100%;
+  border-radius:inherit;
+  background:linear-gradient(90deg,#733942,#ca6671);
+  transition:width .22s ease;
+}
+.parts{padding:11px 12px 13px}
+details.part{
+  border:1px solid var(--line);
+  border-radius:13px;
+  background:linear-gradient(180deg,#130c0e,#0d0809);
+  margin:9px 0;
+  overflow:hidden;
+  transition:border-color .16s ease,background .16s ease;
+}
+details.part:hover{border-color:#55333a}
+details.part[open]{border-color:#674049;background:linear-gradient(180deg,#160e10,#0d080a)}
+details.part>summary{
+  cursor:pointer;
+  list-style:none;
+  padding:14px 15px;
+  font-weight:800;
+  display:grid;
+  grid-template-columns:18px minmax(0,1fr) auto;
+  align-items:center;
+  gap:10px;
+  user-select:none;
+}
+details.part>summary::-webkit-details-marker{display:none}
+details.part>summary::before{
+  content:"›";
+  color:#9a8589;
+  font:700 1.35rem/1 Georgia,serif;
+  transform:rotate(0deg);
+  transition:transform .16s ease,color .16s ease;
+  transform-origin:center;
+}
+details.part[open]>summary::before{transform:rotate(90deg);color:#d7b6bb}
+details.part>summary:hover{background:rgba(190,70,82,.025)}
+.partcount{
+  color:#aaaead;
+  background:#1b1114;
+  border:1px solid #4a3035;
+  border-radius:999px;
+  padding:3px 8px;
+  font-size:.76rem;
+  font-weight:700;
+  min-width:52px;
+  text-align:center;
+}
+.item.next-missing-hit{
+  animation:nextMissingPulse 1.25s ease-out 1;
+}
+@keyframes nextMissingPulse{
+  0%{
+    background:rgba(118,24,39,.34);
+    box-shadow:inset 0 0 0 1px rgba(184,74,88,.30),0 0 18px rgba(111,18,34,.14);
+  }
+  45%{
+    background:rgba(78,17,29,.22);
+    box-shadow:inset 0 0 0 1px rgba(147,51,65,.20),0 0 10px rgba(84,12,25,.09);
+  }
+  100%{
+    background:transparent;
+    box-shadow:none;
+  }
+}
+
+.item{
+  display:grid;
+  grid-template-columns:auto minmax(0,1fr) auto;
+  gap:12px;
+  padding:13px 16px;
+  border-top:1px solid var(--line-soft);
+  align-items:start;
+  transition:background .14s ease,opacity .14s ease;
+}
+.item:hover{background:rgba(190,70,82,.025)}
+.item.done{opacity:.55;background:rgba(190,70,82,.018)}
+.item.done .itemname{text-decoration:line-through;text-decoration-thickness:1px;text-decoration-color:#815159}
+.itemname{font-weight:760;letter-spacing:-.005em}
+#ngList .item[data-ng-id="accessCardUsed"] .itemname{color:#cf737e}
+#ngList .item[data-ng-id="accessCardUsed"] .ng-lockin-note{color:#cf737e}
+#ngList .item[data-ng-id="accessCardUsed"] .ng-lockin-save-key{color:#cf737e}
+.meta{color:#8f7e82;font-size:.75rem;margin-top:3px;text-transform:uppercase;letter-spacing:.055em}
+.where{color:#c8bfc1;font-size:.84rem;margin-top:6px;line-height:1.48}
+.discovery-warning{color:#cf737e}
+.guide{
+  font-size:.76rem;
+  border:1px solid #4e3338;
+  background:#160e10;
+  border-radius:8px;
+  padding:6px 9px;
+  white-space:nowrap;
+  color:#d7bdc1;
+}
+.guide:hover{border-color:#8a4a54;background:#251418;color:#fff}
+.ngtag{
+  display:inline-block;
+  vertical-align:1px;
+  font-size:.62rem;
+  text-transform:uppercase;
+  letter-spacing:.09em;
+  border:1px solid #643b42;
+  color:#d09aa1;
+  border-radius:999px;
+  padding:2px 7px;
+  margin-left:6px;
+}
+.side{position:sticky;top:18px}
+.result{padding:24px}
+.resultlabel{color:var(--muted);font-size:.69rem;font-weight:850;text-transform:uppercase;letter-spacing:.13em}
+.ending{
+  font:500 3.45rem/.95 Georgia,"Times New Roman",serif;
+  margin:7px 0 13px;
+  letter-spacing:-.035em;
+}
+.ending.branch{font-size:2.55rem;line-height:1}
+.score{font-size:.9rem;color:var(--muted)}
+.score b{font-size:1.45rem;color:var(--text)}
+.break{margin-top:18px;border-top:1px solid var(--line);padding-top:12px}
+.row{display:flex;justify-content:space-between;gap:15px;padding:7px 0;color:var(--muted)}
+.row b{color:var(--text);font-variant-numeric:tabular-nums}
+.notice{
+  margin-top:17px;
+  padding:14px 14px 14px 15px;
+  border:1px solid var(--line);
+  border-left:3px solid #9a4d57;
+  background:#0d0809;
+  border-radius:10px;
+  color:#cec4c6;
+  font-size:.84rem;
+}
+.notice strong{color:#f0e7e8}
+.notice .ending-unreachable{color:#f25566;font-weight:800}
+.notice .projected-ending-value{color:#d99aa3;font-weight:800}
+.storage{margin-top:15px;color:#81777a;font-size:.73rem;line-height:1.5}
+.sourcebox{padding:16px 19px;margin-top:20px;color:var(--muted);font-size:.79rem}
+.sourcebox strong{color:#b9aaad;margin-right:8px}
+.sourcebox a{
+  display:inline-block;
+  margin:5px 5px 5px 0;
+  border:1px solid #4a3035;
+  background:#10090b;
+  border-radius:999px;
+  padding:5px 9px;
+  color:#aaaead;
+}
+.sourcebox a:hover{color:#fff;border-color:#74414a}
+
+.backtotop-wrap{
+  display:flex;
+  justify-content:center;
+  margin-top:24px;
+}
+.backtotop{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  min-height:40px;
+  padding:8px 13px;
+  border:1px solid #4a3035;
+  border-radius:999px;
+  background:linear-gradient(180deg,rgba(27,17,20,.82),rgba(13,8,10,.82));
+  color:#b7aaad;
+  font-size:.78rem;
+  font-weight:780;
+  letter-spacing:.02em;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.018);
+  transition:border-color .16s ease,background .16s ease,color .16s ease,transform .16s ease;
+}
+.backtotop:hover{
+  border-color:#74414a;
+  background:linear-gradient(180deg,rgba(38,21,25,.92),rgba(18,10,13,.92));
+  color:#f0e7e8;
+  transform:translateY(-1px);
+}
+.backtotop:active{transform:translateY(0)}
+.backtotop span[aria-hidden="true"]{
+  color:#c2646e;
+  font-size:.92rem;
+  line-height:1;
+}
+.hidden{display:none!important}
+
+.partactions{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:9px;
+  min-width:max-content;
+}
+.partall{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  color:#ad9da0;
+  font-size:.72rem;
+  font-weight:750;
+  letter-spacing:.025em;
+  cursor:pointer;
+  padding:3px 7px;
+  border:1px solid #4a3035;
+  border-radius:999px;
+  background:#170f11;
+}
+.partall:hover{border-color:#74414a;color:#ebdfe1}
+.partall input{
+  width:15px;
+  height:15px;
+  margin:0;
+}
+.mechanics-card{margin-top:20px}
+.mechanics-card .cardhead{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:18px;
+}
+.sourcebadge{
+  flex:0 0 auto;
+  display:inline-flex;
+  align-items:center;
+  border:1px solid #643b42;
+  border-radius:999px;
+  padding:4px 8px;
+  color:#d09aa1;
+  font-size:.67rem;
+  font-weight:800;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  white-space:nowrap;
+}
+.formulabox{
+  margin-bottom:16px;
+  padding:14px 15px;
+  border:1px solid #51343a;
+  border-radius:12px;
+  background:#0c0709;
+}
+.formulabox .formula{
+  color:#f0e8e8;
+  font:600 .96rem/1.5 ui-monospace,SFMono-Regular,Consolas,monospace;
+  overflow-wrap:anywhere;
+}
+.formulabox .thresholds{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:11px;
+}
+.threshold{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:5px 8px;
+  border:1px solid #4a3035;
+  border-radius:999px;
+  background:#170f11;
+  color:#b8abad;
+  font-size:.74rem;
+}
+.threshold b{color:#f0e7e8}
+.mechanicgrid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+}
+.mechanic{
+  border:1px solid var(--line-soft);
+  border-radius:12px;
+  background:rgba(190,70,82,.022);
+  padding:14px;
+}
+.mechanic h3{
+  margin:0 0 6px;
+  font-size:.88rem;
+  letter-spacing:-.005em;
+}
+.mechanic p{
+  margin:0;
+  color:#b0a4a7;
+  font-size:.82rem;
+  line-height:1.55;
+}
+.mechanic strong{color:#eee5e6}
+.mechanic.warn{
+  border-color:#5a373d;
+  background:rgba(137,55,66,.07);
+}
+.prioritybox{
+  margin-top:10px;
+  padding:14px 15px;
+  border:1px solid #51343a;
+  border-radius:12px;
+  background:#0d080a;
+}
+.prioritybox h3{margin:0 0 7px;font-size:.88rem}
+.prioritybox p{margin:0;color:#b0a4a7;font-size:.82rem;line-height:1.55}
+.priorityflow{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  flex-wrap:wrap;
+  margin-top:10px;
+  color:#9a8a8e;
+  font-size:.76rem;
+}
+.priorityflow span{
+  padding:5px 8px;
+  border:1px solid #4a3035;
+  border-radius:8px;
+  background:#170f11;
+  color:#d7ced0;
+}
+.mechanics-source{
+  margin-top:12px;
+  color:#81777a;
+  font-size:.73rem;
+  line-height:1.5;
+}
+.mechanics-source a{color:#c7afb3}
+.mechanics-source a:hover{color:#fff}
+@media(max-width:700px){
+  .discovery-toolbar-primary,
+  .discovery-toolbar-secondary{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:9px;
+  }
+  .discovery-toolbar-primary > .checkline{
+    grid-column:1/-1;
+    margin-right:0;
+  }
+  .discovery-toolbar-primary .btn,
+  .discovery-toolbar-secondary .btn{
+    width:100%;
+  }
+  .discovery-toolbar-secondary #discoveryPercent{
+    grid-column:1/-1;
+    justify-self:end;
+    margin-left:0;
+  }
+  .mechanicgrid{grid-template-columns:1fr}
+  .mechanics-card .cardhead{display:block}
+  .sourcebadge{margin-top:10px}
+  .partactions{gap:5px}
+  .partall{padding:3px 6px}
+}
+
+
+.profile-note{
+  margin:-7px 0 22px;
+  padding:12px 14px;
+  border:1px solid #4a3035;
+  border-radius:12px;
+  background:rgba(190,70,82,.025);
+  color:#a89ca0;
+  font-size:.8rem;
+  line-height:1.55;
+}
+.profile-note strong{color:#e7dcde}
+.profile-note em{color:#d0b9bd}
+
+body.modal-open{overflow:hidden}
+
+.confirm-modal[hidden]{display:none}
+.confirm-modal{
+  position:fixed;
+  inset:0;
+  z-index:1000;
+  display:grid;
+  place-items:center;
+  padding:20px;
+  background:rgba(2,1,2,.76);
+  -webkit-backdrop-filter:blur(6px);
+  backdrop-filter:blur(6px);
+}
+.confirm-panel{
+  width:min(100%,440px);
+  max-height:calc(100vh - 28px);
+  max-height:calc(100dvh - 28px);
+  overflow:auto;
+  border:1px solid #56353c;
+  border-radius:17px;
+  background:
+    radial-gradient(circle at 15% 0%,rgba(172,49,65,.08),transparent 36%),
+    linear-gradient(180deg,#1a1013 0%,#100a0c 100%);
+  box-shadow:
+    0 24px 80px rgba(0,0,0,.58),
+    inset 0 1px 0 rgba(255,255,255,.025);
+}
+.confirm-body{
+  padding:22px 22px 18px;
+}
+.confirm-kicker{
+  margin-bottom:7px;
+  color:#ba737b;
+  font-size:.67rem;
+  font-weight:850;
+  text-transform:uppercase;
+  letter-spacing:.13em;
+}
+.confirm-title{
+  margin:0;
+  color:#f1e9e9;
+  font:500 1.62rem/1.08 Georgia,"Times New Roman",serif;
+  letter-spacing:-.02em;
+}
+.confirm-message{
+  margin:11px 0 0;
+  color:#b8adaf;
+  font-size:.88rem;
+  line-height:1.6;
+}
+.confirm-message strong{
+  color:#eee4e6;
+  font-weight:760;
+}
+.confirm-input-wrap{
+  margin-top:15px;
+}
+.confirm-input-wrap[hidden]{display:none}
+.confirm-input{
+  width:100%;
+}
+.confirm-actions{
+  display:flex;
+  justify-content:flex-end;
+  gap:9px;
+  padding:14px 16px 16px;
+  border-top:1px solid rgba(189,98,107,.16);
+  background:rgba(5,3,4,.24);
+}
+.confirm-actions .btn{
+  min-width:92px;
+}
+.confirm-actions .btn.confirm-danger{
+  border-color:#75414a;
+  background:linear-gradient(180deg,#35171d,#241015);
+  color:#efb0b7;
+}
+.confirm-actions .btn.confirm-danger:hover{
+  border-color:#aa5964;
+  background:linear-gradient(180deg,#421a22,#2c1117);
+  color:#ffd7dc;
+}
+@media(max-width:520px){
+  .confirm-modal{padding:14px}
+  .confirm-body{padding:20px 18px 16px}
+  .confirm-actions{
+    padding:12px 14px 14px;
+  }
+  .confirm-actions .btn{
+    flex:1 1 0;
+    min-width:0;
+  }
+}
+
+@media(max-width:900px){
+  .layout{grid-template-columns:1fr}
+  .side{position:static}
+}
+@media(max-width:700px){
+  .wrap{width:min(100% - 20px,1240px);padding-top:28px}
+  .toolbar{grid-template-columns:1fr 1fr}
+  .toolbar>div:first-child{grid-column:1/-1}
+  .statgrid{grid-template-columns:1fr}
+  .item{grid-template-columns:auto 1fr}
+  .guide{grid-column:2;justify-self:start}
+  .ng-checklist-summary{padding-left:16px;padding-right:16px;gap:12px}
+  .ng-checklist-summary .ngprogress{width:auto;margin-left:auto;justify-content:flex-end}
+  .ng-checklist-summary .ngsegments{grid-template-columns:repeat(11,8px);gap:3px}
+  .ng-checklist-summary .ngsegment{width:8px;height:13px}
+  .ng-checklist-summary .ngprogress-count{width:46px;flex-basis:46px}
+}
+@media(max-width:520px){
+  .toolbar{grid-template-columns:1fr}
+  .toolbar .btn{width:100%}
+  .discovery-toolbar-primary,
+  .discovery-toolbar-secondary{
+    grid-template-columns:1fr;
+  }
+  .discovery-toolbar-primary > .checkline{
+    grid-column:auto;
+  }
+  .discovery-toolbar-secondary #discoveryPercent{
+    grid-column:auto;
+    justify-self:end;
+  }
+  .discovery-readout{
+    margin-left:auto;
+    min-height:35px;
+    padding:7px 10px;
+  }
+  details.part>summary{grid-template-columns:16px minmax(0,1fr) auto}
+  .ng-checklist-summary{
+    grid-template-columns:1fr;
+    gap:8px;
+    padding-top:12px;
+    padding-bottom:12px;
+  }
+  .ng-checklist-summary .ngprogress{justify-self:end}
+  .ending{font-size:3rem}
+}
+
+/* Collectibles-specific components */
+button:disabled{opacity:.4;cursor:not-allowed}
+button:disabled:hover{transform:none}
+.headerline{margin-top:22px;display:flex;gap:8px;flex-wrap:wrap}
+.tag{border:1px solid #503138;background:#180c0f;border-radius:999px;padding:5px 10px;color:#bc9ea4;font-size:.68rem;font-weight:850;letter-spacing:.06em;text-transform:uppercase}
+.tag.warn{color:#e0b7bd;border-color:#70424a}
+.dashboard{margin-top:27px;display:grid;grid-template-columns:1.12fr 1fr;gap:16px}
+.dash-main{padding:20px 22px}
+.tiny-label{color:#ac9ca0;letter-spacing:.14em;font-size:.69rem;font-weight:850;text-transform:uppercase}
+.progress-num{font:500 2.55rem/1.2 Georgia,serif;margin:9px 0 12px;color:#f6e9e9;font-variant-numeric:tabular-nums}
+.progress-num small{font:700 .9rem/1.4 system-ui,sans-serif;color:#ac9297}
+.dash-sub{display:flex;justify-content:space-between;flex-wrap:wrap;margin-top:12px;gap:8px;font-size:.76rem;color:#a9989b}
+.dash-sub strong{color:#d2adb3}
+.dash-stats{padding:17px;display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.mini-stat{padding:12px 13px;background:#120b0d;border:1px solid var(--hair);border-radius:11px;min-width:0}
+.mini-stat .val{font-size:1.24rem;font-weight:780;font-variant-numeric:tabular-nums;color:#e8d5d8}
+.mini-stat .name{font-size:.72rem;color:#a69598;display:block;margin-top:2px;font-weight:720}
+.mini-stat .bar{height:3px;background:#28181c;margin-top:8px;border-radius:8px;overflow:hidden}
+.mini-stat .bar b{display:block;height:100%;background:linear-gradient(90deg,#783945,#cb6674);width:0%}
+.profile-control{min-width:230px;flex:1;max-width:400px}
+.profile-control label,.search-control label{display:block;color:#af9b9f;letter-spacing:.09em;font-size:.67rem;text-transform:uppercase;font-weight:850;margin-bottom:6px}
+.profile-actions,.bulk-actions{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+select,input[type="search"],input[type="text"]{border:1px solid #57363d;background:#0c0809;color:#eee5e5;border-radius:9px;padding:10px 12px;min-height:43px;outline:none}
+.profile-control select{width:100%}
+.btn.slim{padding:8px 10px;min-height:36px}
+.btn.is-active{border-color:#b05a66;background:#3a1d26;color:#f9e9eb;box-shadow:inset 0 0 0 1px rgba(214,82,105,.14)}
+.btn.ghost{background:transparent}
+.nav{display:flex;gap:8px;flex-wrap:wrap;margin-top:20px;padding-bottom:14px;border-bottom:1px solid var(--line)}
+.nav button{border:1px solid #442a31;background:#110b0d;color:#b8a5a8;padding:11px 16px;border-radius:10px;font-weight:800;letter-spacing:.01em}
+.nav button[aria-selected="true"]{border-color:#a35462;color:#fff4f5;background:#391821;box-shadow:0 0 20px rgba(122,24,43,.17)}
+.view-desc{margin:18px 0 16px;color:#b4a3a5;font-size:.88rem}
+.filterrow{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin:0 0 20px}
+.search-control{flex:1;min-width:210px}
+.search-control input{width:100%;min-height:42px}
+.filterrow .select-holder{min-width:180px}
+.filterrow select{width:100%;min-height:42px}
+.filteractions{align-self:end}
+.filter-title{font-size:.67rem;letter-spacing:.09em;color:#af9b9f;text-transform:uppercase;font-weight:800;display:block;margin-bottom:6px}
+.section-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:17px 0 13px}
+.section-head h2{margin:0;font-size:1.06rem}
+.section-head small{color:#a48f95}
+.chevron{color:#ca7c85;font-size:1.15rem;transition:transform .2s ease}
+.part[open] .chevron{transform:rotate(90deg)}
+.part-titles{flex:1;min-width:0}
+.part-titles strong{font-size:.99rem;display:block}
+.part-titles small{display:block;font-size:.73rem;margin-top:2px;color:#ae9b9f}
+.countpill{font-size:.73rem;font-weight:800;color:#caaeb4;border:1px solid #54313b;border-radius:99px;background:#13090d;padding:6px 10px;white-space:nowrap}
+.part-items{padding:12px;display:grid;gap:9px}
+.empty{padding:25px 18px;text-align:center;color:#baa9ac;background:#120b0d;border-radius:10px;border:1px solid var(--hair)}
+.entry{position:relative;border:1px solid #362429;background:linear-gradient(180deg,#191013,#110b0d);border-radius:11px;padding:15px 16px;transition:border-color .17s ease,background .17s ease,box-shadow .17s ease}
+.entry:hover{border-color:#75454d}
+.entry.done{background:linear-gradient(180deg,#140d10,#0d090a)}
+.entry.done .entry-title{color:#baaaad;text-decoration:line-through;text-decoration-color:#66434b}
+.entry-top{display:flex;align-items:flex-start;gap:11px}
+.entry-index{display:flex;align-items:center;justify-content:center;flex:none;color:#a2777f;border:1px solid #4e333a;min-width:34px;height:32px;border-radius:7px;font-size:.68rem;font-weight:850;font-variant-numeric:tabular-nums;background:#160d10}
+.entry-main{flex:1;min-width:0}
+.entry-title{font-size:.93rem;font-weight:800;line-height:1.35;letter-spacing:.005em}
+.entry-kind{display:inline-block;color:#cb939d;font-size:.63rem;font-weight:850;letter-spacing:.085em;text-transform:uppercase;margin-left:8px;vertical-align:baseline}
+.entry-check{display:flex;align-items:center;gap:8px;cursor:pointer;flex-shrink:0;color:#b8a3a7;font-size:.72rem;font-weight:770}
+.entry-check input,.gallery-check input,.pair-check input{width:19px;height:19px;accent-color:#bc5d6a;cursor:pointer}
+.entry-meta{display:flex;align-items:center;flex-wrap:wrap;gap:7px;margin:6px 0 0}
+.chip{font-size:.66rem;font-weight:800;color:#b09fa3;border:1px solid #483139;border-radius:5px;padding:2px 6px;background:#10080a;white-space:nowrap}
+.chip.code{font-variant-numeric:tabular-nums;color:#e1b3ba;border-color:#76434b;font-weight:850}
+.chip.ng{color:#eac0c4;border-color:#83505b}
+.entry-where{font-size:.83rem;color:#c3b5b8;line-height:1.56;margin:10px 0 0}
+.entry-note{margin-top:10px;border-left:2px solid #81505a;padding:7px 10px;background:rgba(116,43,56,.12);color:#dfc1c7;font-size:.78rem}
+.entry-note strong{color:#f1d8de}
+.entry-note.caution{border-color:#b86a72;color:#ecc2c9}
+.entry-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px;align-items:center}
+.entry-actions a,.entry-actions button{font-size:.7rem;color:#d1adb4;font-weight:740;border:0;background:none;padding:0}
+.entry-actions a:hover,.entry-actions button:hover{text-decoration:underline;color:#fff}
+.part-empty{padding:25px;color:#ae9a9f;text-align:center;font-size:.83rem}
+.cat-section{margin:0 0 25px}
+.cathead{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:15px 0 11px;border-bottom:1px solid var(--line)}
+.cathead h2{font-size:1.05rem;margin:0}
+.cathead small{color:#aa979c}
+.cat-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding-top:10px}
+.cat-list .entry{min-width:0}
+.pair-card{grid-column:span 2;border:1px solid #473039;border-radius:13px;background:#170e11;overflow:hidden}
+.pair-head{padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:10px;border-bottom:1px solid #3b2730}
+.pair-head h3{font-size:.92rem;margin:0}
+.pair-head small{color:#baa6a9}
+.pair-grid{display:grid;grid-template-columns:1fr 1fr;gap:0}
+.pair-step{padding:15px 17px}
+.pair-step+.pair-step{border-left:1px solid #39262d}
+.pair-step .entry-where{margin:8px 0}
+.pair-check{display:flex;align-items:center;gap:8px;font-size:.78rem;font-weight:830;color:#e1bfc7}
+.pair-check input{flex:none}
+.pair-step .entry-actions{margin-top:7px}
+.pair-card.pair-complete{border-color:#7b4851}
+.hint{color:#ab969c;font-size:.82rem}
+.noticebox{border:1px solid #67414a;background:linear-gradient(90deg,#2c151d,#140a0e);padding:14px 16px;border-radius:10px;margin:0 0 15px;color:#e3c5cb;font-size:.81rem}
+.noticebox strong{color:#f3dde1}
+.gallery-intro{margin:0 0 18px;color:#b8a5a8;font-size:.87rem;max-width:980px}
+.gallery-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.postcard-card{border-radius:13px;border:1px solid #503138;background:linear-gradient(180deg,#1d1014,#0f090b);overflow:hidden;min-width:0;transition:border-color .2s ease,transform .2s ease}
+.postcard-card:hover{border-color:#ae6370;transform:translateY(-2px)}
+.postcard-art{border:none;padding:0;background:#070708;display:block;width:100%;aspect-ratio:2048 / 1440;cursor:zoom-in}
+.postcard-art img{width:100%;height:100%;object-fit:contain;display:block}
+.postcard-foot{padding:13px 14px 15px}
+.postcard-foot h3{font-size:.94rem;margin:0 0 3px}
+.postcard-foot .sub{font-size:.74rem;color:#ab979c;margin:0 0 9px;min-height:19px}
+.gallery-check{display:flex;align-items:center;gap:8px;font-weight:750;font-size:.77rem;color:#d3bfc3}
+.gallery-actions{display:flex;gap:15px;margin-top:10px}
+.gallery-actions button{border:0;background:transparent;color:#dab6bd;font-size:.77rem;padding:0;font-weight:800}
+.gallery-actions button:hover{text-decoration:underline}
+.footer{margin-top:36px;border-top:1px solid var(--line);padding-top:20px;color:#97888b;font-size:.76rem}
+.footer h3{font-size:.8rem;color:#c4abb0;letter-spacing:.08em;text-transform:uppercase}
+.footer a{display:inline-block;margin-right:12px;margin-bottom:8px}
+.footer p{max-width:950px}
+.footer .small{font-size:.7rem;color:#867579}
+.dialog,.viewer{border:1px solid #74424c;border-radius:16px;background:linear-gradient(180deg,#24141a,#0f090c);color:var(--text);max-width:min(520px,calc(100vw - 28px));width:100%;padding:0;box-shadow:0 30px 110px rgba(0,0,0,.8)}
+.dialog::backdrop,.viewer::backdrop{background:rgba(0,0,0,.86);backdrop-filter:blur(5px)}
+.dialog-content{padding:25px}
+.dialog h2{font:500 1.7rem Georgia,serif;margin:0 0 8px}
+.dialog p{color:#cbb6bb;font-size:.89rem;margin:0 0 18px}
+.dialog input{width:100%;margin-bottom:18px}
+.dialog-actions{display:flex;justify-content:flex-end;gap:9px}
+.dialog .btn{min-width:88px}
+.viewer{max-width:min(1320px,calc(100vw - 26px));max-height:calc(100dvh - 28px);width:100%;overflow:auto}
+.viewer-head{padding:13px 17px;border-bottom:1px solid #57313a;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.viewer-head strong{font-size:1rem}
+.viewer-head small{display:block;font-size:.73rem;font-weight:500;color:#b7a5a9}
+.viewer-head .btn{min-height:33px;padding:6px 10px}
+.viewer-body{padding:14px 18px 17px}
+.viewer-modes{display:flex;gap:7px;flex-wrap:wrap}
+.viewer-modes button{background:#170b10;border:1px solid #62404a;color:#d5b7bf;padding:8px 12px;border-radius:8px;font-size:.8rem;font-weight:830}
+.viewer-modes button[aria-pressed="true"]{background:#612733;color:#fff;border-color:#ce6a7b}
+.viewer-tools{display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:12px}
+.brightness{display:flex;align-items:center;gap:9px;font-size:.72rem;font-weight:830;color:#cbb0b6}
+.brightness input{width:130px;accent-color:#bd626b}
+.viewer-images{display:grid;grid-template-columns:1fr;gap:12px}
+.viewer-images.compare{grid-template-columns:1fr 1fr}
+.viewer-frame{background:#050405;border:1px solid #503137;border-radius:9px;overflow:hidden;min-width:0}
+.viewer-frame figcaption{padding:7px 10px;font-size:.7rem;font-weight:800;color:#c9a7ae;background:#150b0e;text-transform:uppercase;letter-spacing:.075em}
+.viewer-frame img{display:block;width:100%;height:auto;max-height:calc(100dvh - 260px);object-fit:contain}
+.viewer-frame.solved img{filter:brightness(var(--solution-brightness,1.3))}
+.viewer-footer{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:11px}
+.viewer-footer .btn{min-height:36px}
+.viewer-footer small{color:#ad9a9f;text-align:center}
+[hidden]{display:none!important}
+@media (max-width:930px){.dashboard{grid-template-columns:1fr}.gallery-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:720px){.dash-stats{padding:13px}.cat-list{grid-template-columns:1fr}.pair-card{grid-column:auto}.filterrow .search-control{flex-basis:100%}.filterrow .select-holder{flex:1}.gallery-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.viewer-images.compare{grid-template-columns:1fr}.viewer-frame img{max-height:58vh}}
+@media (max-width:460px){.dashboard{gap:10px}.dash-main{padding:17px}.dash-stats{gap:7px;padding:11px}.mini-stat{padding:10px}.mini-stat .val{font-size:1.04rem}.profile-control{min-width:100%}.nav button{flex:1;padding:10px 8px;font-size:.76rem}.gallery-grid{grid-template-columns:1fr}.entry{padding:12px}.entry-top{gap:8px;flex-wrap:wrap}.entry-check{margin-left:auto}.entry-index{min-width:30px;height:28px}.pair-grid{grid-template-columns:1fr}.pair-step+.pair-step{border-top:1px solid #39262d;border-left:0}.viewer-body{padding:12px}.viewer-tools{align-items:flex-start}.brightness{width:100%}.viewer-footer small{font-size:.65rem}}
+/* Collectibles-only layout; shared background, header, animation, pills, and navigation
+   remain IDENTICAL to the v109 source above. */
+header{padding-right:0}
+.headerline{margin-top:17px}
+.dashboard{margin-top:22px}
+.dash-main,.dash-stats{min-width:0}
+.dash-main .completion-label-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.dash-main .progress-num{margin:10px 0 7px;font-size:2.45rem}
+.dash-main .progress-num small{font-size:.86rem}
+.dash-main #discoveryToolbar{display:flex;align-items:center;justify-content:flex-end;gap:9px;flex-wrap:wrap}
+.dash-main #discoveryPercent{margin-left:0}
+.dash-main #discoveryToolbar>.btn{width:auto;min-width:123px;flex:0 0 auto;grid-column:auto}
+.dash-main .progressbar{margin-top:13px}
+.collectibles-toolbar{grid-template-columns:minmax(210px,1fr) auto auto;margin:18px 0 0;gap:12px}
+.collectibles-toolbar .profile-control{max-width:none;min-width:210px}
+.collectibles-toolbar .profile-actions,.collectibles-toolbar .bulk-actions{justify-content:flex-start}
+.collectibles-toolbar .profile-control label{margin-bottom:7px}
+.collectibles-toolbar .profile-control select{background:#0b0708;border:1px solid #4a3035;border-radius:10px}
+.collectibles-toolbar .profile-control select:focus-visible{outline:2px solid rgba(189,98,107,.78);outline-offset:2px}
+.entry.next-missing-hit{animation:nextMissingPulse 1.25s ease-out 1}
+.view[hidden],.parts[hidden],.category-blocks[hidden],.gallery-grid[hidden]{display:none!important}
+@media(max-width:900px){.collectibles-toolbar{grid-template-columns:1fr auto}.collectibles-toolbar .bulk-actions{grid-column:1/-1}}
+@media(max-width:600px){.completion-label-row{flex-wrap:wrap}
+ .dash-main #discoveryToolbar{width:100%;justify-content:space-between}
+ .collectibles-toolbar{grid-template-columns:1fr}
+ .collectibles-toolbar .profile-control{min-width:0;max-width:none}
+ .collectibles-toolbar .bulk-actions{grid-column:auto}
+}
+@media(prefers-reduced-motion:reduce){.entry.next-missing-hit{animation:none;background:rgba(78,17,29,.22);box-shadow:inset 0 0 0 1px rgba(147,51,65,.20)}}
+
+
+/* v3: All shared colors, header and motion primitives are from v109 above. */
+.collectibles-toolbar{grid-template-columns:minmax(260px,1fr) auto;margin-bottom:18px}
+.collectibles-toolbar .profile-control{width:100%;max-width:none;min-width:0}
+.collectibles-toolbar .profile-control .small{margin-bottom:7px}
+.collectibles-toolbar .profile-actions{display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap}
+.collectibles-toolbar #profileSelect{display:none!important}
+.collectibles-toolbar .profile-control .ending-select-button{min-height:43px}
+.nav{margin-top:14px}
+.checklist-tools{margin-top:20px;overflow:visible}
+.checklist-tools .cardhead{padding:21px 22px 19px}
+.checklist-tools .controls{padding:18px 22px 21px}
+.checklist-tools #discoveryToolbar{display:grid;grid-template-columns:minmax(0,1fr);gap:11px}
+.checklist-tools .discovery-toolbar-primary{gap:9px}
+.checklist-tools .discovery-toolbar-primary .checkline{margin-right:14px;font-weight:760}
+.checklist-tools .discovery-toolbar-secondary{display:flex;flex-wrap:wrap;gap:9px;align-items:center}
+.checklist-tools #markAll{width:19px;height:19px;accent-color:#b85a64}
+.checklist-tools .progressbar{margin-top:16px;width:100%}
+.completion-pill-slot{display:flex;align-items:center;justify-content:flex-end;margin-left:auto;position:relative;flex:0 0 176px;min-height:38px}
+.completion-pill-slot #discoveryPercent{position:absolute;right:0;top:50%;transform:translateY(-50%);margin-left:0;white-space:nowrap}
+#missingOnly{position:relative;overflow:hidden}
+#missingOnly[aria-pressed="true"],#missingOnly[aria-pressed="true"]:hover{color:#f5dde1;border-color:#9a4a57;background:linear-gradient(180deg,#12090b,#211015);transform:none;box-shadow:inset 0 4px 8px rgba(0,0,0,.74),inset 0 0 0 1px rgba(226,92,108,.16),0 0 0 1px rgba(110,35,47,.10)}
+#missingOnly[aria-pressed="true"]::after{content:"";position:absolute;left:14px;right:14px;bottom:6px;height:2px;border-radius:999px;pointer-events:none;background:linear-gradient(90deg,rgba(145,48,62,.30),rgba(232,91,108,.88),rgba(145,48,62,.30));box-shadow:0 0 7px rgba(199,68,84,.22)}
+.filterrow{grid-template-columns:minmax(250px,1fr) minmax(210px,260px);align-items:end}
+.filterrow .select-holder{min-width:0;width:auto}
+.filterrow .select-holder .small{margin-bottom:7px}
+.filterrow #typeFilter{display:none!important}
+.filterrow .ending-select-button{min-height:43px}
+.filterrow .ending-options{z-index:90}
+#storyContent.details-animating,#categoryContent.details-animating{overflow-anchor:none}
+html.layout-adjusting{scroll-behavior:auto!important;overflow-anchor:none!important}
+html.layout-adjusting body,html.layout-adjusting #storyContent,html.layout-adjusting #categoryContent{overflow-anchor:none!important}
+#storyContent details.part>summary,.category-blocks details.part>summary{grid-template-columns:18px minmax(0,1fr) auto;gap:10px}
+#storyContent .part-titles{min-width:0}
+.part-head-controls{display:flex;align-items:center;gap:9px;justify-content:flex-end;white-space:nowrap}
+.part-head-controls .countpill{min-width:52px}
+.part-all{display:inline-flex;align-items:center;gap:8px;font-size:.78rem;font-weight:760;color:#c9b8bd;cursor:pointer;line-height:1}
+.part-all input{width:17px;height:17px;flex:0 0 auto;accent-color:#b85a64}
+.part-all:hover{color:#fff}
+.part-expand-inner{overflow:hidden;min-height:0}
+#storyContent details.part .part-items{padding-bottom:4px}
+#storyContent .part-body,#categoryContent .part-body{overflow:hidden;min-height:0}
+#categoryContent details.part{margin:10px 0}
+#categoryContent details.part .cat-list{padding:11px 13px 15px}
+#categoryContent .cat-section{border:0;background:transparent;border-radius:0;margin:0;padding:0}
+#categoryContent .cathead{border:0;background:transparent;margin:0;padding:0}
+#categoryContent .cathead h2{font-size:1rem}
+#categoryContent .cathead small{font-size:.77rem}
+#categoryContent .part-titles{min-width:0}
+#categoryContent .pair-card{margin:0 0 10px}
+#categoryContent .entry{margin:7px 0}
+#categoryContent details.part>summary .part-all{margin-left:4px}
+#appDialog[hidden]{display:none!important}
+.entry.missing-filter-out{pointer-events:none;transform-origin:center top;overflow:hidden;animation:missingFilterRowOut .19s cubic-bezier(.32,.02,.62,.98) forwards}
+.entry.missing-filter-in{animation:entryFilterReveal .25s ease both}
+@keyframes entryFilterReveal{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
+@media(prefers-reduced-motion:reduce){.entry.missing-filter-out,.entry.missing-filter-in{animation:none!important}}
+.dialog-content{display:none}
+body.modal-open{overflow:hidden}
+@media(max-width:900px){.collectibles-toolbar{grid-template-columns:1fr;gap:11px}.collectibles-toolbar .profile-actions{flex-wrap:wrap}}
+@media(max-width:650px){.filterrow{grid-template-columns:1fr}.completion-pill-slot{flex-basis:110px}.checklist-tools .controls{padding:15px}.checklist-tools .discovery-toolbar-primary .checkline{margin-right:5px}#storyContent details.part>summary,#categoryContent details.part>summary{gap:7px}.part-head-controls{gap:5px}.part-all{gap:4px;font-size:.69rem}.part-all input{width:16px;height:16px}.part-head-controls .countpill{font-size:.70rem;padding:2px 5px;min-width:44px}}
+@media(prefers-reduced-motion:reduce){.part-body,.part-expand-inner{animation:none!important;transition:none!important}}
+
+
+/* v4: the shared v109 system is unchanged; these are layout-only accommodations. */
+.gallery-shortcut{margin-left:auto;appearance:none;cursor:pointer;background:linear-gradient(180deg,#201015,#120a0c);border:1px solid #64404a;border-radius:11px;padding:9px 14px;color:#e4c6cc;font-size:.77rem;font-weight:800;letter-spacing:.01em}
+.gallery-shortcut:hover,.gallery-shortcut[aria-selected="true"]{border-color:#ad5663;color:#fff1f2;background:#3a1821}
+.dashboard{grid-template-columns:minmax(0,1.12fr) minmax(0,1fr)}
+.dash-main{display:flex;flex-direction:column;justify-content:center;gap:8px;min-height:0}
+.dash-main .progress-num{margin:0 0 8px;font-size:clamp(2.4rem,3.4vw,3.2rem)}
+.dash-main .progress-num small{font-size:.95rem}
+.dash-breakdown{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.dash-metric{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:10px;row-gap:9px;padding:14px 15px;border:1px solid var(--hair);background:#120b0d;border-radius:11px;align-items:center}
+.dash-metric>span{font-weight:760;color:#b6a4a7;font-size:.83rem}
+.dash-metric>strong{font-weight:850;color:#f0dadd;font-size:1rem;white-space:nowrap;font-variant-numeric:tabular-nums}
+.dash-metric .bar{height:4px;background:#28181c;border-radius:99px;grid-column:1/-1;overflow:hidden}
+.dash-metric .bar>b{display:block;height:100%;background:linear-gradient(90deg,#783945,#cb6674);width:0%;transition:width .28s ease}
+.checklist-tools{margin-top:18px}
+.checklist-views{margin:0 22px 0;padding:0 0 15px;border-bottom:1px solid #39252a}
+.checklist-views button{padding:10px 16px}
+.checklist-tools .controls{padding-top:18px}
+#storyContent.parts{padding:0;max-width:none;width:100%;box-sizing:border-box}
+#categoryContent.category-blocks{padding:0;max-width:none;width:100%;box-sizing:border-box}
+#storyContent details.part,#categoryContent details.part{width:100%;box-sizing:border-box}
+#storyContent details.part>summary .part-titles small,#categoryContent details.part>summary .part-titles small{display:none}
+.filterrow{display:grid;grid-template-columns:minmax(0,1fr) minmax(272px,320px);gap:15px;align-items:end}
+.filterrow .search-control{min-width:0}
+.filterrow .select-holder{min-width:0}
+#categorySelectWrap,#categoryButton,#categoryOptions{width:100%;min-width:0;box-sizing:border-box}
+#categoryOptions .ending-option{white-space:nowrap;word-break:normal;overflow-wrap:normal;font-size:.90rem;padding-right:40px}
+#categoryOptions .ending-option::after{flex-shrink:0}
+.gallery-nav-return{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:22px}
+.gallery-nav-return h2{margin:0;font-size:1.22rem}
+#galleryView .view-desc{margin-top:13px}
+#galleryContent{margin-top:16px}
+@media(max-width:930px){.dashboard{grid-template-columns:1fr}}
+@media(max-width:650px){.dash-breakdown{gap:8px}.dash-metric{padding:10px}.dash-metric>span{font-size:.74rem}.dash-metric>strong{font-size:.83rem}.filterrow{grid-template-columns:1fr}.checklist-views{margin:0 15px}.gallery-shortcut{margin-left:0}}
+@media(max-width:360px){.dash-breakdown{grid-template-columns:1fr}}
+
+
+/* v5 layout alignment; v109 source styling remains unchanged. */
+.headerline{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.dashboard{margin-top:20px}
+.dash-main .completion-label-row{display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap}
+.dash-main .completion-label-row .gallery-shortcut{margin:0;flex-shrink:0}
+.checklist-tools #discoveryToolbar{gap:13px}
+.checklist-tools .discovery-toolbar-primary{display:flex;align-items:center;flex-wrap:wrap;column-gap:10px;row-gap:11px}
+.checklist-tools .discovery-toolbar-primary .checkline{margin-right:10px}
+.toolbar-action-divider{width:1px;align-self:stretch;min-height:27px;margin:2px 5px;background:linear-gradient(180deg,transparent,#74434c 22%,#74434c 78%,transparent);flex:0 0 1px}
+.checklist-tools .discovery-toolbar-secondary{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:51px}
+.checklist-tools .checklist-views{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:0;padding:0;border:0;min-width:0}
+.checklist-tools .checklist-views button{padding:10px 16px}
+.checklist-tools .completion-pill-slot{margin-left:auto}
+.next-missing-float{width:171px}
+.next-missing-default{display:grid;grid-template-columns:18px minmax(0,1fr);align-items:center;justify-content:center;gap:13px;padding:0 12px}
+.next-missing-arrow{position:static;left:auto;top:auto;transform:none;font-size:1.13rem;line-height:1;justify-self:center}
+.next-missing-copy{min-width:0;align-items:flex-start;text-align:left;gap:4px}
+.next-missing-primary{font-size:.77rem}
+.next-missing-scope{font-size:.59rem;letter-spacing:.04em;white-space:nowrap}
+ .viewer-modes button[aria-pressed="true"]{position:relative;overflow:hidden;color:#f5dde1;border-color:#9a4a57;background:linear-gradient(180deg,#12090b,#211015);box-shadow:inset 0 4px 8px rgba(0,0,0,.74),inset 0 0 0 1px rgba(226,92,108,.16),0 0 0 1px rgba(110,35,47,.10)}
+ .viewer-modes button[aria-pressed="true"]::after{content:"";position:absolute;left:13px;right:13px;bottom:4px;height:2px;border-radius:999px;background:linear-gradient(90deg,rgba(145,48,62,.30),rgba(232,91,108,.88),rgba(145,48,62,.30));box-shadow:0 0 7px rgba(199,68,84,.22)}
+@media(max-width:1030px){.checklist-tools .discovery-toolbar-primary .checkline{flex-basis:100%;}.toolbar-action-divider{margin-left:2px}}
+@media(max-width:750px){.dash-main .completion-label-row{align-items:flex-start}.checklist-tools .discovery-toolbar-primary{gap:9px}.toolbar-action-divider{display:none}.next-missing-float{width:164px}.next-missing-default{gap:9px;padding:0 10px}}
+@media(max-width:450px){.checklist-tools .discovery-toolbar-secondary{align-items:flex-start}.checklist-tools .checklist-views{max-width:calc(100% - 82px)}.checklist-tools .checklist-views button{padding:9px 11px;font-size:.75rem}.checklist-tools .completion-pill-slot{flex:0 0 82px}.dash-main .completion-label-row .gallery-shortcut{margin-left:0}.next-missing-scope{font-size:.57rem}}
+
+
+/* v6: Independent all-category controls and contextual postcard navigation. */
+.dash-metric:has(.overview-all){grid-template-columns:minmax(0,1fr) auto auto}
+.overview-all{display:inline-flex;align-items:center;gap:5px;cursor:pointer;white-space:nowrap;font-size:.73rem;font-weight:780;color:#cbb6bb;justify-self:end}
+.overview-all input{width:17px;height:17px;accent-color:#c66c7b;cursor:pointer}
+.mini-stat{position:relative;padding-right:54px}
+.mini-stat .overview-all{position:absolute;top:13px;right:11px}
+.gallery-nav-return .gallery-all{margin-left:auto;font-size:.82rem;white-space:nowrap}
+.gallery-nav-return .gallery-all input{accent-color:#c66c7b}
+.gallery-nav-return h2{white-space:normal}
+/* v13: one compact semantic button, with no decorative unclickable wrapper. */
+.return-to-postcard{color:#e9c4ca!important}
+.entry-return{
+  display:inline-flex;align-items:center;justify-content:center;
+  justify-self:start;align-self:start;
+  width:max-content;max-width:100%;box-sizing:border-box;
+  margin-top:12px;padding:9px 12px;
+  border:1px solid #683942;border-radius:10px;
+  background:linear-gradient(180deg,rgba(48,19,27,.65),rgba(23,10,14,.65));
+  font-family:inherit;font-size:.76rem;font-weight:780;line-height:1.3;
+  text-align:left;cursor:pointer;
+  transition:border-color .16s ease,background .16s ease,color .16s ease;
+}
+.entry-return:hover{
+  border-color:#8a4a54;background:linear-gradient(180deg,rgba(56,26,34,.85),rgba(28,13,18,.82));
+  color:#fff!important;
+}
+.entry-return:focus-visible{outline:2px solid #c2646e;outline-offset:3px}
+
+.viewer-footer{flex-wrap:wrap}
+.viewer-footer .viewer-location{border-color:#70434d;color:#efd0d5}
+@media(max-width:650px){.gallery-nav-return .gallery-all{margin-left:0;flex-basis:100%}.mini-stat{padding-right:12px}.mini-stat .overview-all{position:static;margin-top:8px}.viewer-footer #viewerHint{order:5;flex-basis:100%}.dash-metric:has(.overview-all){grid-template-columns:minmax(0,1fr) auto auto}}
+@media(max-width:370px){.overview-all{font-size:.67rem}.dash-metric:has(.overview-all){grid-template-columns:1fr auto}.dash-metric:has(.overview-all)>strong{grid-column:2}.dash-metric:has(.overview-all) .overview-all{grid-column:1/-1}}
+
+
+
+/* v8: Keep the Solution brightness slider and readout stationary at every value. */
+.brightness{
+  display:grid;
+  grid-template-columns:max-content 130px 5ch;
+  align-items:center;
+  column-gap:9px;
+  flex:0 0 auto;
+  width:max-content;
+  white-space:nowrap;
+  font-variant-numeric:tabular-nums;
+}
+.brightness input[type="range"]{
+  width:130px;
+  min-width:0;
+  margin:0;
+  box-sizing:border-box;
+}
+.brightness #brightnessLabel{
+  display:inline-block;
+  width:5ch;
+  text-align:right;
+  font-variant-numeric:tabular-nums;
+}
+@media(max-width:460px){
+  .brightness{width:100%;grid-template-columns:minmax(0,1fr) minmax(92px,130px) 5ch}
+  .brightness input[type="range"]{width:100%}
+}
+
+/* v7: Stable counters, persistent category bars, and v109 neon completion. */
+.progress-num #doneMain{display:inline-block;min-width:2ch;text-align:right;font-variant-numeric:tabular-nums}
+.count-current{display:inline-block;min-width:2ch;text-align:right;font-variant-numeric:tabular-nums}
+.count-total{display:inline-block;white-space:nowrap;font-variant-numeric:tabular-nums}
+.mini-stat .category-count-total{font-size:.65em;color:#8f7c81}
+.mini-stat .val,.dash-metric>strong{white-space:nowrap;font-variant-numeric:tabular-nums}
+.mini-stat .bar>b,.dash-metric .bar>b{border-radius:inherit;transition:width .48s cubic-bezier(.2,.7,.2,1)}
+.mini-stat .bar.category-complete-flash,.dash-metric .bar.category-complete-flash{
+  overflow:visible;
+  animation:discoveryCompleteTrackGlow 1.85s ease-out 1;
+}
+.mini-stat .bar.category-complete-flash>b,.dash-metric .bar.category-complete-flash>b{
+  background:linear-gradient(90deg,#8e2735,#e15b6c);
+  animation:discoveryCompleteFillGlow 1.85s ease-out 1;
+}
+.viewer-location-row{display:flex;justify-content:center;align-items:center;margin-top:14px}
+.viewer-location-row .viewer-location{border-color:#70434d;color:#efd0d5;min-height:36px}
+.viewer-footer{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:13px;align-items:center;margin-top:13px}
+.viewer-footer #prevCard{justify-self:start}
+.viewer-footer #viewerHint{justify-self:center;text-align:center;white-space:nowrap}
+.viewer-footer #nextCard{justify-self:end}
+@media(max-width:650px){
+ .viewer-footer{grid-template-columns:1fr 1fr;gap:8px}
+ .viewer-footer #prevCard{grid-column:1;grid-row:1}
+ .viewer-footer #nextCard{grid-column:2;grid-row:1}
+ .viewer-footer #viewerHint{grid-column:1/-1;grid-row:2;justify-self:center;white-space:normal}
+}
+@media(prefers-reduced-motion:reduce){
+ .mini-stat .bar>b,.dash-metric .bar>b{transition:none}
+ .mini-stat .bar.category-complete-flash,.dash-metric .bar.category-complete-flash,
+ .mini-stat .bar.category-complete-flash>b,.dash-metric .bar.category-complete-flash>b{animation:none}
+}
+
+/* v9: quiet initial image preparation; never show empty frames during navigation. */
+.viewer-preparing,.viewer-image-error{display:grid;place-items:center;min-height:240px;color:#bca5a9;font-size:.86rem;letter-spacing:.025em;background:#080607;border:1px solid #503137;border-radius:9px}
+.viewer-image-error{color:#d9a2aa;padding:20px;text-align:center}
+
+/* v109 completion-empty appearance, preserved verbatim for Collectibles. */
+.missing-only-empty{
+  margin:9px 0;
+  padding:22px 18px;
+  border:1px solid var(--line);
+  border-radius:13px;
+  background:linear-gradient(180deg,#130c0e,#0d0809);
+  color:#b9aeb0;
+  text-align:center;
+  font-size:.88rem;
+}
+.missing-only-empty strong{color:#eadcdf}
+.missing-only-empty-content{display:block}
+/* Part 5's fixed information state is not a filtering or completion state. */
+.part-five-note{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:7px;
+  margin:3px 0 4px;
+  padding:25px 18px;
+  border:1px solid #443037;
+  border-radius:11px;
+  background:linear-gradient(180deg,#170e11,#110b0d);
+  font-size:.82rem;
+  line-height:1.55;
+  color:#b9aaad;
+}
+.part-five-note strong{color:#e8d9dc;font-size:.88rem;font-weight:800}
+.part-five-note span{max-width:540px}
+@media(prefers-reduced-motion:reduce){
+  .missing-only-empty-content{transition:none!important;transform:none!important}
+}
+
+
+/* v11: Match v109's guide-pill component exactly. */
+.guide{
+  font-size:.76rem;
+  border:1px solid #4e3338;
+  background:#160e10;
+  border-radius:8px;
+  padding:6px 9px;
+  white-space:nowrap;
+  color:#d7bdc1;
+}
+.guide:hover{border-color:#8a4a54;background:#251418;color:#fff}
+/* v11: v109-inspired row: checkbox left, text center, Guide right. */
+.entry{display:grid;grid-template-columns:auto minmax(0,1fr) auto;column-gap:12px;align-items:start}
+.entry-check{grid-column:1;grid-row:1 / span 5;align-self:start;margin:3px 0 0;align-items:flex-start}
+.entry-top{grid-column:2;grid-row:1;min-width:0;flex-wrap:nowrap}
+.entry-guide{grid-column:3;grid-row:1;justify-self:end;align-self:start}
+.entry-where,.entry-note,.entry-actions,.entry-return{grid-column:2 / -1}
+.entry-actions a.guide{display:inline-flex;align-items:center;text-decoration:none}
+.pair-step .entry-actions a.guide{border:1px solid #4e3338;background:#160e10;padding:6px 9px;color:#d7bdc1;font-size:.76rem;font-weight:inherit}
+.pair-step .entry-actions a.guide:hover{border-color:#8a4a54;background:#251418;color:#fff;text-decoration:none}
+/* v14: Align paired Guide pills at the upper right of their own key/container panel. */
+.pair-step-top{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;gap:12px}
+.pair-step-top .pair-check{min-width:0;align-self:center}
+.pair-step-top .pair-guide{justify-self:end;align-self:start;display:inline-flex;align-items:center;text-decoration:none}
+@media(max-width:540px){.pair-step-top{gap:8px}}
+/* Both bulk checkboxes share v109's original checkline typography. */
+.gallery-nav-return .gallery-all{font-size:inherit;font-weight:inherit}
+.gallery-nav-return .gallery-all input{width:19px;height:19px;accent-color:#b85a64}
+.gallery-nav-return .gallery-all strong{font-weight:800}
+/* Distinguish the number to dial from incidental chapter metadata. */
+.entry[data-entry-id^="phone-"] .chip.code{font-size:.70rem;font-weight:850;color:#edbec7}
+/* v14: One fixed Undo component, reused from the v13 Gallery appearance. */
+#undoBar{
+ position:fixed;inset:auto auto max(18px,env(safe-area-inset-bottom)) 50%;
+ transform:translateX(-50%);z-index:900;width:max-content;max-width:calc(100vw - 30px);
+ margin:0;padding:10px 12px;box-shadow:0 14px 42px rgba(0,0,0,.7),0 0 0 1px rgba(160,68,85,.14);
+ background:linear-gradient(180deg,#241319,#140b0f);border-color:#70404b;
+}
+#undoBar[hidden]{display:none!important}
+@media(max-width:540px){#undoBar{font-size:.78rem}}
+
+/* Keep the Compare viewer's original panel size for regular postcards. */
+.viewer-frame{margin:0}
+.viewer-images.compare.compare-conventional{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}
+.viewer-images.compare.compare-conventional>.viewer-frame{
+ grid-column:1 / -1;justify-self:center;width:calc((100% - 12px)/2);
+}
+@media(max-width:720px){
+ .viewer-images.compare.compare-conventional{grid-template-columns:1fr}
+ .viewer-images.compare.compare-conventional>.viewer-frame{grid-column:1;width:100%}
+}
+@media(max-width:540px){
+ .entry{grid-template-columns:auto minmax(0,1fr)}
+ .entry-check{grid-column:1;grid-row:1 / span 5;margin:3px 0 0}
+ .entry-top{grid-column:2;grid-row:1;min-width:0}
+ .entry-guide{grid-column:2;grid-row:auto;justify-self:start;margin-top:8px}
+ .entry-where,.entry-note,.entry-actions,.entry-return{grid-column:2}
+ .entry-check span{display:none}
+}
+
+
+/* v12: restrained crimson for NG+ prerequisite, respecting shared v109 CSS. */
+.chip.ng{color:#d9929c;border-color:#87434f;background:linear-gradient(180deg,rgba(99,33,47,.29),rgba(45,16,24,.37))}
+/* v12: stable viewer mode controls on conventional postcards. */
+.viewer-modes button:disabled,
+.viewer-modes button:disabled:hover{
+ opacity:.42;
+ cursor:not-allowed;
+ border-color:#483139;
+ color:#a28c91;
+ background:#140d10;
+ box-shadow:none;
+ transform:none;
+}
+.viewer-modes button:disabled::after{display:none}
+
+
+/* Companion tracker link: reuse v109 Reference Guides pill styling. */
+.sourcebox .companion-tracker-row{
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:14px;
+  padding-top:14px;
+  border-top:1px solid rgba(204,83,96,.12);
+}
+.sourcebox .companion-tracker-row strong{margin-right:4px}
+</style>
+</head>
+<body>
+<main class="wrap" id="top">
+<header>
+<div class="eyebrow">
+  <span>Silent Hill: Townfall</span>
+  <span class="eyebrow-nine" aria-hidden="true">
+    <span></span><span></span><span></span>
+    <span></span><span></span><span></span>
+    <span></span><span></span><span></span>
+  </span>
+</div>
+<h1>Collectibles & Secrets Tracker</h1>
+<p class="lead">Track every Strange Postcard, telephone call, CRTV signal, and Resource Container in story order. Explore original and solved postcard artwork, and keep separate playthrough profiles.</p>
+<div class="headerline"><span class="tag">54 collectible objectives</span><span class="tag">7 Lockbox Keys</span><span class="tag">19 CRTV signals</span></div>
+
+</header>
+<section class="dashboard" aria-label="Completion overview">
+<div class="card dash-main">
+ <div class="completion-label-row"><div class="tiny-label">OVERALL CHECKLIST COMPLETION</div><button type="button" role="tab" id="tab-gallery" data-view="gallery" aria-controls="galleryView" aria-selected="false" class="gallery-shortcut">Postcard Gallery →</button></div>
+ <div class="progress-num"><span id="doneMain">0</span><small> / 61 items</small></div>
+ <div class="dash-breakdown" aria-label="Completion breakdown">
+  <div class="dash-metric"><span>Collectibles</span><strong id="mainTotal"><span id="mainTotalCurrent" class="count-current">0</span><span class="count-total"> / 54</span></strong><div class="bar" aria-hidden="true"><b id="mainMetricBar"></b></div></div>
+  <div class="dash-metric"><span>Lockbox Keys</span><strong id="keyTotal"><span id="keyTotalCurrent" class="count-current">0</span><span class="count-total"> / 7</span></strong><label class="overview-all" title="Mark all seven Lockbox Keys"><input type="checkbox" data-overview-all="key" aria-label="Mark all Lockbox Keys"><span>All</span></label><div class="bar" aria-hidden="true"><b id="keyMetricBar"></b></div></div>
+ </div>
+ <span id="routeTotal" hidden>0 / 61</span>
+</div>
+<div class="card dash-stats" id="statGrid"></div>
+</section>
+<section class="toolbar collectibles-toolbar" aria-label="Profile and progress tools">
+<div class="profile-control"><label class="small" id="profileLabel">Active profile</label>
+<div class="ending-select" id="profileSelectWrap"><button class="ending-select-button" type="button" id="profileButton" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="profileLabel profileValue" aria-controls="profileOptions"><span id="profileValue">Playthrough 1</span><span class="ending-select-arrow" aria-hidden="true">›</span></button><div class="ending-options" id="profileOptions" role="listbox" aria-labelledby="profileLabel" hidden></div></div>
+<select id="profileSelect" aria-label="Active profile" hidden tabindex="-1"></select></div>
+<div class="profile-actions"><button class="btn slim" id="addProfile" type="button">+ New profile</button><button class="btn slim ghost" id="renameProfile" type="button">Rename profile</button><button class="btn slim ghost danger" id="deleteProfile" type="button">Delete profile</button></div>
+
+</section>
+
+<section class="card checklist-tools" id="checklistTools" aria-label="Collectible checklist controls">
+ <div class="cardhead"><h2>Collectibles — all 61 checklist items</h2><p>Track 54 collectible objectives and the seven Lockbox Keys used to open Resource Containers. Browse by story order or category; both views share the same progress.</p></div>
+ <div class="controls">
+  <div class="quick" id="discoveryToolbar" style="margin:0;padding:0;border:0">
+   <div class="discovery-toolbar-row discovery-toolbar-primary">
+    <label class="checkline" id="markAllLabel"><input type="checkbox" id="markAll"><span>Mark all 61 as found</span></label>
+    <button type="button" class="btn" id="clearAll">Clear all</button>
+    <button type="button" class="btn" id="expandAll">Expand all</button>
+    <button type="button" class="btn" id="collapseAll">Collapse all</button>
+    <span class="toolbar-action-divider" aria-hidden="true"></span>
+    <button type="button" class="btn" id="missingOnly" aria-pressed="false">Show missing only</button>
+    <button type="button" class="btn" id="nextMissing">Next missing</button>
+   </div>
+   <div class="discovery-toolbar-row discovery-toolbar-secondary">
+    <nav class="nav checklist-views" role="tablist" aria-label="Checklist views"><button type="button" role="tab" id="tab-story" data-view="story" aria-controls="storyView" aria-selected="true">Story Route</button><button type="button" role="tab" id="tab-categories" data-view="categories" aria-controls="categoryView" aria-selected="false">By Category</button></nav>
+    <span class="completion-pill-slot"><span id="discoveryPercent" title="All checklist items completed">0%</span></span>
+   </div>
+  </div>
+  <div class="progressbar" role="progressbar" id="overallBar" aria-label="All checklist items completed" aria-valuemin="0" aria-valuemax="61" aria-valuenow="0"><span id="discoveryBar"></span></div>
+ </div>
+</section>
+<section id="storyView" class="view" role="tabpanel" aria-labelledby="tab-story"><p class="view-desc">All 61 checklist items appear in story order, including the seven Lockbox Keys used to open Resource Containers.</p></section>
+<section id="categoryView" class="view" role="tabpanel" aria-labelledby="tab-categories" hidden><p class="view-desc">Browse one category at a time. Each container is paired with its required key; check the two steps independently. All views share the same progress.</p></section>
+<section id="galleryView" class="view" role="tabpanel" aria-labelledby="tab-gallery" hidden><div class="gallery-nav-return"><button type="button" id="galleryBack" class="btn">← Back to checklist</button><h2>Strange Postcard Gallery</h2><label class="checkline gallery-all" title="Mark all Strange Postcards as found"><input type="checkbox" id="gallerySelectAll" data-gallery-all="postcard"><strong>Mark all 15 as found</strong></label></div><p class="view-desc">Explore all 15 Strange Postcards, nine of which are autostereograms containing hidden three-dimensional shapes. View the original artwork, reveal the hidden images using Magic Eye solver results, or compare both versions side by side.</p></section>
+<div class="filterrow" id="filters">
+<div class="search-control"><label for="searchInput">FIND A COLLECTIBLE</label><input type="search" id="searchInput" placeholder="Try “Ward W”, “946”, “South Brae”…" autocomplete="off"></div>
+<div class="select-holder"><label class="small" id="typeFilterLabel">Category</label><div class="ending-select" id="categorySelectWrap"><button type="button" class="ending-select-button" id="categoryButton" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="typeFilterLabel categoryValue" aria-controls="categoryOptions"><span id="categoryValue">All categories</span><span class="ending-select-arrow" aria-hidden="true">›</span></button><div class="ending-options" id="categoryOptions" role="listbox" aria-labelledby="typeFilterLabel" hidden>
+<button type="button" class="ending-option" role="option" data-value="all">All categories</button><button type="button" class="ending-option" role="option" data-value="postcard">Strange Postcards</button><button type="button" class="ending-option" role="option" data-value="phone">Telephone Calls</button><button type="button" class="ending-option" role="option" data-value="signal">CRTV Signals</button><button type="button" class="ending-option" role="option" data-value="container">Containers &amp; Keys</button></div></div>
+<select id="typeFilter" hidden tabindex="-1" aria-label="Filter by collectible category"><option value="all">All categories</option><option value="postcard">Strange Postcards</option><option value="phone">Telephone Calls</option><option value="signal">CRTV Signals</option><option value="container">Containers &amp; Keys</option></select></div>
+
+</div>
+<div id="storyContent" class="parts"></div><div id="categoryContent" class="category-blocks" hidden></div><div id="galleryContent" class="gallery-grid" hidden></div>
+<div class="card sourcebox" aria-label="Reference guides">
+<strong>Reference guides:</strong>
+<a href="https://www.powerpyx.com/silent-hill-townfall-all-strange-postcard-locations/" target="_blank" rel="noopener noreferrer">Strange Postcards guide</a>
+<a href="https://www.powerpyx.com/silent-hill-townfall-all-phone-number-locations/" target="_blank" rel="noopener noreferrer">Telephone Numbers guide</a>
+<a href="https://www.powerpyx.com/silent-hill-townfall-all-crtv-signal-locations/" target="_blank" rel="noopener noreferrer">CRTV Signals guide</a>
+<a href="https://www.powerpyx.com/silent-hill-townfall-all-resource-container-locations/" target="_blank" rel="noopener noreferrer">Resource Containers guide</a>
+<a href="https://vgtimes.com/guides/168639-silent-hill-townfall-all-7-resource-container-and-lockbox-key-locations.html" target="_blank" rel="noopener noreferrer">Lockbox Keys &amp; Resource Containers guide</a>
+<div class="companion-tracker-row"><strong>Companion tracker:</strong><a href="../" rel="noopener">Ending &amp; Progress Tracker ↗</a></div>
+</div>
+<div class="backtotop-wrap"><a class="backtotop" href="#top" aria-label="Back to top of page"><span aria-hidden="true">↑</span><span>Back to top</span></a></div>
+</main>
+<div class="bulkundo" id="undoBar" role="status" aria-live="polite" aria-atomic="true" hidden><span id="undoMessage">Progress updated.</span><button class="btn" type="button" id="undoButton">Undo</button></div>
+<button
+  class="btn next-missing-float float-hidden"
+  id="nextMissingFloat"
+  type="button"
+  title="Jump to the next unchecked checklist item"
+  aria-label="Next missing checklist item"
+  aria-hidden="true">
+  <span class="next-missing-default">
+    <span class="next-missing-arrow" aria-hidden="true">↓</span>
+    <span class="next-missing-copy">
+      <span class="next-missing-primary">Next missing</span>
+      <span class="next-missing-scope">Checklist item</span>
+    </span>
+  </span>
+  <span class="next-missing-completion" aria-hidden="true">
+    <span class="next-missing-completion-result">100% COMPLETE</span>
+    <span class="next-missing-completion-bar"><span></span></span>
+  </span>
+</button>
+<div class="confirm-modal" id="appDialog" hidden>
+  <div class="confirm-panel" role="dialog" aria-modal="true" aria-labelledby="appDialogTitle" aria-describedby="appDialogMessage">
+    <div class="confirm-body">
+      <div class="confirm-kicker" id="appDialogKicker">Tracker</div>
+      <h2 class="confirm-title" id="appDialogTitle">Confirm action</h2>
+      <p class="confirm-message" id="appDialogMessage"></p>
+      <div class="confirm-input-wrap" id="appDialogInputWrap" hidden>
+        <input class="confirm-input" id="appDialogInput" type="text" autocomplete="off">
+      </div>
+    </div>
+    <div class="confirm-actions">
+      <button class="btn" id="appDialogCancel" type="button">Cancel</button>
+      <button class="btn" id="appDialogConfirm" type="button">OK</button>
+    </div>
+  </div>
+</div>
+<dialog class="viewer" id="viewer" aria-labelledby="viewerTitle"><div class="viewer-head"><div><strong id="viewerTitle">Strange Postcard</strong><small id="viewerSubtitle"></small></div><button type="button" class="btn" id="closeViewer" aria-label="Close image viewer">✕ Close</button></div><div class="viewer-body"><div class="viewer-tools"><div class="viewer-modes" role="group" aria-label="Image mode"><button type="button" data-mode="original" aria-pressed="true">Original</button><button type="button" data-mode="solved" aria-pressed="false">Solved</button><button type="button" data-mode="compare" aria-pressed="false">Compare</button></div><label class="brightness" id="brightnessWrap">Solution brightness <input id="brightness" type="range" min="100" max="300" value="130" step="10"><span id="brightnessLabel">130%</span></label></div><div id="viewerImages" class="viewer-images"></div><div class="viewer-location-row"><button class="btn slim viewer-location" id="viewerLocation" type="button">View postcard location</button></div><div class="viewer-footer"><button class="btn slim" id="prevCard" type="button">← Previous</button><small id="viewerHint">Use ← → to browse, Esc to close.</small><button class="btn slim" id="nextCard" type="button">Next →</button></div></div></dialog>
+<script>
+
+
+'use strict';
+const ITEMS = [{"id":"phone-06","kind":"phone","number":1,"part":1,"chapter":1,"title":"Unknown — First Callback","where":"During New Game Plus, answer the ringing payphone in Town Square. Once the call disconnects after playing static, dial 946 to access the W H O Dial Back Service and obtain 496 0842. Dial the callback number from the same payphone and allow the call to finish.","ref":"https://www.powerpyx.com/silent-hill-townfall-all-phone-number-locations/","dial":"496 0842","actor":"Simon","ngplus":true},{"id":"phone-01","kind":"phone","number":2,"part":1,"chapter":1,"title":"Emergency Services","where":"At the first Town Square payphone, inspect the Your Local Services flyer to the right of the telephone. Dial 900 and let the call finish.","ref":"https://www.powerpyx.com/silent-hill-townfall-all-phone-number-locations/","dial":"900","actor":"Simon"},{"id":"phone-02","kind":"phone","number":3,"part":1,"chapter":1,"title":"Operator","where":"From the same Town Square payphone, dial 010. Wait for the call to disconnect.","ref":"https://www.powerpyx.com/silent-hill-townfall-all-phone-number-locations/","dial":"010","actor":"Simon"},{"id":"phone-03","kind":"phone","number":4,"part":1,"chapter":1,"title":"Save Yourself","where":"At the Town Square payphone, dial 100 to access the telephone-based save service. Allow the interaction to complete.","ref":"https://www.powerpyx.com/silent-hill-townfall-all-phone-number-locations/","dial":"100","actor":"Simon"},{"id":"phone-04","kind":"phone","number":5,"part":1,"chapter":1,"title":"Tourist Center","where":"Read the Tourist Center number printed at the bottom of the Shorefront map, then call it from a payphone.","ref":"https://www.powerpyx.com/silent-hill-townfall-all-phone-number-locations/","dial":"496 0496","actor":"Simon"},{"id":"signal-01","kind":"signal","number":1,"part":1,"chapter":2,"title":"Hotel Room 204 — first transmission","where":"In Haldane Hotel Room 204 (A Different Place), sweep to just under Channel 50. Store the transmission when the tracking dot enters the target box.","ref":"https://www.powerpyx.com/silent-hill-townfall-all-crtv-signal-locations/","frequency":"~50","method":"Tuning","actor":"Simon"},{"id":"signal-02","kind":"signal","number":2,"part":1,"chapter":2,"title":"Hotel Room 204 — second transmission","where":"Still in the altered hotel room, tune to just over Channel 60 and store the second transmission before leaving.","ref":"https://www.powerpyx.com/silent-hill-townfall-all-crtv-signal-locations/","frequency":"~60–62","method":"Tuning","actor":"Simon"},{"id":"phone-05","kind":"phone","number":6,"part":1,"chapter":3,"title":"Haldane Hotel","where":"Find the hotel telephone number on the Hotel Reception Notice. After leaving the hotel, call the number from a payphone.","ref":"https://www.powerpyx.com/silent-hill-townfall-all-phone-number-locations/","dial":"496 0244","actor":"Simon"},{"id":"signal-03","kind":"signal","number":3,"part":1,"chapter":3,"title":"Outside the Haldane Hotel","where":"Immediately after regaining control of Simon outside the hotel, tune the CRTV to approximately Channel 45.","ref":"https://www.powerpyx.com/silent-hill-townfall-all-crtv-signal-locations/","frequency":"~45","method":"Tuning","actor":"Simon"},{"id":"postcard-01","kind":"postcard","number":1,"part":1,"chapter":3,"title":"Strange Postcard 01","where":"West of Town Square, enter VIDEO STAR at the end of the road and collect the postcard from the shop counter.","ref":"https://www.powerpyx.com/silent-hill-townfall-all-strange-postcard-locations/","solution":"Bird"},{"id":"signal-04","kind":"signal","number":4,"part":1,"chapter":4,"title":"Approaching Town Square","where":"As Simon approaches Town Square, sweep the CRTV around Channel 17 and store the transmission.","ref":"https://www.powerpyx.com/silent-hill-townfall-all-crtv-signal-locations/","frequency":"~17","method":"Tuning","actor":"Simon"},{"id":"signal-05","kind":"signal","number":5,"part":1,"chapter":4,"title":"Pharmacy — back-room radio","where":"Enter the Pharmacy back room and interact with the radio on the table. Steady the CRTV picture and align the colored shapes to complete calibration.","ref":"https://www.powerpyx.com/silent-hill-townfall-all-crtv-signal-locations/","frequency":"30","method":"Radio calibration","actor":"Simon"},{"id":"postcard-02","kind":"postcard","number":2,"part":1,"chapter":4,"title":"Strange Postcard 02","where":"Enter St. Amelia Park from the south and turn left. Follow the alley behind the building marked 3 on the district map; the postcard is on the ground beside a dumpster.","ref":"https://www.powerpyx.com/silent-hill-townfall-all-strange-postcard-locations/","solution":"Tree"},{"id":"postcard-03","kind":"postcard","number":3,"part":1,"chapter":4,"title":"Strange Postcard 03","where":"Continue toward Farrow Street, then inspect the postcard attached to the wall at its western end.","ref":"https://www.powerpyx.com/silent-hill-townfall-all-strange-postcard-locations/"},{"id":"postcard-04","kind":"postcard","number":4,"part":1,"chapter":4,"title":"Strange Postcard 04","where":"In the apartment building south of map landmark 14, go upstairs into Apartment 1/2. Look on the floor at the foot of the bed in the southeast bedroom.","ref":"https://www.powerpyx.com/silent-hill-townfall-all-strange-postcard-locations/","solution":"Saturn"},{"id":"key-01","kind":"key","number":1,"part":1,"chapter":4,"title":"Lockbox Key 01 — Jess’s house","where":"Obtain the 21 Farrow Street Back Door Key from Apartment 1/2, unlock Jess’s back door, and search the kitchen drawer for Lockbox Key #1.","ref":"https://www.powerpyx.com/silent-hill-townfall-all-resource-container-locations/","actor":"Simon"},{"id":"container-01","kind":"container","number":1,"part":1,"chapter":4,"title":"Resource Container 01 — Apartment 0/1","where":"Return to the apartment building south of map landmark 14. Enter ground-floor Apartment 0/1 and open the blue container in the living room with Lockbox Key #1.","ref":"https://www.powerpyx.com/silent-hill-townfall-all-resource-container-locations/","requires":"key-01","actor":"Simon"},{"id":"phone-07","kind":"phone","number":7,"part":2,"chapter":5,"title":"St. Amelia District Council","where":"As Zoe, read the Water Warning on her living-room table. Use the house telephone to dial the council and let the call finish.","ref":"https://www.powerpyx.com/silent-hill-townfall-all-phone-number-locations/","dial":"0163 296 0595","actor":"Zoe"},{"id":"phone-08","kind":"phone","number":8,"part":2,"chapter":5,"title":"Zoe Ellis","where":"As Zoe, inspect the telephone and folder beside the answering machine inside Mr. Stewart’s house. Dial the number and wait for the pager notification.","ref":"https://www.powerpyx.com/silent-hill-townfall-all-phone-number-locations/","dial":"496 0103","actor":"Zoe"},{"id":"phone-09","kind":"phone","number":9,"part":2,"chapter":5,"title":"D. Glenn","where":"As Zoe, read the Medical Security Note on the security-booth window outside the Medical Centre. Use the nearby payphone, dial 496 0556, and follow the automated prompts.","ref":"https://www.powerpyx.com/silent-hill-townfall-all-phone-number-locations/","dial":"496 0556","actor":"Zoe","note":"Menu selections: 3 → 2 → 2 → 1"},{"id":"signal-06","kind":"signal","number":6,"part":2,"chapter":6,"title":"Outside the Clinic","where":"Immediately after exiting the Clinic as Simon, tune to approximately Channel 63.","ref":"https://www.powerpyx.com/silent-hill-townfall-all-crtv-signal-locations/","frequency":"~63","method":"Tuning","actor":"Simon"},{"id":"postcard-05","kind":"postcard","number":5,"part":2,"chapter":6,"title":"Strange Postcard 05","where":"In The Wynds, enter the alley west of the payphone, descend the stairwell, and collect the postcard beside the boots.","ref":"https://www.powerpyx.com/silent-hill-townfall-all-strange-postcard-locations/","solution":"Triquetra / Celtic Trinity Knot"},{"id":"signal-07","kind":"signal","number":7,"part":2,"chapter":6,"title":"Apartment south of Medical Centre","where":"In the apartment building south of the Medical Centre, go upstairs to the radio on the table and complete its picture-alignment calibration.","ref":"https://www.powerpyx.com/silent-hill-townfall-all-crtv-signal-locations/","frequency":"~25","method":"Radio calibration","actor":"Simon"},{"id":"key-02","kind":"key","number":2,"part":2,"chapter":6,"title":"Lockbox Key 02 — Apartment 1/1","where":"Cross the exterior scaffolding and re-enter the apartment building. In Apartment 1/1, collect the key from the bed in the room containing an enemy.","ref":"https://www.powerpyx.com/silent-hill-townfall-all-resource-container-locations/","actor":"Simon"},{"id":"container-02","kind":"container","number":2,"part":2,"chapter":6,"title":"Resource Container 02 — upper landing","where":"Climb to the fourth-floor landing in the same building. Use Lockbox Key #2 to open the container sitting on a table.","ref":"https://www.powerpyx.com/silent-hill-townfall-all-resource-container-locations/","requires":"key-02","actor":"Simon"},{"id":"postcard-06","kind":"postcard","number":6,"part":2,"chapter":6,"title":"Strange Postcard 06","where":"Return to the apartment building’s ground floor and leave through the rear exit away from the Medical Centre. Search the last shed on the left.","ref":"https://www.powerpyx.com/silent-hill-townfall-all-strange-postcard-locations/","solution":"Sputnik 1"},{"id":"phone-10","kind":"phone","number":10,"part":3,"chapter":7,"title":"Hospital Storage","where":"As Zoe, after Dr. Glenn gives you the Hospital Storage number during the surgery sequence, use the reception telephone to dial 5353.","ref":"https://www.powerpyx.com/silent-hill-townfall-all-phone-number-locations/","dial":"5353","actor":"Zoe"},{"id":"postcard-07","kind":"postcard","number":7,"part":3,"chapter":8,"title":"Strange Postcard 07","where":"As Simon in the altered Medical Centre, use code 7103 to access the X-Ray room. Collect the postcard from the rear counter.","ref":"https://www.powerpyx.com/silent-hill-townfall-all-strange-postcard-locations/","solution":"Fish"},{"id":"signal-08","kind":"signal","number":8,"part":3,"chapter":8,"title":"Medical Centre — beyond the wall gap","where":"After squeezing through the wall opening, interact with the radio on the table and complete CRTV calibration.","ref":"https://www.powerpyx.com/silent-hill-townfall-all-crtv-signal-locations/","frequency":"~28","method":"Radio calibration","actor":"Simon"},{"id":"postcard-08","kind":"postcard","number":8,"part":3,"chapter":8,"title":"Strange Postcard 08","where":"Obtain the Ward W Master Key, enter Ward W Room 06, and collect the postcard from the table.","ref":"https://www.powerpyx.com/silent-hill-townfall-all-strange-postcard-locations/"},{"id":"key-03","kind":"key","number":3,"part":3,"chapter":8,"title":"Lockbox Key 03 — Ward W","where":"In the altered Medical Centre, enter Ward W Room 11 and open the key cabinet.","ref":"https://www.powerpyx.com/silent-hill-townfall-all-resource-container-locations/","actor":"Simon"},{"id":"container-03","kind":"container","number":3,"part":3,"chapter":8,"title":"Resource Container 03 — Ward S","where":"After collecting the blood bag in Ward W, access Ward S Room 01. The container is on the floor; open it with Lockbox Key #3.","ref":"https://www.powerpyx.com/silent-hill-townfall-all-resource-container-locations/","requires":"key-03","actor":"Simon"},{"id":"postcard-09","kind":"postcard","number":9,"part":3,"chapter":8,"title":"Strange Postcard 09","where":"In Ward P, enter Room 08 and open the wall-mounted medical cabinet.","ref":"https://www.powerpyx.com/silent-hill-townfall-all-strange-postcard-locations/"},{"id":"postcard-10","kind":"postcard","number":10,"part":4,"chapter":9,"title":"Strange Postcard 10","where":"After the road lined with hanging bodies, take the right fork rather than the main path left. Pass the body near the streetlight, follow the alley, go through two gates, and search the shed shelf.","ref":"https://www.powerpyx.com/silent-hill-townfall-all-strange-postcard-locations/","solution":"Rocketship"},{"id":"signal-09","kind":"signal","number":9,"part":4,"chapter":9,"title":"Locals shop — central radio","where":"Before leaving the opening Clara Woods area, enter the Locals shop and calibrate the radio on the central table.","ref":"https://www.powerpyx.com/silent-hill-townfall-all-crtv-signal-locations/","frequency":"~61","method":"Radio calibration","actor":"Simon"},{"id":"phone-11","kind":"phone","number":11,"part":4,"chapter":10,"title":"W H O Dial Back Service","where":"At the telephone booth near the beginning of Chapter 10, read the service poster beside the phone. Dial 946 and allow the recording to finish.","ref":"https://www.powerpyx.com/silent-hill-townfall-all-phone-number-locations/","dial":"946","actor":"Simon"},{"id":"phone-12","kind":"phone","number":12,"part":4,"chapter":10,"title":"Unknown — second callback","where":"After calling 946 from the Clara Woods payphone, dial the supplied callback number from the same booth and let the conversation finish.","ref":"https://www.powerpyx.com/silent-hill-townfall-all-phone-number-locations/","dial":"496 0112","actor":"Simon"},{"id":"key-04","kind":"key","number":4,"part":4,"chapter":10,"title":"Lockbox Key 04 — Post Service","where":"On Atlas Way, enter the Post Service shop and search the cash register at the front counter.","ref":"https://www.powerpyx.com/silent-hill-townfall-all-resource-container-locations/","actor":"Simon"},{"id":"container-04","kind":"container","number":4,"part":4,"chapter":10,"title":"Resource Container 04 — Atlas Square apartment","where":"Enter the apartment building northeast of Atlas Square. In the ground-floor apartment, go to the kitchen at the rear and open the container on the counter with Lockbox Key #4.","ref":"https://www.powerpyx.com/silent-hill-townfall-all-resource-container-locations/","requires":"key-04","actor":"Simon"},{"id":"postcard-11","kind":"postcard","number":11,"part":4,"chapter":10,"title":"Strange Postcard 11","where":"In the apartment building’s upper-floor flat, enter the back-left bedroom and open the dresser drawer.","ref":"https://www.powerpyx.com/silent-hill-townfall-all-strange-postcard-locations/","solution":"Guide Dog Collection Box"},{"id":"postcard-12","kind":"postcard","number":12,"part":4,"chapter":10,"title":"Strange Postcard 12","where":"On Atlas Way, find the shop window opposite Atlas Computers. Break the glass and retrieve the postcard from the table inside.","ref":"https://www.powerpyx.com/silent-hill-townfall-all-strange-postcard-locations/","solution":"The Heart of St. Amelia"},{"id":"signal-10","kind":"signal","number":10,"part":4,"chapter":10,"title":"Strange Gate — Atlas Way","where":"At the Strange Gate at the end of Atlas Way, inspect the metal pipe structure. After the transmission becomes available, sweep near Channel 62; you may need to adjust where Simon stands.","ref":"https://www.powerpyx.com/silent-hill-townfall-all-crtv-signal-locations/","frequency":"~62","method":"Tuning","actor":"Simon"},{"id":"signal-11","kind":"signal","number":11,"part":4,"chapter":10,"title":"Near CEG Staff Parking","where":"Enter the building immediately to the left of CEG Staff Parking on the map. Once inside, tune near Channel 67.","ref":"https://www.powerpyx.com/silent-hill-townfall-all-crtv-signal-locations/","frequency":"~67","method":"Tuning","actor":"Simon"},{"id":"phone-13","kind":"phone","number":13,"part":4,"chapter":10,"title":"CEG Lockers","where":"Examine the locker barcode clues at CEG Employee Lockers. Dial the number printed in their upper-left corner while still in the Clara Woods section.","ref":"https://www.powerpyx.com/silent-hill-townfall-all-phone-number-locations/","dial":"496 0993","actor":"Simon"},{"id":"signal-12","kind":"signal","number":12,"part":4,"chapter":10,"title":"5 South Brae — living-room radio","where":"Obtain the South Brae House Key, enter 5 South Brae, turn right into the living room, and calibrate the radio beside the television.","ref":"https://www.powerpyx.com/silent-hill-townfall-all-crtv-signal-locations/","frequency":"~59","method":"Radio calibration","actor":"Simon"},{"id":"signal-13","kind":"signal","number":13,"part":4,"chapter":10,"title":"CEG Lockers — after Locker 17","where":"After completing the South Brae computer puzzle, return to CEG Employee Lockers and open Locker 17. Once its items are collected, tune near Channel 59.","ref":"https://www.powerpyx.com/silent-hill-townfall-all-crtv-signal-locations/","frequency":"~59","method":"Tuning","actor":"Simon"},{"id":"postcard-13","kind":"postcard","number":13,"part":4,"chapter":10,"title":"Strange Postcard 13","where":"Use the Boltcutters to access the Overpass from CEG Staff Parking. Explore the southeastern dead end and collect the postcard beside the metal cart.","ref":"https://www.powerpyx.com/silent-hill-townfall-all-strange-postcard-locations/"},{"id":"postcard-14","kind":"postcard","number":14,"part":4,"chapter":10,"title":"Strange Postcard 14","where":"At 5 Upper Brae, obtain the Back Door Key while using Tape: Do Not Play. Switch to Tape: Tomorrow, go downstairs and unlock the rear door. Follow the alley and crouch into the shed; the postcard is on the table.","ref":"https://www.powerpyx.com/silent-hill-townfall-all-strange-postcard-locations/","warning":"Collect this postcard before taking Barcode (Upper Brae) — Locker 94 from the safe. Once the barcode is obtained, the tape player becomes unavailable, preventing you from returning to Tape: Tomorrow to collect the postcard."},{"id":"signal-14","kind":"signal","number":14,"part":4,"chapter":10,"title":"Leaving 5 Upper Brae","where":"As you leave 5 Upper Brae after solving the tape puzzle, tune the CRTV around Channel 29.","ref":"https://www.powerpyx.com/silent-hill-townfall-all-crtv-signal-locations/","frequency":"~29","method":"Tuning","actor":"Simon"},{"id":"key-05","kind":"key","number":5,"part":4,"chapter":10,"title":"Lockbox Key 05 — laundromat","where":"After obtaining the Boltcutters, open the gate in the alley behind Post Service. Follow the passage to the laundromat and take the key from the top of the left-hand washing machine.","ref":"https://www.powerpyx.com/silent-hill-townfall-all-resource-container-locations/","actor":"Simon"},{"id":"signal-15","kind":"signal","number":15,"part":4,"chapter":10,"title":"All three Mechanical Parts collected","where":"Once all three Mechanical Parts have been acquired, tune the CRTV around Channel 65.","ref":"https://www.powerpyx.com/silent-hill-townfall-all-crtv-signal-locations/","frequency":"~65","method":"Tuning","actor":"Simon"},{"id":"container-05","kind":"container","number":5,"part":4,"chapter":10,"title":"Resource Container 05 — CEG Employee Lockers","where":"Return to CEG Employee Lockers and enter the back office. Open the container on the table with Lockbox Key #5.","ref":"https://www.powerpyx.com/silent-hill-townfall-all-resource-container-locations/","requires":"key-05","actor":"Simon"},{"id":"signal-ceg-security","kind":"signal","number":16,"part":4,"chapter":11,"title":"CEG HQ — Security Room radio","where":"CEG HQ Ground Floor: enter the Security Room near the front entrance using door code 4895 (clued by the Maintenance room whiteboard). Interact with the radio to the right of the telephone and complete the CRTV picture-and-color calibration.","ref":"https://www.powerpyx.com/silent-hill-townfall-all-crtv-signal-locations/","frequency":"~61","method":"Radio calibration","actor":"Simon"},{"id":"signal-16","kind":"signal","number":17,"part":6,"chapter":14,"title":"Altered CEG HQ — main-room radio","where":"In CEG HQ (Different), enter the main room with the tower puzzle. On the desk to the right, interact with the radio beside the Reference Sheet and calibrate it.","ref":"https://www.powerpyx.com/silent-hill-townfall-all-crtv-signal-locations/","frequency":"~42","method":"Radio calibration","actor":"Simon"},{"id":"signal-17","kind":"signal","number":18,"part":6,"chapter":14,"title":"Altered CEG HQ — side pipe room","where":"After the rotating-tower puzzle and first pipe section, go into the left-hand room instead of descending the ladder. Calibrate the radio there.","ref":"https://www.powerpyx.com/silent-hill-townfall-all-crtv-signal-locations/","frequency":"~42","method":"Radio calibration","actor":"Simon"},{"id":"postcard-15","kind":"postcard","number":15,"part":6,"chapter":14,"title":"Strange Postcard 15","where":"After the short ladder and vent door, enter the next pipe section. Turn right, then left at the four-way junction, and collect the postcard from the dead end.","ref":"https://www.powerpyx.com/silent-hill-townfall-all-strange-postcard-locations/"},{"id":"key-06","kind":"key","number":6,"part":6,"chapter":15,"title":"Lockbox Key 06 — SWDP upper room","where":"In SWDP (Different), go up the southern stairs on the main floor and enter the western room. Collect the key from the counter.","ref":"https://www.powerpyx.com/silent-hill-townfall-all-resource-container-locations/","actor":"Simon"},{"id":"signal-18","kind":"signal","number":19,"part":6,"chapter":15,"title":"SWDP — JOE-room radio","where":"Obtain the JOE Key from the northeast office, unlock the southwest JOE room, and squeeze through the wall gap. Calibrate the radio beside the bed.","ref":"https://www.powerpyx.com/silent-hill-townfall-all-crtv-signal-locations/","frequency":"~55","method":"Radio calibration","actor":"Simon"},{"id":"container-06","kind":"container","number":6,"part":6,"chapter":15,"title":"Resource Container 06 — Control Room","where":"Obtain the Access Card from the JOE-room area, enter the SWDP Control Room, and open the container beside the main console using Lockbox Key #6.","ref":"https://www.powerpyx.com/silent-hill-townfall-all-resource-container-locations/","requires":"key-06","actor":"Simon"},{"id":"key-07","kind":"key","number":7,"part":6,"chapter":15,"title":"Lockbox Key 07 — Room 047","where":"At the SWDP Control Room Remote Systems Control console, select UNLOCK (open padlock) and DOOR (door symbol), enter 047, then press Enter. Descend to Room 047 in the northwest area and take the Lockbox Key from the counter.","ref":"https://www.powerpyx.com/silent-hill-townfall-all-resource-container-locations/","actor":"Simon","note":"Control Room console: UNLOCK + DOOR + 047 → ENTER"},{"id":"container-07","kind":"container","number":7,"part":6,"chapter":15,"title":"Resource Container 07 — Room 621","where":"Return to the SWDP Control Room console. Select UNLOCK (open padlock) and DOOR (door symbol), enter 621, and press Enter. Descend to Room 621, the long eastern valve room, and open the Resource Container on the table with Lockbox Key #7.","ref":"https://www.powerpyx.com/silent-hill-townfall-all-resource-container-locations/","requires":"key-07","actor":"Simon","note":"Control Room console: UNLOCK + DOOR + 621 → ENTER"}];
+const SOLVED = {"1":"Bird","2":"Tree","4":"Saturn","5":"Triquetra / Celtic Trinity Knot","6":"Sputnik 1","7":"Fish","10":"Rocketship","11":"Guide Dog Collection Box","12":"The Heart of St. Amelia"};
+const STORAGE_KEY = 'townfallCollectibles.v1';
+const TOTAL_MAIN = 54;
+const PARTS = {1:['Arrival','Chapters 1–4'],2:['Zoe','Chapters 5–6'],3:['The Patient','Chapters 7–8'],4:['Clara Woods','Chapters 9–11'],5:['Richard','Chapters 12–13'],6:['Simon','Chapters 14–17']};
+const CATEGORIES = [{kind:'postcard',name:'Strange Postcards',count:15},{kind:'phone',name:'Telephone Calls',count:13},{kind:'signal',name:'CRTV Signals',count:19},{kind:'container',name:'Resource Containers',count:7}];
+const $ = id => document.getElementById(id);
+const escapeHTML = t => String(t??'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const store = new Map(ITEMS.map(x=>[x.id,x]));
+const uid = ()=> (globalThis.crypto&&crypto.randomUUID) ? crypto.randomUUID() : `profile-${Date.now()}-${Math.floor(Math.random()*1e6)}`;
+const defaultDB = ()=>({active:'default',profiles:[{id:'default',name:'Playthrough 1',checks:{}}]});
+let persistent=true;
+function readDB(){try{const raw=localStorage.getItem(STORAGE_KEY);if(!raw)return defaultDB();const parsed=JSON.parse(raw);if(!Array.isArray(parsed.profiles)||!parsed.profiles.length)throw Error('invalid');parsed.profiles=parsed.profiles.filter(p=>p&&typeof p.id==='string'&&typeof p.name==='string'&&p.checks&&typeof p.checks==='object');if(!parsed.profiles.length)throw Error('no profiles');if(!parsed.profiles.some(p=>p.id===parsed.active))parsed.active=parsed.profiles[0].id;return parsed;}catch(e){persistent=false;return defaultDB();}}
+let db=readDB();let view='story', filter='all', onlyMissing=false, query='', openedParts=new Set(['1']),openedCategories=new Set(CATEGORIES.map(c=>c.kind)),undoSnapshot=null,undoTimeout=null,viewerPostcard=1,viewerMode='original',viewerBrightness=130,viewerReturn=null;
+let previousChecklistView='story', galleryReturnContext=null;
+
+const profile=()=>db.profiles.find(p=>p.id===db.active)||db.profiles[0];
+
+const els={discoveryPercent:$('discoveryPercent'),discoveryBar:$('discoveryBar'),nextMissingFloat:$('nextMissingFloat'),discoveryToolbar:$('discoveryToolbar')};
+const collectibleCountByProfile=new Map();
+const routeCountByProfile=new Map();
+const nextMissingLastTargetByProfile=new Map();
+const nextMissingUserMovedByProfile=new Map();
+let nextMissingHighlightTimer=null;
+let nextMissingProgrammaticScroll=false;
+let nextMissingScrollTimer=null;
+let discoveryCompletionEffectProfileId=null;
+let discoveryCompletionTextTimer=null;
+let discoveryCompletionEndTimer=null;
+let discoveryCompletionSettleTimer=null;
+let discoveryCompletionContractTimer=null;
+let discoveryCompletionFadeTimer=null;
+let discoveryCompletionFloatFillTimer=null;
+let discoveryCompletionFloatResultTimer=null;
+let discoveryCompletionFloatFadeTimer=null;
+let discoveryCompletionFloatHideTimer=null;
+let discoveryCompletionFloatProfileId=null;
+
+function interpolateHex3(t,startHex,midHex,endHex){
+ const hexToRgb=hex=>{
+   const n=parseInt(hex.slice(1),16);
+   return [(n>>16)&255,(n>>8)&255,n&255];
+ };
+ const mix=(a,b,x)=>Math.round(a+(b-a)*x);
+ const start=hexToRgb(startHex), mid=hexToRgb(midHex), end=hexToRgb(endHex);
+ let a,b,x;
+ if(t<=0.5){
+   a=start; b=mid; x=t/0.5;
+ } else {
+   a=mid; b=end; x=(t-0.5)/0.5;
+ }
+ const rgb=[mix(a[0],b[0],x),mix(a[1],b[1],x),mix(a[2],b[2],x)];
+ return `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`;
+}
+
+function clearDiscoveryCompletionTimers(){
+ if(discoveryCompletionTextTimer){
+   clearTimeout(discoveryCompletionTextTimer);
+   discoveryCompletionTextTimer=null;
+ }
+ if(discoveryCompletionEndTimer){
+   clearTimeout(discoveryCompletionEndTimer);
+   discoveryCompletionEndTimer=null;
+ }
+ if(discoveryCompletionSettleTimer){
+   clearTimeout(discoveryCompletionSettleTimer);
+   discoveryCompletionSettleTimer=null;
+ }
+ if(discoveryCompletionContractTimer){
+   clearTimeout(discoveryCompletionContractTimer);
+   discoveryCompletionContractTimer=null;
+ }
+ if(discoveryCompletionFadeTimer){
+   clearTimeout(discoveryCompletionFadeTimer);
+   discoveryCompletionFadeTimer=null;
+ }
+ els.discoveryPercent.classList.remove(
+   "discovery-complete-contracting",
+   "discovery-complete-fading"
+ );
+ els.discoveryPercent.style.width="";
+ els.discoveryPercent.style.minWidth="";
+
+ if(discoveryCompletionFloatFillTimer){
+   clearTimeout(discoveryCompletionFloatFillTimer);
+   discoveryCompletionFloatFillTimer=null;
+ }
+ if(discoveryCompletionFloatResultTimer){
+   clearTimeout(discoveryCompletionFloatResultTimer);
+   discoveryCompletionFloatResultTimer=null;
+ }
+ if(discoveryCompletionFloatFadeTimer){
+   clearTimeout(discoveryCompletionFloatFadeTimer);
+   discoveryCompletionFloatFadeTimer=null;
+ }
+ if(discoveryCompletionFloatHideTimer){
+   clearTimeout(discoveryCompletionFloatHideTimer);
+   discoveryCompletionFloatHideTimer=null;
+ }
+ resetDiscoveryCompletionFloat({hide:true});
+}
+
+function cancelDiscoveryCompletionState(profileId){
+ const ownsMainEffect=discoveryCompletionEffectProfileId===profileId;
+ const ownsFloatingEffect=discoveryCompletionFloatProfileId===profileId;
+ if(!ownsMainEffect && !ownsFloatingEffect) return;
+
+ clearDiscoveryCompletionTimers();
+
+ discoveryCompletionEffectProfileId=null;
+ els.discoveryPercent.classList.remove(
+   "discovery-complete-flash",
+   "discovery-complete-contracting",
+   "discovery-complete-fading"
+ );
+ els.discoveryPercent.style.width="";
+ els.discoveryPercent.style.minWidth="";
+ els.discoveryBar.parentElement?.classList.remove("discovery-complete-flash");
+
+ // Re-evaluate the floating Next missing control immediately after the
+ // current render has restored an unchecked Discovery.
+ requestAnimationFrame(updateFloatingNextMissing);
+}
+
+function elementIntersectsViewport(el){
+ if(!el) return false;
+ const rect=el.getBoundingClientRect();
+ const viewportHeight=window.innerHeight || document.documentElement.clientHeight;
+ const viewportWidth=window.innerWidth || document.documentElement.clientWidth;
+ return rect.bottom>0 && rect.top<viewportHeight && rect.right>0 && rect.left<viewportWidth;
+}
+
+function elementFullyWithinVerticalViewport(el){
+ if(!el) return false;
+ const rect=el.getBoundingClientRect();
+ if(rect.height<=0) return false;
+
+ const viewportHeight=window.innerHeight || document.documentElement.clientHeight;
+ return rect.top>=0 && rect.bottom<=viewportHeight;
+}
+
+function shouldShowDiscoveryCompletionFloat(){
+ const track=els.discoveryBar?.parentElement;
+ return !elementIntersectsViewport(els.discoveryPercent) &&
+        !elementIntersectsViewport(track);
+}
+
+function resetDiscoveryCompletionFloat({hide=false}={}){
+ const button=els.nextMissingFloat;
+ if(!button) return;
+
+ button.classList.remove(
+   "completion-morph",
+   "completion-bar-filling",
+   "completion-finished",
+   "completion-fading"
+ );
+ button.removeAttribute("aria-disabled");
+ button.setAttribute("title","Jump to the next unchecked checklist item");
+ button.setAttribute("aria-label","Next missing checklist item");
+
+ if(hide) setNextMissingFloatVisible(false);
+ discoveryCompletionFloatProfileId=null;
+}
+
+function triggerDiscoveryCompletionFloat(profileId){
+ if(!els.nextMissingFloat || !shouldShowDiscoveryCompletionFloat()) return;
+
+ const button=els.nextMissingFloat;
+
+ discoveryCompletionFloatProfileId=profileId;
+
+ button.classList.remove(
+   "completion-bar-filling",
+   "completion-finished",
+   "completion-fading"
+ );
+ setNextMissingFloatVisible(true);
+ button.setAttribute("aria-disabled","true");
+ button.setAttribute("title","Discovery completion");
+ button.setAttribute("aria-label","All 60 checklist items complete");
+ void button.offsetWidth;
+
+ // The fixed outer box remains unchanged. First crossfade out Next missing
+ // and reveal the completion shell with an empty crimson progress track.
+ button.classList.add("completion-morph");
+
+ // Begin the visible 0 -> 100% crimson fill after the shell has settled.
+ discoveryCompletionFloatFillTimer=setTimeout(()=>{
+   if(discoveryCompletionFloatProfileId===profileId && profile()?.id===profileId){
+     button.classList.add("completion-bar-filling");
+   }
+   discoveryCompletionFloatFillTimer=null;
+ },260);
+
+ // Once the fill has completed, fade in the final result text.
+ discoveryCompletionFloatResultTimer=setTimeout(()=>{
+   if(discoveryCompletionFloatProfileId===profileId && profile()?.id===profileId){
+     button.classList.add("completion-finished");
+   }
+   discoveryCompletionFloatResultTimer=null;
+ },1140);
+
+ // Give 100% COMPLETE a short, deliberate hold before the entire box fades.
+ discoveryCompletionFloatFadeTimer=setTimeout(()=>{
+   if(discoveryCompletionFloatProfileId===profileId){
+     button.classList.add("completion-fading");
+   }
+   discoveryCompletionFloatFadeTimer=null;
+ },2050);
+
+ discoveryCompletionFloatHideTimer=setTimeout(()=>{
+   if(discoveryCompletionFloatProfileId===profileId){
+     resetDiscoveryCompletionFloat({hide:true});
+   }
+   discoveryCompletionFloatHideTimer=null;
+ },2500);
+}
+
+function triggerDiscoveryCompletionFlourish(profileId){
+ clearDiscoveryCompletionTimers();
+ discoveryCompletionEffectProfileId=profileId;
+
+ const badge=els.discoveryPercent;
+ const track=els.discoveryBar.parentElement;
+
+ badge.classList.remove(
+   "discovery-complete-flash",
+   "discovery-complete-contracting",
+   "discovery-complete-fading"
+ );
+ track?.classList.remove("discovery-complete-flash");
+ badge.style.width="";
+ badge.style.minWidth="";
+
+ // At this point syncInputs() has already rendered the ordinary 100% badge.
+ // Capture its ACTUAL resting width before changing the label. The natural
+ // width is slightly larger than the CSS 54px minimum because content,
+ // padding and border all contribute to the final geometry.
+ const naturalHundredWidth=Math.ceil(badge.getBoundingClientRect().width);
+
+ // Force a reflow so a new legitimate 85/85 transition can replay the cue.
+ void badge.offsetWidth;
+
+ badge.textContent="COMPLETE";
+ badge.classList.add("discovery-complete-flash");
+ track?.classList.add("discovery-complete-flash");
+
+ // COMPLETE naturally needs more room than 100%. Capture that exact rendered
+ // width and hold it for the entire glow sequence so the label swap cannot
+ // cause an intermediate shrink.
+ const completeWidth=Math.ceil(badge.getBoundingClientRect().width);
+ badge.style.width=completeWidth+"px";
+ badge.style.minWidth=completeWidth+"px";
+
+ // Hand the final glow tail back to 100%, but keep the COMPLETE geometry.
+ discoveryCompletionTextTimer=setTimeout(()=>{
+   if(discoveryCompletionEffectProfileId===profileId && profile()?.id===profileId){
+     badge.textContent="100%";
+   }
+   discoveryCompletionTextTimer=null;
+ },1325);
+
+ discoveryCompletionEndTimer=setTimeout(()=>{
+   if(discoveryCompletionEffectProfileId!==profileId){
+     discoveryCompletionEndTimer=null;
+     return;
+   }
+
+   // Keep the neon treatment fully active while preserving the wide
+   // COMPLETE geometry. The 100% label now contracts while still glowing.
+   const lockedWidth=Math.ceil(badge.getBoundingClientRect().width);
+   badge.style.width=lockedWidth+"px";
+   badge.style.minWidth=lockedWidth+"px";
+
+   if(profile()?.id===profileId){
+     badge.textContent="100%";
+   }
+
+   // Brief settle phase: still glowing, still wide, no geometry change.
+   discoveryCompletionSettleTimer=setTimeout(()=>{
+     if(discoveryCompletionEffectProfileId!==profileId){
+       discoveryCompletionSettleTimer=null;
+       return;
+     }
+
+     badge.classList.add("discovery-complete-contracting");
+     badge.style.minWidth=naturalHundredWidth+"px";
+
+     // Contract directly to the badge's true natural 100% width while
+     // retaining the neon flash class for the entire motion.
+     void badge.offsetWidth;
+     requestAnimationFrame(()=>{
+       badge.style.width=naturalHundredWidth+"px";
+     });
+
+     discoveryCompletionContractTimer=setTimeout(()=>{
+       badge.classList.remove("discovery-complete-contracting");
+       badge.style.width=naturalHundredWidth+"px";
+       badge.style.minWidth=naturalHundredWidth+"px";
+
+       if(profile()?.id===profileId){
+         badge.textContent="100%";
+       }
+
+       // Only after the original 100% dimensions have been reached do we
+       // begin fading the neon back to the ordinary badge appearance.
+       badge.classList.add("discovery-complete-fading");
+       void badge.offsetWidth;
+
+       requestAnimationFrame(()=>{
+         badge.classList.remove("discovery-complete-flash");
+         track?.classList.remove("discovery-complete-flash");
+       });
+
+       discoveryCompletionFadeTimer=setTimeout(()=>{
+         badge.classList.remove("discovery-complete-fading");
+         badge.style.width="";
+         badge.style.minWidth="";
+
+         if(profile()?.id===profileId){
+           badge.textContent="100%";
+         }
+
+         discoveryCompletionEffectProfileId=null;
+         discoveryCompletionFadeTimer=null;
+       },460);
+
+       discoveryCompletionContractTimer=null;
+     },560);
+
+     discoveryCompletionSettleTimer=null;
+   },180);
+
+   discoveryCompletionEndTimer=null;
+ },1850);
+}
+
+
+const checked=id=>!!profile().checks[id];
+const save=()=>{try{localStorage.setItem(STORAGE_KEY,JSON.stringify(db));persistent=true;}catch(e){persistent=false;}};
+const isMain=item=>item.kind!=='key';
+const isType=(item,t)=>t==='all'||item.kind===t||(t==='container'&&item.kind==='key');
+const inQuery=item=>{const text=[item.title,item.where,item.note,item.warning,item.dial,item.frequency,PARTS[item.part][0],item.chapter,item.number,item.solution].filter(Boolean).join(' ').toLocaleLowerCase();return text.includes(query.toLocaleLowerCase());};
+const visible=item=>isType(item,filter)&&inQuery(item)&&(!onlyMissing||!checked(item.id));
+const smallCount=kind=>{const els=ITEMS.filter(x=>x.kind===kind);return {done:els.filter(x=>checked(x.id)).length,total:els.length};};
+// Preserve overview nodes between progress updates so CSS width transitions can run.
+// Count prior completions by profile, and play the v109 glow only for real
+// incomplete -> complete changes in the currently active profile.
+const categoryCountHistoryByProfile=new Map();
+const categoryCompletionTimers=new Map();
+let lastCategoryProgressProfileId=null;
+function clearCategoryCompletionGlow(kind){
+ const timer=categoryCompletionTimers.get(kind);
+ if(timer){clearTimeout(timer);categoryCompletionTimers.delete(kind);}
+ const bar=kind==='key' ? $('keyMetricBar')?.parentElement
+    : kind==='main' ? $('mainMetricBar')?.parentElement
+    : $('statGrid')?.querySelector(`[data-category-kind="${kind}"] .bar`);
+ bar?.classList.remove('category-complete-flash');
+}
+function pulseCategoryCompletion(kind){
+ clearCategoryCompletionGlow(kind);
+ const bar=kind==='key' ? $('keyMetricBar')?.parentElement
+    : kind==='main' ? $('mainMetricBar')?.parentElement
+    : $('statGrid')?.querySelector(`[data-category-kind="${kind}"] .bar`);
+ if(!bar || window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+ // Restart the exact track/fill neon keyframes used by v109.
+ void bar.offsetWidth;
+ bar.classList.add('category-complete-flash');
+ categoryCompletionTimers.set(kind,setTimeout(()=>{
+   bar.classList.remove('category-complete-flash');
+   categoryCompletionTimers.delete(kind);
+ },1850));
+}
+function initializeCategoryOverview(){
+ const grid=$('statGrid');
+ if(grid.children.length===CATEGORIES.length)return;
+ grid.innerHTML=CATEGORIES.map(c=>{
+  const cnt=smallCount(c.kind);
+  return `<div class="mini-stat" data-category-kind="${c.kind}"><div class="val"><span class="category-count-current count-current">${cnt.done}</span><span class="category-count-total count-total"> / ${cnt.total}</span></div><span class="name">${c.name}</span><label class="overview-all" title="Mark all ${c.name} as completed"><input type="checkbox" data-overview-all="${c.kind}" aria-label="Mark all ${c.name} as completed"><span>All</span></label><div class="bar" aria-hidden="true"><b style="width:${cnt.done/cnt.total*100}%"></b></div></div>`;
+ }).join('');
+}
+
+function progressUpdate(){
+ const mains=ITEMS.filter(isMain),done=mains.filter(x=>checked(x.id)).length;
+ const s=profile(),keys=smallCount('key');
+ const total=ITEMS.length,completed=ITEMS.filter(x=>checked(x.id)).length;
+ const previous=collectibleCountByProfile.get(s.id);
+ const justCompleted=previous!==undefined && previous<total && completed===total;
+ collectibleCountByProfile.set(s.id,completed);
+ if(discoveryCompletionEffectProfileId&&discoveryCompletionEffectProfileId!==s.id){
+   clearDiscoveryCompletionTimers();discoveryCompletionEffectProfileId=null;
+   els.discoveryPercent.classList.remove('discovery-complete-flash');
+   els.discoveryBar.parentElement?.classList.remove('discovery-complete-flash');
+ }
+ if(completed<total&&(discoveryCompletionEffectProfileId===s.id||discoveryCompletionFloatProfileId===s.id))cancelDiscoveryCompletionState(s.id);
+ const previousRoute=routeCountByProfile.get(s.id);
+ const justCompletedRoute=previousRoute!==undefined && previousRoute<total && completed===total;
+ routeCountByProfile.set(s.id,completed);
+ const completion=completed/total;
+ $('doneMain').textContent=completed;
+ $('mainTotalCurrent').textContent=done;
+ $('keyTotalCurrent').textContent=keys.done;
+ $('routeTotal').textContent=`${completed} / ${total}`;
+ $('mainMetricBar').style.width=`${done/mains.length*100}%`;
+ $('keyMetricBar').style.width=`${keys.done/keys.total*100}%`;
+ $('discoveryPercent').textContent=(discoveryCompletionEffectProfileId===s.id&&els.discoveryPercent.classList.contains('discovery-complete-flash'))?els.discoveryPercent.textContent:`${Math.round(completion*100)}%`;
+ $('discoveryBar').style.width=`${completion*100}%`;
+ $('overallBar').setAttribute('aria-valuenow',completed);
+ initializeCategoryOverview();
+ const categoryCounts=Object.fromEntries([...CATEGORIES.map(c=>{
+   const count=smallCount(c.kind);
+   const card=$('statGrid').querySelector(`[data-category-kind="${c.kind}"]`);
+   card.querySelector('.category-count-current').textContent=count.done;
+   card.querySelector('.bar>b').style.width=`${count.done/count.total*100}%`;
+   return [c.kind,count];
+ }),['key',keys],['main',{done,total:mains.length}]]);
+ const previousCategoryCounts=categoryCountHistoryByProfile.get(s.id);
+ const stayedOnSameProfile=lastCategoryProgressProfileId===s.id;
+ if(!stayedOnSameProfile){
+   for(const kind of ['key','main',...CATEGORIES.map(c=>c.kind)])clearCategoryCompletionGlow(kind);
+ }
+ for(const [kind,count] of Object.entries(categoryCounts)){
+   if(count.done<count.total)clearCategoryCompletionGlow(kind);
+   if(stayedOnSameProfile && previousCategoryCounts &&
+      previousCategoryCounts[kind]?.done<count.total && count.done===count.total){
+     pulseCategoryCompletion(kind);
+   }
+ }
+ categoryCountHistoryByProfile.set(s.id,categoryCounts);
+ lastCategoryProgressProfileId=s.id;
+ updateOverviewCheckboxes();
+ els.discoveryPercent.style.backgroundColor=interpolateHex3(completion,'#120c0e','#4d1720','#8f2635');
+ els.discoveryPercent.style.borderColor=interpolateHex3(completion,'#4a3035','#7a3540','#b65060');
+ els.discoveryPercent.style.color=interpolateHex3(completion,'#b7aaad','#ddd1d3','#fff3f4');
+ els.discoveryPercent.style.boxShadow=`inset 0 1px 0 rgba(255,255,255,.018), 0 0 ${Math.round(4+completion*8)}px rgba(143,38,53,${(completion*.16).toFixed(3)})`;
+ if(justCompleted)triggerDiscoveryCompletionFlourish(s.id);
+ if(justCompletedRoute)triggerDiscoveryCompletionFloat(s.id);
+ requestAnimationFrame(updateFloatingNextMissing);
+}
+
+const formatNo=n=>String(n).padStart(2,'0');
+const kindName=kind=>({postcard:'Postcard',phone:'Call',signal:'CRTV',key:'Key',container:'Container'})[kind];
+function meta(item){const parts=[`<span class="chip">Chapter ${item.chapter} · ${escapeHTML(PARTS[item.part][0])}</span>`];if(item.dial)parts.push(`<span class="chip code">${escapeHTML(item.dial)}</span>`);if(item.frequency)parts.push(`<span class="chip code">Ch. ${escapeHTML(item.frequency)}</span>`);if(item.method)parts.push(`<span class="chip">${escapeHTML(item.method)}</span>`);if(item.actor)parts.push(`<span class="chip">${escapeHTML(item.actor)}</span>`);if(item.ngplus)parts.push(`<span class="chip ng">NG+ only</span>`);return parts.join('')}
+function entryHTML(item,routeIndex=-1){
+ const done=checked(item.id);
+ const label=routeIndex>=0?String(routeIndex+1).padStart(2,'0'):formatNo(item.number);
+ let additional='';
+ if(item.warning)additional=`<div class="entry-note caution"><strong>CAUTION ·</strong> ${escapeHTML(item.warning)}</div>`;
+ else if(item.note)additional=`<div class="entry-note"><strong>Note ·</strong> ${escapeHTML(item.note)}</div>`;
+ return `<article class="entry ${done?'done':''}" data-entry-id="${item.id}" id="entry-${item.id}-${routeIndex<0?'cat':'route'}">
+ <label class="entry-check"><input type="checkbox" data-item="${item.id}" ${done?'checked':''} aria-label="Mark ${escapeHTML(item.title)} as completed"></label>
+ <div class="entry-top"><span class="entry-index">${label}</span><div class="entry-main"><div class="entry-title">${escapeHTML(item.title)}<span class="entry-kind">${item.kind==='phone'?`Phone call #${item.number}`:`${kindName(item.kind)} ${formatNo(item.number)}`}</span></div><div class="entry-meta">${meta(item)}</div></div></div>
+ <a class="guide entry-guide" href="${item.ref}" target="_blank" rel="noopener noreferrer" aria-label="Open location guide for ${escapeHTML(item.title)}">Guide ↗</a>
+ <p class="entry-where">${escapeHTML(item.where)}</p>${additional}
+ ${item.kind==='postcard'||routeIndex<0?`<div class="entry-actions">${item.kind==='postcard'?`<button type="button" data-open-postcard="${item.number}">View postcard ↗</button>`:''}${routeIndex<0?`<button type="button" data-to-route="${item.id}">Find in story route →</button>`:''}</div>`:''}
+ ${routeIndex>=0&&item.kind==='postcard'&&galleryReturnContext?.id===item.id&&galleryReturnContext?.profileId===profile().id?`<button type="button" class="entry-return return-to-postcard" data-return-postcard="${item.number}">← Return to Postcard ${formatNo(item.number)}</button>`:''}
+ </article>`;
+}
+function captureParts(){const existing=[...document.querySelectorAll('#storyContent details.part')];if(existing.length)openedParts=new Set(existing.filter(el=>el.open).map(el=>el.dataset.part));}
+// v109's completed-checklist presentation, adapted to the two browsing modes.
+// Missing-only completion, filtered completion, and search failure are separate states.
+function checklistEmptyHTML(){
+ const candidates=ITEMS.filter(x=>isType(x,filter)&&inQuery(x));
+ const allCompleted=ITEMS.every(x=>checked(x.id));
+ const everyCandidateCompleted=candidates.length>0&&candidates.every(x=>checked(x.id));
+ if(onlyMissing&&everyCandidateCompleted){
+  let heading;
+  if(allCompleted)heading='All 61 checklist items completed.';
+  else if(query)heading='All matching checklist items completed.';
+  else if(filter!=='all'){
+   const label=filter==='container'?'Resource Containers and Lockbox Keys':
+    (CATEGORIES.find(c=>c.kind===filter)?.name||'Selected category');
+   heading=`All ${label} completed.`;
+  }else heading='All checklist items in this view completed.';
+  return `<div class="missing-only-empty" role="status"><div class="missing-only-empty-content"><strong>${escapeHTML(heading)}</strong> There are no missing items to show.</div></div>`;
+ }
+ const msg=query?'No checklist items match your search.':
+   filter!=='all'?'No checklist items match the selected category.':
+   'No checklist items match the current filters.';
+ return `<div class="empty" role="status">${msg}</div>`;
+}
+function partFiveNoticeHTML(){
+ return '<div class="part-empty part-five-note"><strong>No collectibles to track in this part.</strong><span>Part 5 contains none of the collectible types covered by this tracker. Continue to Part 6: Simon for the remaining collectibles.</span></div>';
+}
+function storyRender(){captureParts();let html='',matches=0;for(let part=1;part<=6;part++){
+ const all=ITEMS.filter(x=>x.part===part),list=all.filter(visible),done=all.filter(x=>checked(x.id)).length;
+ matches+=list.length;
+ if(!list.length&&(query||onlyMissing||filter!=='all'))continue;
+ const display=`Part ${part}: ${PARTS[part][0]}`;
+ const allBox=all.length?`<label class="part-all" title="Mark all ${all.length} items in ${display}"><input type="checkbox" data-select-part="${part}" ${done===all.length?'checked':''}><span>All</span></label>`:'';
+ html+=`<details class="part" data-part="${part}" ${openedParts.has(String(part))?'open':''}><summary><div class="part-titles"><strong>${display}</strong></div><span class="part-head-controls"><span class="countpill">${done} / ${all.length}</span>${allBox}</span></summary><div class="part-body"><div class="part-items">${list.length?list.map(x=>entryHTML(x,ITEMS.indexOf(x))).join(''):partFiveNoticeHTML()}</div></div></details>`;
+ }
+ if(!html)html=checklistEmptyHTML();
+ $('storyContent').innerHTML=html;updateSelectAllCheckboxes();
+}
+function pairHTML(n){const key=store.get('key-'+formatNo(n)),box=store.get('container-'+formatNo(n));if(!key||!box)return '';const available=(visible(key)||visible(box));if(!available)return '';return `<section class="pair-card ${checked(key.id)&&checked(box.id)?'pair-complete':''}"><div class="pair-head"><h3>Resource Container ${formatNo(n)}</h3><small>Part ${key.part} · Chapter ${key.chapter}</small></div><div class="pair-grid">${[key,box].map((x,idx)=>`<div class="pair-step"><div class="pair-step-top"><label class="pair-check"><input type="checkbox" data-item="${x.id}" ${checked(x.id)?'checked':''}><span>${idx===0?'KEY ACQUIRED':'CONTAINER OPENED'}</span></label><a class="guide pair-guide" target="_blank" rel="noopener noreferrer" href="${x.ref}" aria-label="Open location guide for ${escapeHTML(x.title)}">Guide ↗</a></div><div class="entry-meta"><span class="chip">${escapeHTML(x.title)}</span></div><p class="entry-where">${escapeHTML(x.where)}</p>${x.note?`<div class="entry-note">${escapeHTML(x.note)}</div>`:''}<div class="entry-actions"><button type="button" data-to-route="${x.id}">Find in story route →</button></div></div>`).join('')}</div></section>`;}
+function categoryRender(){let html='',total=0;for(const c of CATEGORIES){
+ if(!isType({kind:c.kind},filter))continue;
+ const items=ITEMS.filter(x=>x.kind===c.kind||(c.kind==='container'&&x.kind==='key'));
+ const matching=items.filter(visible);
+ const content=c.kind==='container'?Array.from({length:7},(_,i)=>pairHTML(i+1)).filter(Boolean).join(''):matching.map(x=>entryHTML(x)).join('');
+ if(!content)continue;
+ total++;
+ const done=items.filter(x=>checked(x.id)).length;
+ const allBox=`<label class="part-all" title="Mark all ${items.length} ${c.name} items"><input type="checkbox" data-select-category="${c.kind}" ${done===items.length?'checked':''}><span>All</span></label>`;
+ html+=`<details class="part cat-part" data-kind="${c.kind}" ${openedCategories.has(c.kind)?'open':''}><summary><div class="part-titles"><strong>${c.name}</strong></div><span class="part-head-controls"><span class="countpill">${done} / ${items.length}</span>${allBox}</span></summary><div class="part-body"><div class="cat-section"><div class="cat-list">${content}</div></div></div></details>`;
+ }
+ if(!total)html=checklistEmptyHTML();
+ $('categoryContent').innerHTML=html;updateSelectAllCheckboxes();
+}
+const originalImage=n=>`assets/postcards/postcard-${formatNo(n)}-original.webp`;
+const solvedImage=n=>`assets/postcards/postcard-${formatNo(n)}-solved.webp`;
+const thumbImage=n=>`assets/thumbs/postcard-${formatNo(n)}.webp`;
+function galleryRender(){const cards=ITEMS.filter(x=>x.kind==='postcard');$('galleryContent').innerHTML=cards.length?cards.map(x=>`<article class="postcard-card" data-entry-id="${x.id}"><button type="button" class="postcard-art" data-open-postcard="${x.number}" aria-label="View Strange Postcard ${x.number} at full resolution"><img src="${thumbImage(x.number)}" alt="Strange Postcard ${formatNo(x.number)} — original artwork" loading="lazy" width="720" height="506"></button><div class="postcard-foot"><h3>Strange Postcard ${formatNo(x.number)}</h3><p class="sub">Part ${x.part} · Chapter ${x.chapter} · ${SOLVED[x.number]?'Autostereogram':'Strange Postcard'}</p><label class="gallery-check"><input type="checkbox" data-item="${x.id}" ${checked(x.id)?'checked':''}> Collected</label><div class="gallery-actions"><button type="button" data-open-postcard="${x.number}">Inspect image ↗</button><button type="button" data-to-route="${x.id}">View location →</button></div></div></article>`).join(''):'<div class="empty">No postcards are available.</div>';}
+function render(){progressUpdate();const views={story:'storyContent',categories:'categoryContent',gallery:'galleryContent'};for(const [name,id] of Object.entries(views))$(id).hidden=name!==view;for(const n of Object.keys(views)){$('tab-'+n).setAttribute('aria-selected',String(n===view));$(n==='story'?'storyView':n==='categories'?'categoryView':'galleryView').hidden=n!==view;} $('filters').hidden=view==='gallery';$('typeFilter').closest('.select-holder').hidden=view==='gallery'; $('checklistTools').hidden=view==='gallery';syncCustomSelects();if(view==='story')storyRender();if(view==='categories')categoryRender();if(view==='gallery')galleryRender();updateOverviewCheckboxes();}
+function redrawProgress(){progressUpdate();updateSelectAllCheckboxes();if(onlyMissing){animateFilteredChecklistUpdate();return;}document.querySelectorAll('[data-item]').forEach(el=>{el.checked=checked(el.dataset.item);const e=el.closest('.entry');if(e)e.classList.toggle('done',el.checked);});document.querySelectorAll('.pair-card').forEach(card=>{const checks=[...card.querySelectorAll('input[data-item]')];card.classList.toggle('pair-complete',checks.every(i=>i.checked));});document.querySelectorAll('details.part').forEach(d=>{const all=ITEMS.filter(x=>String(x.part)===d.dataset.part),count=all.filter(x=>checked(x.id)).length;d.querySelector('.countpill').textContent=`${count} / ${all.length}`;});document.querySelectorAll('.cathead').forEach((head)=>{const name=head.querySelector('h2')?.textContent,c=CATEGORIES.find(c=>c.name===name);if(c){const count=smallCount(c.kind);head.querySelector('small').textContent=`${count.done} / ${count.total} completed`;}});}
+function profileSelectRender(){
+ $('profileSelect').innerHTML=db.profiles.map(p=>`<option value="${escapeHTML(p.id)}" ${p.id===db.active?'selected':''}>${escapeHTML(p.name)}</option>`).join('');
+ $('profileValue').textContent=profile().name;
+ $('profileOptions').innerHTML=db.profiles.map(p=>`<button type="button" class="ending-option" role="option" data-profile="${escapeHTML(p.id)}" aria-selected="${p.id===db.active}">${escapeHTML(p.name)}</button>`).join('');
+ $('deleteProfile').disabled=false;
+}
+function dropdownClose(type,focus=false){const button=$(type+'Button'),options=$(type+'Options');if(!button||!options)return;options.hidden=true;button.setAttribute('aria-expanded','false');if(focus)button.focus();}
+function dropdownOpen(type){const button=$(type+'Button'),options=$(type+'Options');const other=type==='profile'?'category':'profile';dropdownClose(other);options.hidden=false;button.setAttribute('aria-expanded','true');}
+function syncCustomSelects(){const opt=$('typeFilter');if(!opt)return;$('categoryValue').textContent=opt.selectedOptions[0]?.textContent||'All categories';document.querySelectorAll('#categoryOptions [data-value]').forEach(el=>el.setAttribute('aria-selected',String(el.dataset.value===filter)));}
+function updateOverviewCheckboxes(){document.querySelectorAll('input[data-overview-all],input[data-gallery-all]').forEach(input=>{const kind=input.dataset.overviewAll||input.dataset.galleryAll;const items=ITEMS.filter(x=>x.kind===kind);const done=items.filter(x=>checked(x.id)).length;input.checked=done===items.length;input.indeterminate=done>0&&done<items.length;});}
+function updateSelectAllCheckboxes(){updateOverviewCheckboxes();const all=$('markAll');if(all){const count=ITEMS.filter(x=>checked(x.id)).length;all.checked=count===ITEMS.length;all.indeterminate=count>0&&count<ITEMS.length;}
+ document.querySelectorAll('input[data-select-part]').forEach(input=>{const arr=ITEMS.filter(x=>String(x.part)===input.dataset.selectPart);const count=arr.filter(x=>checked(x.id)).length;input.checked=count===arr.length;input.indeterminate=count>0&&count<arr.length;input.closest('.part-head-controls')?.querySelector('.countpill')?.replaceChildren(document.createTextNode(`${count} / ${arr.length}`));});
+ document.querySelectorAll('input[data-select-category]').forEach(input=>{const k=input.dataset.selectCategory,arr=ITEMS.filter(x=>x.kind===k||(k==='container'&&x.kind==='key'));const count=arr.filter(x=>checked(x.id)).length;input.checked=count===arr.length;input.indeterminate=count>0&&count<arr.length;input.closest('.part-head-controls')?.querySelector('.countpill')?.replaceChildren(document.createTextNode(`${count} / ${arr.length}`));});
+}
+
+function setProfile(id){hideUndo();galleryReturnContext=null;db.active=id;save();profileSelectRender();render();}
+let modalState=null;
+function dismissAppModal(confirmed){const el=$('appDialog');if(el.hidden)return;const state=modalState;const value=state?.input?$('appDialogInput').value.trim():null;el.hidden=true;document.body.classList.remove('modal-open');modalState=null;if(confirmed&&typeof state?.callback==='function')state.callback(value);if(state?.restoreFocus?.isConnected)state.restoreFocus.focus({preventScroll:true});}
+function modalAsk({title,body,input=null,ok='OK',danger=false,kicker='Collectibles',showCancel=true},callback){
+ const d=$('appDialog');modalState={input:input!==null,callback,restoreFocus:document.activeElement};
+ $('appDialogKicker').textContent=kicker;$('appDialogTitle').textContent=title;$('appDialogMessage').textContent=body;
+ $('appDialogInputWrap').hidden=input===null;$('appDialogInput').value=input??'';
+ $('appDialogConfirm').textContent=ok;$('appDialogConfirm').classList.toggle('confirm-danger',!!danger);
+ $('appDialogCancel').hidden=!showCancel;d.hidden=false;document.body.classList.add('modal-open');
+ requestAnimationFrame(()=>{if(input!==null){$('appDialogInput').focus();$('appDialogInput').select();}else (showCancel?$('appDialogCancel'):$('appDialogConfirm')).focus();});
+}
+function hideUndo(){if(undoTimeout)clearTimeout(undoTimeout);undoTimeout=null;undoSnapshot=null;$('undoBar').hidden=true;}
+function showBulkUndo(snapshot,message){
+ hideUndo();undoSnapshot=snapshot;$('undoMessage').textContent=message;
+ $('undoBar').hidden=false;undoTimeout=setTimeout(hideUndo,10000);
+}
+function bulkUpdate(value){
+ const targets=ITEMS.filter(x=>checked(x.id)!==value);
+ if(!targets.length){render();return;}
+ const snapshot={profileId:profile().id,checks:{...profile().checks}};
+ targets.forEach(x=>{if(value)profile().checks[x.id]=true;else delete profile().checks[x.id]});
+ save();render();showBulkUndo(snapshot,value?'All 61 checklist items marked complete.':'All 61 checklist items cleared.');
+}
+
+function setNextMissingFloatVisible(visible){
+ const button=els.nextMissingFloat;if(!button)return;
+ button.classList.toggle('float-hidden',!visible);
+ button.setAttribute('aria-hidden',visible?'false':'true');
+}
+function updateFloatingNextMissing(){
+ if(!els.discoveryToolbar||!els.nextMissingFloat)return;
+ if(discoveryCompletionFloatProfileId){setNextMissingFloatVisible(true);return;}
+ const hasMissing=ITEMS.some(x=>!checked(x.id));
+ const toolbarAboveViewport=els.discoveryToolbar.getBoundingClientRect().bottom<=0;
+ if(hasMissing)resetDiscoveryCompletionFloat({hide:false});
+ setNextMissingFloatVisible(toolbarAboveViewport&&hasMissing);
+}
+function discoveryNavigationRect(item){
+ const row=$(`entry-${item.id}-route`);
+ if(row&&row.getClientRects().length)return row.getBoundingClientRect();
+ const part=$('storyContent').querySelector(`details.part[data-part="${item.part}"]`);
+ if(!part)return null;
+ const summary=part.querySelector('summary');
+ return summary?summary.getBoundingClientRect():part.getBoundingClientRect();
+}
+function firstMissingFromViewportTop(missing){
+ for(const item of missing){const rect=discoveryNavigationRect(item);if(rect&&rect.bottom>0)return item;}
+ return missing[0];
+}
+function setNextMissingManualMovement(){
+ const s=profile();if(!s)return;
+ nextMissingProgrammaticScroll=false;
+ if(nextMissingScrollTimer){clearTimeout(nextMissingScrollTimer);nextMissingScrollTimer=null;}
+ nextMissingUserMovedByProfile.set(s.id,true);
+}
+function beginNextMissingProgrammaticScroll(){
+ nextMissingProgrammaticScroll=true;
+ if(nextMissingScrollTimer)clearTimeout(nextMissingScrollTimer);
+ nextMissingScrollTimer=setTimeout(()=>{nextMissingProgrammaticScroll=false;nextMissingScrollTimer=null;},900);
+}
+function navigateHighlight(target,{instant=false}={}){
+ const part=$('storyContent').querySelector(`details.part[data-part="${target.part}"]`);
+ if(part&&!part.open){part.open=true;openedParts.add(String(target.part));}
+ requestAnimationFrame(()=>{
+  const row=$(`entry-${target.id}-route`);if(!row)return;
+  $('storyContent').querySelectorAll('.entry.next-missing-hit').forEach(el=>el.classList.remove('next-missing-hit'));
+  if(nextMissingHighlightTimer){clearTimeout(nextMissingHighlightTimer);nextMissingHighlightTimer=null;}
+  void row.offsetWidth;
+  const reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  row.classList.add('next-missing-hit');
+  beginNextMissingProgrammaticScroll();
+  row.scrollIntoView({behavior:instant?'instant':(reduce?'auto':'smooth'),block:'center'});
+  const box=row.querySelector('input[type="checkbox"]');
+  if(box){try{box.focus({preventScroll:true});}catch{box.focus();}}
+  nextMissingHighlightTimer=setTimeout(()=>{row.classList.remove('next-missing-hit');nextMissingHighlightTimer=null;},reduce?900:1300);
+ });
+}
+function goToRoute(id,fromPostcardViewer=false){
+ if(id.startsWith('postcard-') && (view==='gallery'||fromPostcardViewer))galleryReturnContext={id,profileId:profile().id};
+ else if(view!=='gallery')galleryReturnContext=null;
+ // A deliberate jump from the gallery or category list starts a fresh navigation sequence.
+ const t=store.get(id);if(!t)return;
+ nextMissingLastTargetByProfile.set(profile().id,null);
+ nextMissingUserMovedByProfile.set(profile().id,false);
+ view='story';filter='all';query='';onlyMissing=false;
+ $('typeFilter').value='all';$('searchInput').value='';
+ $('missingOnly').setAttribute('aria-pressed','false');$('missingOnly').classList.remove('is-active');
+ openedParts.add(String(t.part));render();
+ requestAnimationFrame(()=>{
+  navigateHighlight(t,{instant:fromPostcardViewer});
+  // navigateHighlight itself schedules an animation frame. Run a second frame
+  // only after the destination has been positioned; keep it obscured by the
+  // open image dialog until then to prevent a one-frame gallery/checklist flash.
+  if(fromPostcardViewer){
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
+      if($('viewer').open)$('viewer').close();
+    }));
+  }
+ });
+}
+function nextMissing(){
+ const s=profile();const missing=ITEMS.filter(x=>!checked(x.id));
+ if(!missing.length){
+  nextMissingLastTargetByProfile.set(s.id,null);nextMissingUserMovedByProfile.set(s.id,false);
+  modalAsk({title:'Nothing missing',body:'All 61 checklist items are already marked as found for this profile.',ok:'OK'},()=>{});return;
+ }
+ // When outside Story Route, return to its unfiltered chronological list first.
+ let switching=false;
+ if(view!=='story'||onlyMissing||filter!=='all'||query){
+  view='story';filter='all';query='';onlyMissing=false;
+  $('typeFilter').value='all';$('searchInput').value='';
+  $('missingOnly').setAttribute('aria-pressed','false');$('missingOnly').classList.remove('is-active');
+  openedParts.add(String(missing[0].part));render();switching=true;
+ }
+ const lastId=nextMissingLastTargetByProfile.get(s.id)||null;
+ const userMoved=nextMissingUserMovedByProfile.get(s.id)===true;
+ let target;
+ if(userMoved&&!switching){
+   target=firstMissingFromViewportTop(missing);
+ }else{
+   const lastIndex=ITEMS.findIndex(x=>x.id===lastId);
+   target=missing.find(x=>ITEMS.indexOf(x)>lastIndex)||missing[0];
+ }
+ nextMissingLastTargetByProfile.set(s.id,target.id);
+ nextMissingUserMovedByProfile.set(s.id,false);
+ navigateHighlight(target);
+}
+function openPostcard(n){
+ viewerPostcard=n;viewerDisplayedPostcard=null;viewerReturn=document.activeElement;
+ $('brightness').value=String(viewerBrightness);
+ $('brightnessLabel').textContent=`${viewerBrightness}%`;
+ $('viewerImages').replaceChildren(createViewerLoading());
+ $('viewer').showModal();
+ viewerRender();
+}
+// Keep ready-to-paint full-resolution images in a bounded, session-local LRU.
+// Only the active postcard and its neighbors are requested; no full gallery
+// preload and no conversion/recompression of the actual postcard assets.
+const viewerImageCache=new Map();
+const VIEWER_IMAGE_CACHE_LIMIT=12;
+let viewerRenderToken=0;
+let viewerDisplayedPostcard=null;
+function decodedPostcardImage(src){
+ if(viewerImageCache.has(src)){
+  const item=viewerImageCache.get(src);
+  viewerImageCache.delete(src);viewerImageCache.set(src,item);
+  return item;
+ }
+ const img=new Image();
+ img.decoding='async';
+ // Crucial: decode this exact element before ever inserting it into the DOM.
+ // Recreating <img src> via innerHTML can reintroduce a blank paint.
+ const ready=new Promise(resolve=>{
+  let settled=false;
+  const finish=()=>{if(!settled){settled=true;resolve(img.naturalWidth>0?img:null);}};
+  img.onload=()=>{if(typeof img.decode==='function')img.decode().then(finish,finish);else finish();};
+  img.onerror=finish;
+  img.src=src;
+  if(img.complete&&img.naturalWidth>0){
+   if(typeof img.decode==='function')img.decode().then(finish,finish);
+   else finish();
+  }
+ });
+ viewerImageCache.set(src,ready);
+ while(viewerImageCache.size>VIEWER_IMAGE_CACHE_LIMIT){
+  viewerImageCache.delete(viewerImageCache.keys().next().value);
+ }
+ return ready;
+}
+function prefetchPostcardNeighbors(n){
+ const previous=n===1?15:n-1,next=n===15?1:n+1;
+ for(const adjacent of [previous,next]){
+  // Preload both versions so selecting Compare is also seamless.
+  decodedPostcardImage(originalImage(adjacent));
+  if(SOLVED[adjacent])decodedPostcardImage(solvedImage(adjacent));
+ }
+}
+function createViewerLoading(){
+ const label=document.createElement('div');
+ label.className='viewer-preparing';label.setAttribute('role','status');
+ label.textContent='Preparing postcard image…';
+ return label;
+}
+async function viewerRender(){
+ const token=++viewerRenderToken;
+ const n=viewerPostcard,has=!!SOLVED[n],mode=has?viewerMode:'original';
+ const specs=[];
+ if(mode==='original'||mode==='compare')specs.push({type:'original',src:originalImage(n)});
+ if(has&&(mode==='solved'||mode==='compare'))specs.push({type:'solved',src:solvedImage(n)});
+ // Old artwork remains visible until ALL images in the new mode are decoded.
+ // Metadata, frame count, and pictures commit together in one DOM operation.
+ const images=await Promise.all(specs.map(x=>decodedPostcardImage(x.src)));
+ if(token!==viewerRenderToken||!$('viewer').open)return;
+ const fragment=document.createDocumentFragment();
+ specs.forEach((spec,i)=>{
+  const figure=document.createElement('figure');
+  figure.className='viewer-frame'+(spec.type==='solved'?' solved':'');
+  if(spec.type==='solved')figure.style.setProperty('--solution-brightness',viewerBrightness/100);
+  const caption=document.createElement('figcaption');
+  caption.textContent=spec.type==='original'?'Original artwork':`Solved reconstruction · ${SOLVED[n]}`;
+  figure.appendChild(caption);
+  if(images[i]){
+   // The predecoded node is reused directly; no new undecoded image element.
+   const img=images[i];
+   img.alt=spec.type==='original'?`Original Strange Postcard ${n}`:`User-supplied solved Strange Postcard ${n}: ${SOLVED[n]}`;
+   img.width=2048;img.height=1440;
+   figure.appendChild(img);
+  }else{
+   const error=document.createElement('p');error.className='viewer-image-error';
+   error.textContent='Unable to load this postcard image.';
+   figure.appendChild(error);
+  }
+  fragment.appendChild(figure);
+ });
+ $('viewerImages').classList.toggle('compare',viewerMode==='compare');
+ $('viewerImages').classList.toggle('compare-conventional',viewerMode==='compare'&&!has);
+ $('viewerImages').replaceChildren(fragment);
+ viewerDisplayedPostcard=n;
+ $('viewerTitle').textContent=`Strange Postcard ${formatNo(n)}`;
+ $('viewerSubtitle').textContent=`Part ${store.get('postcard-'+formatNo(n)).part} · ${has?`Autostereogram · Solution: ${SOLVED[n]}`:'Strange Postcard · Original artwork'}`;
+ document.querySelectorAll('.viewer-modes button').forEach(b=>{
+  // Keep all three mode controls in stable positions. Conventional postcards
+  // have no solution, but do NOT overwrite the user's remembered preference.
+  // An unavailable mode stays visually muted instead of falsely pressing Original.
+  const unavailable=!has&&b.dataset.mode!=='original';
+  b.hidden=false;
+  b.disabled=unavailable;
+  b.setAttribute('aria-pressed',String(!unavailable&&b.dataset.mode===viewerMode));
+  b.title=unavailable?'Available on autostereogram postcards only':'';
+ });
+ $('brightnessWrap').hidden=!has||mode==='original';
+ // Neighbor preparation is background-only, does not touch the current view.
+ // Deferring it one task keeps the just-requested navigation responsive.
+ setTimeout(()=>{if($('viewer').open&&viewerPostcard===n)prefetchPostcardNeighbors(n);},35);
+}
+$('profileButton').addEventListener('click',()=>{$('profileOptions').hidden?dropdownOpen('profile'):dropdownClose('profile');});
+$('categoryButton').addEventListener('click',()=>{$('categoryOptions').hidden?dropdownOpen('category'):dropdownClose('category');});
+$('profileOptions').addEventListener('click',e=>{const option=e.target.closest('[data-profile]');if(!option)return;dropdownClose('profile');setProfile(option.dataset.profile);$('profileButton').focus();});
+$('categoryOptions').addEventListener('click',e=>{const option=e.target.closest('[data-value]');if(!option)return;filter=option.dataset.value;$('typeFilter').value=filter;dropdownClose('category');render();$('categoryButton').focus();});
+for(const t of ['profile','category']){
+ $(t+'Button').addEventListener('keydown',e=>{if(['ArrowDown','ArrowUp','Enter',' '].includes(e.key)){e.preventDefault();dropdownOpen(t);const options=[...$(t+'Options').querySelectorAll('[role="option"]')];(options.find(x=>x.getAttribute('aria-selected')==='true')||options[0])?.focus();}});
+ $(t+'Options').addEventListener('keydown',e=>{const options=[...$(t+'Options').querySelectorAll('[role="option"]')];const i=options.indexOf(document.activeElement);if(e.key==='Escape'){e.preventDefault();dropdownClose(t,true);}else if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();options[(i+(e.key==='ArrowDown'?1:-1)+options.length)%options.length]?.focus();}else if(e.key==='Home'||e.key==='End'){e.preventDefault();options[e.key==='Home'?0:options.length-1]?.focus();}});
+}
+document.addEventListener('click',e=>{for(const t of ['profile','category']){if(!e.target.closest('#'+t+'SelectWrap'))dropdownClose(t);}});document.addEventListener('keydown',e=>{if(e.key==='Escape'){for(const t of ['profile','category']){if(!$(t+'Options').hidden){dropdownClose(t,true);e.preventDefault();}}}});
+$('appDialogCancel').addEventListener('click',()=>dismissAppModal(false));
+$('appDialogConfirm').addEventListener('click',()=>dismissAppModal(true));
+$('appDialog').addEventListener('click',e=>{if(e.target===$('appDialog'))dismissAppModal(false);});
+document.addEventListener('keydown',e=>{if(!$('appDialog').hidden){if(e.key==='Escape'){e.preventDefault();dismissAppModal(false);return;}if(e.key==='Enter'){if(document.activeElement!==$('appDialogCancel')){e.preventDefault();dismissAppModal(true);}return;}if(e.key==='Tab'){const focusable=[$('appDialogInputWrap').hidden?null:$('appDialogInput'),$('appDialogCancel'),$('appDialogConfirm')].filter(el=>el&&!el.hidden);const idx=focusable.indexOf(document.activeElement);if(e.shiftKey&&idx===0){e.preventDefault();focusable.at(-1).focus();}else if(!e.shiftKey&&idx===focusable.length-1){e.preventDefault();focusable[0].focus();}}}});
+
+$('addProfile').addEventListener('click',()=>modalAsk({kicker:'Profile management',title:'New profile',body:'Choose a name for this tracker profile.',input:`Profile ${db.profiles.length+1}`,ok:'Create profile'},name=>{const suggested=`Profile ${db.profiles.length+1}`;const id=uid();db.profiles.push({id,name:name?.trim()||suggested,checks:{}});setProfile(id);}));
+$('renameProfile').addEventListener('click',()=>modalAsk({kicker:'Profile management',title:'Rename profile',body:`Rename "${profile().name}".`,input:profile().name,ok:'Rename'},name=>{profile().name=name?.trim()||profile().name;save();profileSelectRender();}));
+$('deleteProfile').addEventListener('click',()=>{
+ if(db.profiles.length===1){modalAsk({kicker:'Profile management',title:'Profile required',body:'Keep at least one profile.',ok:'OK',showCancel:false});return;}
+ modalAsk({kicker:'Profile management',title:'Delete profile?',body:`Delete "${profile().name}"? This removes its locally stored tracker progress.`,ok:'Delete profile',danger:true},()=>{db.profiles=db.profiles.filter(p=>p.id!==db.active);db.active=db.profiles[0].id;hideUndo();save();profileSelectRender();render();});
+});
+$('markAll').addEventListener('change',e=>{
+ if(!e.target.checked){bulkUpdate(false);return;}
+ // The global checkbox must not replace a partial playthrough without confirmation.
+ // Cancel restores checked/indeterminate without changing any saved progress.
+ modalAsk({
+   kicker:'Collectibles',
+   title:'Mark all 61 as found?',
+   body:'Mark all 61 checklist items as found for this profile?',
+   ok:'Mark all'
+ },()=>bulkUpdate(true));
+ updateSelectAllCheckboxes();
+});
+$('clearAll').addEventListener('click',()=>modalAsk({title:'Clear all Collectibles?',body:'Clear all 54 collectible checkboxes and 7 Lockbox Key checkboxes for this profile?',ok:'Clear all',danger:true,kicker:'COLLECTIBLES'},()=>bulkUpdate(false)));
+$('undoButton').addEventListener('click',()=>{if(!undoSnapshot)return;const p=db.profiles.find(p=>p.id===undoSnapshot.profileId);if(p){p.checks={...undoSnapshot.checks};save();render();}hideUndo();});
+$('searchInput').addEventListener('input',e=>{query=e.target.value.trim();render();});
+$('missingOnly').addEventListener('click',toggleMissingWithAnimation);
+function showChecklist(){view=previousChecklistView==='categories'?'categories':'story';galleryReturnContext=null;render();$('tab-'+view).focus({preventScroll:true});}
+function activateGallery(){if(view==='gallery'){showChecklist();return;}if(view==='story'||view==='categories')previousChecklistView=view;view='gallery';galleryReturnContext=null;render();}
+function returnToPostcard(n){
+ // Do not scroll or rebuild an intermediate gallery tile while the dialog is
+ // absent. Open the viewer in this same task after the gallery view is ready;
+ // only the viewer-location action is allowed to relocate the document.
+ view='gallery';galleryReturnContext=null;render();openPostcard(n);
+ // Position the postcard's gallery tile only AFTER the modal is open.
+ // The browser can update its underlying scroll without exposing the gallery.
+ requestAnimationFrame(()=>{
+  if(!$('viewer').open)return;
+  const card=$('galleryContent').querySelector(`.postcard-card[data-entry-id="postcard-${formatNo(n)}"]`);
+  card?.scrollIntoView({behavior:'instant',block:'center'});
+ });
+}
+document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>{if(b.dataset.view==='gallery'){activateGallery();return;}if(view==='story')captureParts();if(view==='categories')captureCategoryParts();view=b.dataset.view;previousChecklistView=view;galleryReturnContext=null;render();}));
+$('galleryBack').addEventListener('click',showChecklist);
+document.addEventListener('change',e=>{const input=e.target.closest('input[data-item]');if(!input)return;profile().checks[input.dataset.item]=input.checked;save();redrawProgress();});
+document.addEventListener('click',e=>{const back=e.target.closest('[data-return-postcard]');if(back){returnToPostcard(Number(back.dataset.returnPostcard));return;}const card=e.target.closest('[data-open-postcard]');if(card){openPostcard(Number(card.dataset.openPostcard));return;}const link=e.target.closest('[data-to-route]');if(link){goToRoute(link.dataset.toRoute);}});
+document.addEventListener('toggle',e=>{if(e.target.matches('#storyContent details.part')){if(e.target.open)openedParts.add(e.target.dataset.part);else openedParts.delete(e.target.dataset.part);}},true);
+$('nextMissing').addEventListener('click',nextMissing);$('nextMissingFloat').addEventListener('click',nextMissing);
+$('closeViewer').addEventListener('click',()=>$('viewer').close());let viewerLocationInProgress=false;
+$('viewerLocation').addEventListener('click',()=>{
+ if(viewerLocationInProgress)return;
+ viewerLocationInProgress=true;
+ // Build and position the checklist under the modal, then close the modal.
+ // Closing first was the cause of the intervening gallery flash in v8.
+ goToRoute('postcard-'+formatNo(viewerDisplayedPostcard??viewerPostcard),true);
+});
+$('viewer').addEventListener('close',()=>{
+ viewerRenderToken++;
+ const wasLocationJump=viewerLocationInProgress;
+ viewerLocationInProgress=false;
+ if(!wasLocationJump)viewerReturn?.focus?.({preventScroll:true});
+});
+document.querySelectorAll('.viewer-modes button').forEach(b=>b.addEventListener('click',()=>{if(b.disabled)return;viewerMode=b.dataset.mode;viewerRender();}));
+$('brightness').addEventListener('input',e=>{viewerBrightness=Number(e.target.value);$('brightnessLabel').textContent=`${viewerBrightness}%`;document.querySelectorAll('.viewer-frame.solved').forEach(el=>el.style.setProperty('--solution-brightness',viewerBrightness/100));});
+$('prevCard').addEventListener('click',()=>{viewerPostcard=viewerPostcard===1?15:viewerPostcard-1;viewerRender();});$('nextCard').addEventListener('click',()=>{viewerPostcard=viewerPostcard===15?1:viewerPostcard+1;viewerRender();});
+document.addEventListener('keydown',e=>{if(!$('viewer').open)return;if(e.key==='ArrowLeft'){e.preventDefault();$('prevCard').click();}else if(e.key==='ArrowRight'){e.preventDefault();$('nextCard').click();}},true);
+$('viewer').addEventListener('click',e=>{if(e.target===$('viewer'))$('viewer').close();});
+
+
+// Viewport anchoring and restrained 190-ms row exit mirror the coordinated intent
+// of v109 without coupling this companion to its Discovery-specific data model.
+let missingTransitionTimer=null;
+function captureViewportState(){
+ const root=view==='categories'?$('categoryContent'):$('storyContent');
+ const candidates=[...root.querySelectorAll('details.part>summary')];
+ const candidate=candidates.find(e=>{const r=e.getBoundingClientRect();return r.bottom>0&&r.top<innerHeight;});
+ const all=[...root.querySelectorAll('details.part')];
+ return {kind:view,key:candidate?.parentElement.dataset.kind||candidate?.parentElement.dataset.part||null,top:candidate?.getBoundingClientRect().top||0,sectionOrder:all.map(e=>e.dataset.kind||e.dataset.part)};
+}
+function restoreViewportState(state){
+ if(!state?.key || state.kind!==view)return;
+ const root=visibleChecklistRoot(),list=[...root.querySelectorAll('details.part')];
+ let element=list.find(e=>(e.dataset.kind||e.dataset.part)===state.key);
+ if(!element){const i=state.sectionOrder.indexOf(state.key);const next=state.sectionOrder.slice(i+1);element=list.find(e=>next.includes(e.dataset.kind||e.dataset.part));}
+ const anchor=element?.querySelector('summary');if(!anchor)return;
+ const delta=anchor.getBoundingClientRect().top-state.top;
+ if(Math.abs(delta)<.5)return;
+ document.documentElement.classList.add('layout-adjusting');
+ const previousScroll=document.documentElement.style.scrollBehavior;
+ document.documentElement.style.scrollBehavior='auto';
+ window.scrollBy(0,delta);
+ document.documentElement.style.scrollBehavior=previousScroll;
+ requestAnimationFrame(()=>document.documentElement.classList.remove('layout-adjusting'));
+}
+function renderWithViewportAnchor(){const snap=captureViewportState();render();restoreViewportState(snap);}
+function allSectionsGeometry(root){
+ return new Map([...root.querySelectorAll('details.part')].map(el=>[
+  el.dataset.part||el.dataset.kind,{rect:el.getBoundingClientRect(),el}
+ ]));
+}
+function clearMissingTransition(){
+ if(missingTransitionTimer){clearTimeout(missingTransitionTimer);missingTransitionTimer=null;}
+ const root=visibleChecklistRoot();
+ root.querySelectorAll('details.part').forEach(el=>{
+  el.style.transform='';el.style.transition='';el.style.willChange='';
+  el.querySelectorAll(':scope > summary, :scope > .part-body').forEach(x=>{
+   x.style.opacity='';x.style.transform='';x.style.transition='';
+  });
+ });
+ root.querySelectorAll('.missing-only-empty-content').forEach(el=>{
+  el.style.opacity='';el.style.transform='';el.style.transition='';el.style.willChange='';
+ });
+ root.style.minHeight='';
+ root.style.pointerEvents='';
+ $('missingOnly').disabled=false;
+}
+function structuralMissingTransition(){
+ const root=visibleChecklistRoot();
+ const reduce=collapseMotion.matches;
+ if(reduce||view==='gallery'){renderWithViewportAnchor();return;}
+ const snap=captureViewportState();
+ const before=allSectionsGeometry(root);
+ const originalHeight=root.getBoundingClientRect().height;
+ const oldView=view;
+ // Commit final markup before applying inverse transforms, as v109 does.
+ render();
+ const target=visibleChecklistRoot();
+ if(target!==root||oldView!==view)return;
+ const after=allSectionsGeometry(target);
+ const movements=[];
+ const entering=[];
+ for(const [id,{rect,el}] of after){
+  if(before.has(id)){
+   const dy=before.get(id).rect.top-rect.top;
+   if(Math.abs(dy)>.5){
+    el.style.transition='none';el.style.transform=`translateY(${dy}px)`;
+    el.style.willChange='transform';movements.push(el);
+   }
+  }else{
+   const children=[el.querySelector(':scope > summary'),el.querySelector(':scope > .part-body')].filter(Boolean);
+   children.forEach(child=>{child.style.opacity='0';child.style.transform='translateY(5px)';});
+   entering.push(...children);
+  }
+ }
+ const msg=target.querySelector('.missing-only-empty-content');
+ if(msg){msg.style.transition='none';msg.style.opacity='0';msg.style.transform='translateY(3px)';msg.style.willChange='opacity,transform';}
+ // Preserve document height during the initial two-frame transition, keeping
+ // the browser from clamping a scrolled viewport while previous rows depart.
+ if(originalHeight>target.getBoundingClientRect().height+10){
+  target.style.minHeight=`${originalHeight}px`;
+  target.style.transition='min-height .27s cubic-bezier(.20,.72,.24,1)';
+ }
+ $('missingOnly').disabled=true;
+ target.style.pointerEvents='none';
+ restoreViewportState(snap);
+ void target.offsetHeight;
+ requestAnimationFrame(()=>{
+  requestAnimationFrame(()=>{
+   target.style.minHeight='0px';
+   movements.forEach(el=>{el.style.transition='transform .26s cubic-bezier(.20,.72,.24,1)';el.style.transform='translateY(0)';});
+   entering.forEach(el=>{el.style.transition='opacity .16s ease-out, transform .18s cubic-bezier(.20,.72,.24,1)';el.style.opacity='1';el.style.transform='translateY(0)';});
+   if(msg){msg.style.transition='opacity .16s ease-out, transform .18s cubic-bezier(.20,.72,.24,1)';msg.style.opacity='1';msg.style.transform='translateY(0)';}
+  });
+ });
+ missingTransitionTimer=setTimeout(()=>{
+  missingTransitionTimer=null;
+  clearMissingTransition();
+ },310);
+}
+function toggleMissingWithAnimation(){
+ clearMissingTransition();
+ const enabling=!onlyMissing;
+ const root=visibleChecklistRoot();
+ onlyMissing=enabling;
+ const button=$('missingOnly');
+ button.setAttribute('aria-pressed',String(enabling));button.classList.toggle('is-active',enabling);
+ if(collapseMotion.matches||view==='gallery'){renderWithViewportAnchor();return;}
+ // Existing rows get v109's brief exit treatment before structural FLIP.
+ if(enabling){
+  const disappearing=[...root.querySelectorAll('.entry[data-entry-id]')].filter(e=>checked(e.dataset.entryId));
+  if(disappearing.length){
+   disappearing.forEach(el=>el.classList.add('missing-filter-out'));
+   missingTransitionTimer=setTimeout(()=>{missingTransitionTimer=null;structuralMissingTransition();},195);
+   return;
+  }
+ }
+ structuralMissingTransition();
+}
+function animateFilteredChecklistUpdate(){
+ if(!onlyMissing||view==='gallery'||collapseMotion.matches){renderWithViewportAnchor();return;}
+ clearMissingTransition();
+ const root=visibleChecklistRoot();
+ const exiting=[...root.querySelectorAll('.entry[data-entry-id]')].filter(el=>checked(el.dataset.entryId));
+ if(!exiting.length){structuralMissingTransition();return;}
+ exiting.forEach(el=>el.classList.add('missing-filter-out'));
+ missingTransitionTimer=setTimeout(()=>{missingTransitionTimer=null;structuralMissingTransition();},195);
+}
+
+// v109-style section controls. Preserve saved identities and check states across views.
+function captureCategoryParts(){const els=[...document.querySelectorAll('#categoryContent details.cat-part')];if(els.length)openedCategories=new Set(els.filter(el=>el.open).map(el=>el.dataset.kind));}
+function selectGroup(items,checkedState){
+ const targets=items.filter(x=>checked(x.id)!==checkedState);
+ if(!targets.length){renderWithViewportAnchor();return;}
+ const snap={profileId:profile().id,checks:{...profile().checks}};
+ targets.forEach(x=>{if(checkedState)profile().checks[x.id]=true;else delete profile().checks[x.id];});
+ save();renderWithViewportAnchor();
+ showBulkUndo(snap,checkedState?`${items.length} checklist items marked complete.`:`${items.length} checklist items cleared.`);
+}
+function visibleChecklistRoot(){return view==='categories'?$('categoryContent'):$('storyContent');}
+function collapseExpandAll(open){const root=visibleChecklistRoot(),list=[...root.querySelectorAll('details.part')];for(const el of list){el.open=open;if(el.dataset.part){if(open)openedParts.add(el.dataset.part);else openedParts.delete(el.dataset.part);}if(el.dataset.kind){if(open)openedCategories.add(el.dataset.kind);else openedCategories.delete(el.dataset.kind);}}}
+document.addEventListener('change',e=>{const input=e.target.closest('input[data-overview-all],input[data-gallery-all]');if(!input)return;const kind=input.dataset.overviewAll||input.dataset.galleryAll;const items=ITEMS.filter(x=>x.kind===kind);selectGroup(items,input.checked);});
+$('expandAll').addEventListener('click',()=>collapseExpandAll(true));$('collapseAll').addEventListener('click',()=>collapseExpandAll(false));
+document.addEventListener('click',e=>{const label=e.target.closest('.part-all');if(label){e.stopPropagation();}});
+document.addEventListener('keydown',e=>{if(e.target.closest('.part-all')&&e.key===' '){e.stopPropagation();}});
+document.addEventListener('change',e=>{
+ const p=e.target.closest('input[data-select-part]');const c=e.target.closest('input[data-select-category]');if(!p&&!c)return;
+ const items=p?ITEMS.filter(x=>String(x.part)===p.dataset.selectPart):ITEMS.filter(x=>x.kind===c.dataset.selectCategory||(c.dataset.selectCategory==='container'&&x.kind==='key'));
+ selectGroup(items,e.target.checked);
+});
+document.addEventListener('toggle',e=>{const el=e.target;if(!el.matches?.('#categoryContent details.cat-part'))return;if(el.open)openedCategories.add(el.dataset.kind);else openedCategories.delete(el.dataset.kind);},true);
+// Keep collapsed section animations smooth while honoring reduced-motion users.
+const collapseMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
+const animatedDetails=new WeakMap();
+document.addEventListener('click',e=>{
+ const summary=e.target.closest('details.part>summary');if(!summary||e.target.closest('.part-all'))return;
+ const el=summary.parentElement;if(!el.closest('#storyContent,#categoryContent'))return;
+ if(collapseMotion.matches)return;
+ e.preventDefault();
+ const body=el.querySelector('.part-body');if(!body){el.open=!el.open;return;}
+ const existing=animatedDetails.get(el);if(existing){existing.cancel();animatedDetails.delete(el);}
+ const opening=!el.open;
+ const start=el.getBoundingClientRect().height;
+ if(opening)el.open=true;
+ const end=opening?start+body.scrollHeight:start-body.getBoundingClientRect().height;
+ el.style.overflow='hidden';
+ const anim=el.animate([{height:start+'px'},{height:Math.max(end,summary.getBoundingClientRect().height)+'px'}],{duration:270,easing:'cubic-bezier(.20,.72,.24,1)'});
+ animatedDetails.set(el,anim);
+ anim.onfinish=()=>{if(animatedDetails.get(el)!==anim)return;if(!opening)el.open=false;el.style.overflow='';animatedDetails.delete(el);};
+ anim.oncancel=()=>{el.style.overflow='';};
+});
+
+profileSelectRender();render();save();
+
+const nextMissingScrollKeys=new Set(['ArrowUp','ArrowDown','PageUp','PageDown','Home','End',' ']);
+window.addEventListener('wheel',setNextMissingManualMovement,{passive:true});
+window.addEventListener('touchmove',setNextMissingManualMovement,{passive:true});
+window.addEventListener('keydown',e=>{
+ if(!nextMissingScrollKeys.has(e.key))return;
+ const tag=(document.activeElement?.tagName||'').toLowerCase();
+ if(tag==='input'||tag==='textarea'||tag==='select'||document.activeElement?.isContentEditable)return;
+ setNextMissingManualMovement();
+});
+window.addEventListener('scroll',()=>{
+ if(nextMissingProgrammaticScroll){
+  if(nextMissingScrollTimer)clearTimeout(nextMissingScrollTimer);
+  nextMissingScrollTimer=setTimeout(()=>{nextMissingProgrammaticScroll=false;nextMissingScrollTimer=null;},180);
+  return;
+ }
+ nextMissingUserMovedByProfile.set(profile().id,true);
+},{passive:true});
+if('IntersectionObserver' in window){
+ const io=new IntersectionObserver(entries=>{
+  if(entries[0].isIntersecting)setNextMissingFloatVisible(false);
+  else updateFloatingNextMissing();
+ },{threshold:0});io.observe($('discoveryToolbar'));
+}else{
+ window.addEventListener('scroll',updateFloatingNextMissing,{passive:true});
+ window.addEventListener('resize',updateFloatingNextMissing);
+}
+window.addEventListener('resize',updateFloatingNextMissing);
+requestAnimationFrame(updateFloatingNextMissing);
+
+
+</script>
+</body>
+</html>
