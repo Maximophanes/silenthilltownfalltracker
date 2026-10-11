@@ -2408,6 +2408,67 @@ body.modal-open{overflow:hidden}
   border-top:1px solid rgba(204,83,96,.12);
 }
 .sourcebox .companion-tracker-row strong{margin-right:4px}
+/* Final v19: selected Treatment B (static metallic oxblood) on all six dashboard cards. */
+.dash-breakdown > .dash-metric,
+.mini-stat{
+  background:
+    radial-gradient(ellipse 98% 78% at 13% -12%,rgba(198,79,96,.20) 0%,rgba(147,42,61,.09) 46%,transparent 82%),
+    linear-gradient(155deg,#201014 0%,#180c0f 42%,#120b0d 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(236,141,153,.27),
+    inset 0 -1px 0 rgba(0,0,0,.18),
+    0 5px 14px rgba(0,0,0,.09);
+}
+/* Restore full-width category progress tracks without overlapping the All controls.
+   Previously 54px of right padding shortened every track. Reserve that space
+   only for the heading and label, not the bar. */
+.mini-stat{padding-right:13px}
+.mini-stat .val,.mini-stat .name{padding-right:41px}
+@media(max-width:650px){
+  .mini-stat{padding-right:12px}
+  .mini-stat .val,.mini-stat .name{padding-right:0}
+}
+/* Optical spacing between the large numerator and smaller slash/denominator.
+   Keep the existing fixed-width tabular numeral slots and font sizes. */
+.dash-metric .count-total,.mini-stat .count-total{margin-left:3px}
+/* v20: Give only the overall-completion heading slightly more prominence. */
+.dash-main .completion-label-row .tiny-label{font-size:.78rem;letter-spacing:.13em}
+/* Prevent wrapping of the heading on the narrowest screens. */
+@media(max-width:360px){.dash-main .completion-label-row .tiny-label{font-size:.74rem}}
+
+/* v21: Mobile-only refinements. The finalized v20 desktop presentation is unchanged. */
+@media (max-width:650px){
+  /* Guide is an action, not another metadata chip. Keep it below the wrapped chips. */
+  .entry{grid-template-columns:auto minmax(0,1fr)}
+  .entry-top{grid-column:2;grid-row:1}
+  .entry-guide{grid-column:2;grid-row:2;justify-self:end;align-self:start;margin:7px 0 10px}
+  .entry-where,.entry-note,.entry-actions,.entry-return{grid-column:2}
+
+  /* Make the two checklist view choices readable; let the percentage wrap if needed. */
+  .checklist-tools .discovery-toolbar-secondary{flex-wrap:wrap;gap:8px 12px}
+  .checklist-tools .checklist-views{max-width:100%;flex-wrap:nowrap;flex:0 1 auto}
+  .checklist-tools .checklist-views button{white-space:nowrap;flex-shrink:0}
+  .checklist-tools .completion-pill-slot{margin-left:auto;flex:0 0 82px}
+
+  /* Stabilize the postcard viewer header, including long solution descriptions. */
+  .viewer-head{min-height:116px;box-sizing:border-box;align-items:flex-start}
+  .viewer-head>div:first-child{min-width:0;flex:1 1 auto}
+  .viewer-head small{line-height:1.43;margin-top:3px}
+  .viewer-subtitle-solution{display:block}
+  .viewer-subtitle-join{display:none}
+  .viewer-head #closeViewer{flex:0 0 auto;white-space:nowrap}
+
+  /* The group label should not share a line with the first reference pill. */
+  .sourcebox>strong:first-child{display:block;margin:0 0 7px}
+  .sourcebox>a{max-width:100%;box-sizing:border-box;white-space:normal;overflow-wrap:break-word}
+  #galleryView .gallery-nav-return{scroll-margin-top:14px}
+}
+@media (max-width:360px){
+  .viewer-head{min-height:140px}
+  .viewer-head #closeViewer{padding:6px 8px}
+  .checklist-tools .checklist-views{gap:6px}
+  .checklist-tools .checklist-views button{padding:9px 8px;font-size:.72rem}
+}
 </style>
 </head>
 <body>
@@ -2547,6 +2608,37 @@ let db=readDB();let view='story', filter='all', onlyMissing=false, query='', ope
 let previousChecklistView='story', galleryReturnContext=null;
 
 const profile=()=>db.profiles.find(p=>p.id===db.active)||db.profiles[0];
+
+// v24: Interface preferences live alongside each profile's existing checks.
+// Older saves are accepted unchanged; missing preferences use the v23 defaults.
+const defaultUI=()=>({checklistView:'story',filter:'all',onlyMissing:false,openedParts:['1'],openedCategories:CATEGORIES.map(c=>c.kind)});
+function applyProfileUI(){
+ const stored=profile().ui;
+ const defaults=defaultUI();
+ const validParts=new Set(['1','2','3','4','5','6']);
+ const validCategories=new Set(CATEGORIES.map(c=>c.kind));
+ const validFilters=new Set(['all',...validCategories]);
+ view=stored?.checklistView==='categories'?'categories':'story';
+ previousChecklistView=view;
+ filter=validFilters.has(stored?.filter)?stored.filter:defaults.filter;
+ onlyMissing=typeof stored?.onlyMissing==='boolean'?stored.onlyMissing:defaults.onlyMissing;
+ openedParts=new Set(Array.isArray(stored?.openedParts)?stored.openedParts.map(String).filter(x=>validParts.has(x)):defaults.openedParts);
+ openedCategories=new Set(Array.isArray(stored?.openedCategories)?stored.openedCategories.filter(x=>validCategories.has(x)):defaults.openedCategories);
+ query='';
+ $('typeFilter').value=filter;
+ $('searchInput').value='';
+ $('missingOnly').setAttribute('aria-pressed',String(onlyMissing));
+ $('missingOnly').classList.toggle('is-active',onlyMissing);
+}
+function persistProfileUI(){
+ profile().ui={
+  checklistView:view==='gallery'?previousChecklistView:view,
+  filter,onlyMissing,
+  openedParts:[...openedParts],openedCategories:[...openedCategories]
+ };
+ save();
+}
+
 
 const els={discoveryPercent:$('discoveryPercent'),discoveryBar:$('discoveryBar'),nextMissingFloat:$('nextMissingFloat'),discoveryToolbar:$('discoveryToolbar')};
 const collectibleCountByProfile=new Map();
@@ -3013,9 +3105,9 @@ function checklistEmptyHTML(){
  return `<div class="empty" role="status">${msg}</div>`;
 }
 function partFiveNoticeHTML(){
- return '<div class="part-empty part-five-note"><strong>No collectibles to track in this part.</strong><span>Part 5 contains none of the collectible types covered by this tracker. Continue to Part 6: Simon for the remaining collectibles.</span></div>';
+ return '<div class="part-empty part-five-note"><strong>No collectibles to track</strong><span>Part 5 contains none of the collectible types covered by this tracker. Continue to Part 6: Simon for the remaining collectibles.</span></div>';
 }
-function storyRender(){captureParts();let html='',matches=0;for(let part=1;part<=6;part++){
+function storyRender(){let html='',matches=0;for(let part=1;part<=6;part++){
  const all=ITEMS.filter(x=>x.part===part),list=all.filter(visible),done=all.filter(x=>checked(x.id)).length;
  matches+=list.length;
  if(!list.length&&(query||onlyMissing||filter!=='all'))continue;
@@ -3062,7 +3154,7 @@ function syncGalleryCompletion(){
   input.checked=checked(input.dataset.item);
  });
 }
-function render(){progressUpdate();const views={story:'storyContent',categories:'categoryContent',gallery:'galleryContent'};for(const [name,id] of Object.entries(views))$(id).hidden=name!==view;for(const n of Object.keys(views)){$('tab-'+n).setAttribute('aria-selected',String(n===view));$(n==='story'?'storyView':n==='categories'?'categoryView':'galleryView').hidden=n!==view;} $('filters').hidden=view==='gallery';$('typeFilter').closest('.select-holder').hidden=view==='gallery'; $('checklistTools').hidden=view==='gallery';syncCustomSelects();if(view==='story')storyRender();if(view==='categories')categoryRender();if(view==='gallery')galleryRender();updateOverviewCheckboxes();}
+function render(){progressUpdate();const views={story:'storyContent',categories:'categoryContent',gallery:'galleryContent'};for(const [name,id] of Object.entries(views))$(id).hidden=name!==view;for(const n of Object.keys(views)){$('tab-'+n).setAttribute('aria-selected',String(n===view));$(n==='story'?'storyView':n==='categories'?'categoryView':'galleryView').hidden=n!==view;} $('filters').hidden=view==='gallery';$('typeFilter').closest('.select-holder').hidden=view==='gallery'; $('checklistTools').hidden=view==='gallery';syncCustomSelects();if(view==='story')storyRender();if(view==='categories')categoryRender();if(view==='gallery')galleryRender();updateOverviewCheckboxes();requestAnimationFrame(updateFloatingNextMissing);}
 function redrawProgress(){progressUpdate();updateSelectAllCheckboxes();if(onlyMissing&&view!=='gallery'){animateFilteredChecklistUpdate();return;}document.querySelectorAll('[data-item]').forEach(el=>{el.checked=checked(el.dataset.item);const e=el.closest('.entry');if(e)e.classList.toggle('done',el.checked);});document.querySelectorAll('.pair-card').forEach(card=>{const checks=[...card.querySelectorAll('input[data-item]')];card.classList.toggle('pair-complete',checks.every(i=>i.checked));});document.querySelectorAll('details.part').forEach(d=>{const all=ITEMS.filter(x=>String(x.part)===d.dataset.part),count=all.filter(x=>checked(x.id)).length;d.querySelector('.countpill').textContent=`${count} / ${all.length}`;});document.querySelectorAll('.cathead').forEach((head)=>{const name=head.querySelector('h2')?.textContent,c=CATEGORIES.find(c=>c.name===name);if(c){const count=smallCount(c.kind);head.querySelector('small').textContent=`${count.done} / ${count.total} completed`;}});}
 function profileSelectRender(){
  $('profileSelect').innerHTML=db.profiles.map(p=>`<option value="${escapeHTML(p.id)}" ${p.id===db.active?'selected':''}>${escapeHTML(p.name)}</option>`).join('');
@@ -3079,7 +3171,7 @@ function updateSelectAllCheckboxes(){updateOverviewCheckboxes();const all=$('mar
  document.querySelectorAll('input[data-select-category]').forEach(input=>{const k=input.dataset.selectCategory,arr=ITEMS.filter(x=>x.kind===k||(k==='container'&&x.kind==='key'));const count=arr.filter(x=>checked(x.id)).length;input.checked=count===arr.length;input.indeterminate=count>0&&count<arr.length;input.closest('.part-head-controls')?.querySelector('.countpill')?.replaceChildren(document.createTextNode(`${count} / ${arr.length}`));});
 }
 
-function setProfile(id){hideUndo();galleryReturnContext=null;db.active=id;save();profileSelectRender();render();}
+function setProfile(id){persistProfileUI();hideUndo();galleryReturnContext=null;db.active=id;applyProfileUI();save();profileSelectRender();render();}
 let modalState=null;
 function dismissAppModal(confirmed){const el=$('appDialog');if(el.hidden)return;const state=modalState;const value=state?.input?$('appDialogInput').value.trim():null;el.hidden=true;document.body.classList.remove('modal-open');modalState=null;if(confirmed&&typeof state?.callback==='function')state.callback(value);if(state?.restoreFocus?.isConnected)state.restoreFocus.focus({preventScroll:true});}
 function modalAsk({title,body,input=null,ok='OK',danger=false,kicker='Collectibles',showCancel=true},callback){
@@ -3105,6 +3197,7 @@ function bulkUpdate(value){
 
 function setNextMissingFloatVisible(visible){
  const button=els.nextMissingFloat;if(!button)return;
+ if(view==='gallery'&&window.matchMedia('(max-width:650px)').matches)visible=false;
  button.classList.toggle('float-hidden',!visible);
  button.setAttribute('aria-hidden',visible?'false':'true');
 }
@@ -3141,7 +3234,7 @@ function beginNextMissingProgrammaticScroll(){
 }
 function navigateHighlight(target,{instant=false}={}){
  const part=$('storyContent').querySelector(`details.part[data-part="${target.part}"]`);
- if(part&&!part.open){part.open=true;openedParts.add(String(target.part));}
+ if(part&&!part.open){part.open=true;openedParts.add(String(target.part));persistProfileUI();}
  requestAnimationFrame(()=>{
   const row=$(`entry-${target.id}-route`);if(!row)return;
   $('storyContent').querySelectorAll('.entry.next-missing-hit').forEach(el=>el.classList.remove('next-missing-hit'));
@@ -3166,7 +3259,7 @@ function goToRoute(id,fromPostcardViewer=false){
  view='story';filter='all';query='';onlyMissing=false;
  $('typeFilter').value='all';$('searchInput').value='';
  $('missingOnly').setAttribute('aria-pressed','false');$('missingOnly').classList.remove('is-active');
- openedParts.add(String(t.part));render();
+ openedParts.add(String(t.part));previousChecklistView='story';persistProfileUI();render();
  requestAnimationFrame(()=>{
   navigateHighlight(t,{instant:fromPostcardViewer});
   // navigateHighlight itself schedules an animation frame. Run a second frame
@@ -3191,7 +3284,7 @@ function nextMissing(){
   view='story';filter='all';query='';onlyMissing=false;
   $('typeFilter').value='all';$('searchInput').value='';
   $('missingOnly').setAttribute('aria-pressed','false');$('missingOnly').classList.remove('is-active');
-  openedParts.add(String(missing[0].part));render();switching=true;
+  openedParts.add(String(missing[0].part));previousChecklistView='story';persistProfileUI();render();switching=true;
  }
  const lastId=nextMissingLastTargetByProfile.get(s.id)||null;
  const userMoved=nextMissingUserMovedByProfile.get(s.id)===true;
@@ -3298,7 +3391,17 @@ async function viewerRender(){
  $('viewerImages').replaceChildren(fragment);
  viewerDisplayedPostcard=n;
  $('viewerTitle').textContent=`Strange Postcard ${formatNo(n)}`;
- $('viewerSubtitle').textContent=`Part ${store.get('postcard-'+formatNo(n)).part} · ${has?`Autostereogram · Solution: ${SOLVED[n]}`:'Strange Postcard · Original artwork'}`;
+ const subtitle=$('viewerSubtitle');
+ subtitle.replaceChildren();
+ const subtitleBase=document.createElement('span');
+ subtitleBase.className='viewer-subtitle-base';
+ subtitleBase.textContent=`Part ${store.get('postcard-'+formatNo(n)).part} · ${has?'Autostereogram':'Strange Postcard · Original artwork'}`;
+ subtitle.appendChild(subtitleBase);
+ if(has){
+  const join=document.createElement('span');join.className='viewer-subtitle-join';join.textContent=' · ';
+  const solution=document.createElement('span');solution.className='viewer-subtitle-solution';solution.textContent=`Solution: ${SOLVED[n]}`;
+  subtitle.append(join,solution);
+ }
  document.querySelectorAll('.viewer-modes button').forEach(b=>{
   // Keep all three mode controls in stable positions. Conventional postcards
   // have no solution, but do NOT overwrite the user's remembered preference.
@@ -3317,7 +3420,7 @@ async function viewerRender(){
 $('profileButton').addEventListener('click',()=>{$('profileOptions').hidden?dropdownOpen('profile'):dropdownClose('profile');});
 $('categoryButton').addEventListener('click',()=>{$('categoryOptions').hidden?dropdownOpen('category'):dropdownClose('category');});
 $('profileOptions').addEventListener('click',e=>{const option=e.target.closest('[data-profile]');if(!option)return;dropdownClose('profile');setProfile(option.dataset.profile);$('profileButton').focus();});
-$('categoryOptions').addEventListener('click',e=>{const option=e.target.closest('[data-value]');if(!option)return;filter=option.dataset.value;$('typeFilter').value=filter;dropdownClose('category');render();$('categoryButton').focus();});
+$('categoryOptions').addEventListener('click',e=>{const option=e.target.closest('[data-value]');if(!option)return;filter=option.dataset.value;$('typeFilter').value=filter;dropdownClose('category');persistProfileUI();render();$('categoryButton').focus();});
 for(const t of ['profile','category']){
  $(t+'Button').addEventListener('keydown',e=>{if(['ArrowDown','ArrowUp','Enter',' '].includes(e.key)){e.preventDefault();dropdownOpen(t);const options=[...$(t+'Options').querySelectorAll('[role="option"]')];(options.find(x=>x.getAttribute('aria-selected')==='true')||options[0])?.focus();}});
  $(t+'Options').addEventListener('keydown',e=>{const options=[...$(t+'Options').querySelectorAll('[role="option"]')];const i=options.indexOf(document.activeElement);if(e.key==='Escape'){e.preventDefault();dropdownClose(t,true);}else if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();options[(i+(e.key==='ArrowDown'?1:-1)+options.length)%options.length]?.focus();}else if(e.key==='Home'||e.key==='End'){e.preventDefault();options[e.key==='Home'?0:options.length-1]?.focus();}});
@@ -3332,7 +3435,7 @@ $('addProfile').addEventListener('click',()=>modalAsk({kicker:'Profile managemen
 $('renameProfile').addEventListener('click',()=>modalAsk({kicker:'Profile management',title:'Rename profile',body:`Rename "${profile().name}".`,input:profile().name,ok:'Rename'},name=>{profile().name=name?.trim()||profile().name;save();profileSelectRender();}));
 $('deleteProfile').addEventListener('click',()=>{
  if(db.profiles.length===1){modalAsk({kicker:'Profile management',title:'Profile required',body:'Keep at least one profile.',ok:'OK',showCancel:false});return;}
- modalAsk({kicker:'Profile management',title:'Delete profile?',body:`Delete "${profile().name}"? This removes its locally stored tracker progress.`,ok:'Delete profile',danger:true},()=>{db.profiles=db.profiles.filter(p=>p.id!==db.active);db.active=db.profiles[0].id;hideUndo();save();profileSelectRender();render();});
+ modalAsk({kicker:'Profile management',title:'Delete profile?',body:`Delete "${profile().name}"? This removes its locally stored tracker progress.`,ok:'Delete profile',danger:true},()=>{db.profiles=db.profiles.filter(p=>p.id!==db.active);db.active=db.profiles[0].id;hideUndo();applyProfileUI();save();profileSelectRender();render();});
 });
 $('markAll').addEventListener('change',e=>{
  if(!e.target.checked){bulkUpdate(false);return;}
@@ -3350,8 +3453,19 @@ $('clearAll').addEventListener('click',()=>modalAsk({title:'Clear all Collectibl
 $('undoButton').addEventListener('click',()=>{if(!undoSnapshot)return;const p=db.profiles.find(p=>p.id===undoSnapshot.profileId);if(p){p.checks={...undoSnapshot.checks};save();if(view==='gallery')redrawProgress();else render();}hideUndo();});
 $('searchInput').addEventListener('input',e=>{query=e.target.value.trim();render();});
 $('missingOnly').addEventListener('click',toggleMissingWithAnimation);
-function showChecklist(){view=previousChecklistView==='categories'?'categories':'story';galleryReturnContext=null;render();$('tab-'+view).focus({preventScroll:true});}
-function activateGallery(){if(view==='gallery'){showChecklist();return;}if(view==='story'||view==='categories')previousChecklistView=view;view='gallery';galleryReturnContext=null;render();}
+function showChecklist(){view=previousChecklistView==='categories'?'categories':'story';galleryReturnContext=null;persistProfileUI();render();$('tab-'+view).focus({preventScroll:true});}
+function activateGallery(){
+ if(view==='gallery'){showChecklist();return;}
+ if(view==='story'||view==='categories')previousChecklistView=view;
+ view='gallery';galleryReturnContext=null;persistProfileUI();render();
+ if(window.matchMedia('(max-width:650px)').matches){
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+   if(view!=='gallery')return;
+   const destination=document.querySelector('#galleryView .gallery-nav-return');
+   destination?.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'start'});
+  }));
+ }
+}
 function returnToPostcard(n){
  // Do not scroll or rebuild an intermediate gallery tile while the dialog is
  // absent. Open the viewer in this same task after the gallery view is ready;
@@ -3365,11 +3479,11 @@ function returnToPostcard(n){
   card?.scrollIntoView({behavior:'instant',block:'center'});
  });
 }
-document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>{if(b.dataset.view==='gallery'){activateGallery();return;}if(view==='story')captureParts();if(view==='categories')captureCategoryParts();view=b.dataset.view;previousChecklistView=view;galleryReturnContext=null;render();}));
+document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>{if(b.dataset.view==='gallery'){activateGallery();return;}view=b.dataset.view;previousChecklistView=view;galleryReturnContext=null;persistProfileUI();render();}));
 $('galleryBack').addEventListener('click',showChecklist);
 document.addEventListener('change',e=>{const input=e.target.closest('input[data-item]');if(!input)return;profile().checks[input.dataset.item]=input.checked;save();redrawProgress();});
 document.addEventListener('click',e=>{const back=e.target.closest('[data-return-postcard]');if(back){returnToPostcard(Number(back.dataset.returnPostcard));return;}const card=e.target.closest('[data-open-postcard]');if(card){openPostcard(Number(card.dataset.openPostcard));return;}const link=e.target.closest('[data-to-route]');if(link){goToRoute(link.dataset.toRoute);}});
-document.addEventListener('toggle',e=>{if(e.target.matches('#storyContent details.part')){if(e.target.open)openedParts.add(e.target.dataset.part);else openedParts.delete(e.target.dataset.part);}},true);
+document.addEventListener('toggle',e=>{if(!e.target.isConnected)return;if(e.target.matches('#storyContent details.part')){if(e.target.open)openedParts.add(e.target.dataset.part);else openedParts.delete(e.target.dataset.part);persistProfileUI();}},true);
 $('nextMissing').addEventListener('click',nextMissing);$('nextMissingFloat').addEventListener('click',nextMissing);
 $('closeViewer').addEventListener('click',()=>$('viewer').close());let viewerLocationInProgress=false;
 $('viewerLocation').addEventListener('click',()=>{
@@ -3497,6 +3611,7 @@ function toggleMissingWithAnimation(){
  const enabling=!onlyMissing;
  const root=visibleChecklistRoot();
  onlyMissing=enabling;
+ persistProfileUI();
  const button=$('missingOnly');
  button.setAttribute('aria-pressed',String(enabling));button.classList.toggle('is-active',enabling);
  if(collapseMotion.matches||view==='gallery'){renderWithViewportAnchor();return;}
@@ -3535,7 +3650,7 @@ function selectGroup(items,checkedState){
  showBulkUndo(snap,checkedState?`${items.length} checklist items marked complete.`:`${items.length} checklist items cleared.`);
 }
 function visibleChecklistRoot(){return view==='categories'?$('categoryContent'):$('storyContent');}
-function collapseExpandAll(open){const root=visibleChecklistRoot(),list=[...root.querySelectorAll('details.part')];for(const el of list){el.open=open;if(el.dataset.part){if(open)openedParts.add(el.dataset.part);else openedParts.delete(el.dataset.part);}if(el.dataset.kind){if(open)openedCategories.add(el.dataset.kind);else openedCategories.delete(el.dataset.kind);}}}
+function collapseExpandAll(open){const root=visibleChecklistRoot(),list=[...root.querySelectorAll('details.part')];for(const el of list){el.open=open;if(el.dataset.part){if(open)openedParts.add(el.dataset.part);else openedParts.delete(el.dataset.part);}if(el.dataset.kind){if(open)openedCategories.add(el.dataset.kind);else openedCategories.delete(el.dataset.kind);}}persistProfileUI();}
 document.addEventListener('change',e=>{const input=e.target.closest('input[data-overview-all],input[data-gallery-all]');if(!input)return;const kind=input.dataset.overviewAll||input.dataset.galleryAll;const items=ITEMS.filter(x=>x.kind===kind);selectGroup(items,input.checked);});
 $('expandAll').addEventListener('click',()=>collapseExpandAll(true));$('collapseAll').addEventListener('click',()=>collapseExpandAll(false));
 document.addEventListener('click',e=>{const label=e.target.closest('.part-all');if(label){e.stopPropagation();}});
@@ -3545,7 +3660,7 @@ document.addEventListener('change',e=>{
  const items=p?ITEMS.filter(x=>String(x.part)===p.dataset.selectPart):ITEMS.filter(x=>x.kind===c.dataset.selectCategory||(c.dataset.selectCategory==='container'&&x.kind==='key'));
  selectGroup(items,e.target.checked);
 });
-document.addEventListener('toggle',e=>{const el=e.target;if(!el.matches?.('#categoryContent details.cat-part'))return;if(el.open)openedCategories.add(el.dataset.kind);else openedCategories.delete(el.dataset.kind);},true);
+document.addEventListener('toggle',e=>{const el=e.target;if(!el.isConnected||!el.matches?.('#categoryContent details.cat-part'))return;if(el.open)openedCategories.add(el.dataset.kind);else openedCategories.delete(el.dataset.kind);persistProfileUI();},true);
 // Keep collapsed section animations smooth while honoring reduced-motion users.
 const collapseMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
 const animatedDetails=new WeakMap();
@@ -3557,6 +3672,9 @@ document.addEventListener('click',e=>{
  const body=el.querySelector('.part-body');if(!body){el.open=!el.open;return;}
  const existing=animatedDetails.get(el);if(existing){existing.cancel();animatedDetails.delete(el);}
  const opening=!el.open;
+ if(el.dataset.part){if(opening)openedParts.add(el.dataset.part);else openedParts.delete(el.dataset.part);}
+ if(el.dataset.kind){if(opening)openedCategories.add(el.dataset.kind);else openedCategories.delete(el.dataset.kind);}
+ persistProfileUI();
  const start=el.getBoundingClientRect().height;
  if(opening)el.open=true;
  const end=opening?start+body.scrollHeight:start-body.getBoundingClientRect().height;
@@ -3567,7 +3685,7 @@ document.addEventListener('click',e=>{
  anim.oncancel=()=>{el.style.overflow='';};
 });
 
-profileSelectRender();render();save();
+applyProfileUI();profileSelectRender();render();save();
 
 const nextMissingScrollKeys=new Set(['ArrowUp','ArrowDown','PageUp','PageDown','Home','End',' ']);
 window.addEventListener('wheel',setNextMissingManualMovement,{passive:true});
