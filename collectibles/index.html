@@ -3043,9 +3043,26 @@ function categoryRender(){let html='',total=0;for(const c of CATEGORIES){
 const originalImage=n=>`assets/postcards/postcard-${formatNo(n)}-original.webp`;
 const solvedImage=n=>`assets/postcards/postcard-${formatNo(n)}-solved.webp`;
 const thumbImage=n=>`assets/thumbs/postcard-${formatNo(n)}.webp`;
-function galleryRender(){const cards=ITEMS.filter(x=>x.kind==='postcard');$('galleryContent').innerHTML=cards.length?cards.map(x=>`<article class="postcard-card" data-entry-id="${x.id}"><button type="button" class="postcard-art" data-open-postcard="${x.number}" aria-label="View Strange Postcard ${x.number} at full resolution"><img src="${thumbImage(x.number)}" alt="Strange Postcard ${formatNo(x.number)} — original artwork" loading="lazy" width="720" height="506"></button><div class="postcard-foot"><h3>Strange Postcard ${formatNo(x.number)}</h3><p class="sub">Part ${x.part} · Chapter ${x.chapter} · ${SOLVED[x.number]?'Autostereogram':'Strange Postcard'}</p><label class="gallery-check"><input type="checkbox" data-item="${x.id}" ${checked(x.id)?'checked':''}> Collected</label><div class="gallery-actions"><button type="button" data-open-postcard="${x.number}">Inspect image ↗</button><button type="button" data-to-route="${x.id}">View location →</button></div></div></article>`).join(''):'<div class="empty">No postcards are available.</div>';}
+// Render the static postcard gallery only once. Completion changes must not
+// detach/recreate its thumbnail nodes: WebKit (including Safari web apps)
+// visibly repaints them when their cards are rebuilt via innerHTML.
+function galleryRender(){
+ const root=$('galleryContent');
+ if(!root.dataset.galleryInitialized){
+  const cards=ITEMS.filter(x=>x.kind==='postcard');
+  root.innerHTML=cards.length?cards.map(x=>`<article class="postcard-card" data-entry-id="${x.id}"><button type="button" class="postcard-art" data-open-postcard="${x.number}" aria-label="View Strange Postcard ${x.number} at full resolution"><img src="${thumbImage(x.number)}" alt="Strange Postcard ${formatNo(x.number)} — original artwork" loading="lazy" width="720" height="506"></button><div class="postcard-foot"><h3>Strange Postcard ${formatNo(x.number)}</h3><p class="sub">Part ${x.part} · Chapter ${x.chapter} · ${SOLVED[x.number]?'Autostereogram':'Strange Postcard'}</p><label class="gallery-check"><input type="checkbox" data-item="${x.id}" ${checked(x.id)?'checked':''}> Collected</label><div class="gallery-actions"><button type="button" data-open-postcard="${x.number}">Inspect image ↗</button><button type="button" data-to-route="${x.id}">View location →</button></div></div></article>`).join(''):'<div class="empty">No postcards are available.</div>';
+  root.dataset.galleryInitialized='true';
+ }
+ syncGalleryCompletion();
+}
+// Synchronize input state in place, retaining each card and image element.
+function syncGalleryCompletion(){
+ $('galleryContent').querySelectorAll('input[data-item]').forEach(input=>{
+  input.checked=checked(input.dataset.item);
+ });
+}
 function render(){progressUpdate();const views={story:'storyContent',categories:'categoryContent',gallery:'galleryContent'};for(const [name,id] of Object.entries(views))$(id).hidden=name!==view;for(const n of Object.keys(views)){$('tab-'+n).setAttribute('aria-selected',String(n===view));$(n==='story'?'storyView':n==='categories'?'categoryView':'galleryView').hidden=n!==view;} $('filters').hidden=view==='gallery';$('typeFilter').closest('.select-holder').hidden=view==='gallery'; $('checklistTools').hidden=view==='gallery';syncCustomSelects();if(view==='story')storyRender();if(view==='categories')categoryRender();if(view==='gallery')galleryRender();updateOverviewCheckboxes();}
-function redrawProgress(){progressUpdate();updateSelectAllCheckboxes();if(onlyMissing){animateFilteredChecklistUpdate();return;}document.querySelectorAll('[data-item]').forEach(el=>{el.checked=checked(el.dataset.item);const e=el.closest('.entry');if(e)e.classList.toggle('done',el.checked);});document.querySelectorAll('.pair-card').forEach(card=>{const checks=[...card.querySelectorAll('input[data-item]')];card.classList.toggle('pair-complete',checks.every(i=>i.checked));});document.querySelectorAll('details.part').forEach(d=>{const all=ITEMS.filter(x=>String(x.part)===d.dataset.part),count=all.filter(x=>checked(x.id)).length;d.querySelector('.countpill').textContent=`${count} / ${all.length}`;});document.querySelectorAll('.cathead').forEach((head)=>{const name=head.querySelector('h2')?.textContent,c=CATEGORIES.find(c=>c.name===name);if(c){const count=smallCount(c.kind);head.querySelector('small').textContent=`${count.done} / ${count.total} completed`;}});}
+function redrawProgress(){progressUpdate();updateSelectAllCheckboxes();if(onlyMissing&&view!=='gallery'){animateFilteredChecklistUpdate();return;}document.querySelectorAll('[data-item]').forEach(el=>{el.checked=checked(el.dataset.item);const e=el.closest('.entry');if(e)e.classList.toggle('done',el.checked);});document.querySelectorAll('.pair-card').forEach(card=>{const checks=[...card.querySelectorAll('input[data-item]')];card.classList.toggle('pair-complete',checks.every(i=>i.checked));});document.querySelectorAll('details.part').forEach(d=>{const all=ITEMS.filter(x=>String(x.part)===d.dataset.part),count=all.filter(x=>checked(x.id)).length;d.querySelector('.countpill').textContent=`${count} / ${all.length}`;});document.querySelectorAll('.cathead').forEach((head)=>{const name=head.querySelector('h2')?.textContent,c=CATEGORIES.find(c=>c.name===name);if(c){const count=smallCount(c.kind);head.querySelector('small').textContent=`${count.done} / ${count.total} completed`;}});}
 function profileSelectRender(){
  $('profileSelect').innerHTML=db.profiles.map(p=>`<option value="${escapeHTML(p.id)}" ${p.id===db.active?'selected':''}>${escapeHTML(p.name)}</option>`).join('');
  $('profileValue').textContent=profile().name;
@@ -3329,7 +3346,7 @@ $('markAll').addEventListener('change',e=>{
  updateSelectAllCheckboxes();
 });
 $('clearAll').addEventListener('click',()=>modalAsk({title:'Clear all Collectibles?',body:'Clear all 54 collectible checkboxes and 7 Lockbox Key checkboxes for this profile?',ok:'Clear all',danger:true,kicker:'COLLECTIBLES'},()=>bulkUpdate(false)));
-$('undoButton').addEventListener('click',()=>{if(!undoSnapshot)return;const p=db.profiles.find(p=>p.id===undoSnapshot.profileId);if(p){p.checks={...undoSnapshot.checks};save();render();}hideUndo();});
+$('undoButton').addEventListener('click',()=>{if(!undoSnapshot)return;const p=db.profiles.find(p=>p.id===undoSnapshot.profileId);if(p){p.checks={...undoSnapshot.checks};save();if(view==='gallery')redrawProgress();else render();}hideUndo();});
 $('searchInput').addEventListener('input',e=>{query=e.target.value.trim();render();});
 $('missingOnly').addEventListener('click',toggleMissingWithAnimation);
 function showChecklist(){view=previousChecklistView==='categories'?'categories':'story';galleryReturnContext=null;render();$('tab-'+view).focus({preventScroll:true});}
@@ -3507,10 +3524,13 @@ function animateFilteredChecklistUpdate(){
 function captureCategoryParts(){const els=[...document.querySelectorAll('#categoryContent details.cat-part')];if(els.length)openedCategories=new Set(els.filter(el=>el.open).map(el=>el.dataset.kind));}
 function selectGroup(items,checkedState){
  const targets=items.filter(x=>checked(x.id)!==checkedState);
- if(!targets.length){renderWithViewportAnchor();return;}
+ if(!targets.length){if(view==='gallery')redrawProgress();else renderWithViewportAnchor();return;}
  const snap={profileId:profile().id,checks:{...profile().checks}};
  targets.forEach(x=>{if(checkedState)profile().checks[x.id]=true;else delete profile().checks[x.id];});
- save();renderWithViewportAnchor();
+ save();
+ // A gallery completion edit only changes checkboxes and counters. Do not
+ // rebuild, re-anchor, or otherwise disturb its static image cards.
+ if(view==='gallery')redrawProgress();else renderWithViewportAnchor();
  showBulkUndo(snap,checkedState?`${items.length} checklist items marked complete.`:`${items.length} checklist items cleared.`);
 }
 function visibleChecklistRoot(){return view==='categories'?$('categoryContent'):$('storyContent');}
