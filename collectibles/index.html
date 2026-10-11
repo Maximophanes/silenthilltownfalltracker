@@ -3420,7 +3420,7 @@ function galleryRender(){
  const root=$('galleryContent');
  if(!root.dataset.galleryInitialized){
   const cards=ITEMS.filter(x=>x.kind==='postcard');
-  root.innerHTML=cards.length?cards.map(x=>`<article class="postcard-card" data-entry-id="${x.id}"><button type="button" class="postcard-art" data-open-postcard="${x.number}" aria-label="View Strange Postcard ${x.number} at full resolution"><img src="${thumbImage(x.number)}" alt="Strange Postcard ${formatNo(x.number)} — original artwork" loading="lazy" width="720" height="506"></button><div class="postcard-foot"><h3>Strange Postcard ${formatNo(x.number)}</h3><p class="sub">Part ${x.part} · Chapter ${x.chapter} · ${SOLVED[x.number]?'Autostereogram':'Strange Postcard'}</p><label class="gallery-check"><input type="checkbox" data-item="${x.id}" ${checked(x.id)?'checked':''}> Collected</label><div class="gallery-actions"><button type="button" data-open-postcard="${x.number}">Inspect image ↗</button><button type="button" data-to-route="${x.id}">View location →</button></div></div></article>`).join(''):'<div class="empty">No postcards are available.</div>';
+  root.innerHTML=cards.length?cards.map(x=>`<article class="postcard-card" data-entry-id="${x.id}"><button type="button" class="postcard-art" data-open-postcard="${x.number}" aria-label="View Strange Postcard ${x.number} at full resolution"><img src="${thumbImage(x.number)}" alt="Strange Postcard ${formatNo(x.number)} — original artwork" loading="lazy" width="720" height="506"></button><div class="postcard-foot"><h3>Strange Postcard ${formatNo(x.number)}</h3><p class="sub">Part ${x.part} · Chapter ${x.chapter} · ${SOLVED[x.number]?'Autostereogram':'Standard Postcard'}</p><label class="gallery-check"><input type="checkbox" data-item="${x.id}" ${checked(x.id)?'checked':''}> Collected</label><div class="gallery-actions"><button type="button" data-open-postcard="${x.number}">Inspect image ↗</button><button type="button" data-to-route="${x.id}">View location →</button></div></div></article>`).join(''):'<div class="empty">No postcards are available.</div>';
   root.dataset.galleryInitialized='true';
  }
  syncGalleryCompletion();
@@ -3695,7 +3695,7 @@ async function viewerRender(){
  $('viewerTitle').textContent=`Strange Postcard ${formatNo(n)}`;
  // Keep type/classification separate from the image-specific captions below.
  // The solution name appears only beside the solved reconstruction image.
- $('viewerSubtitle').textContent=`Part ${store.get('postcard-'+formatNo(n)).part} · ${has?'Autostereogram':'Standard postcard'}`;
+ $('viewerSubtitle').textContent=`Part ${store.get('postcard-'+formatNo(n)).part} · ${has?'Autostereogram':'Standard Postcard'}`;
  document.querySelectorAll('.viewer-modes button').forEach(b=>{
   // Keep all three mode controls in stable positions. Conventional postcards
   // have no solution, but do NOT overwrite the user's remembered preference.
