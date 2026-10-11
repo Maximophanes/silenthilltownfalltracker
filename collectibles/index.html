@@ -2886,7 +2886,7 @@ const profile=()=>db.profiles.find(p=>p.id===db.active)||db.profiles[0];
 
 // v24: Interface preferences live alongside each profile's existing checks.
 // Older saves are accepted unchanged; missing preferences use the v23 defaults.
-const defaultUI=()=>({checklistView:'story',filter:'all',onlyMissing:false,openedParts:['1'],openedCategories:CATEGORIES.map(c=>c.kind)});
+const defaultUI=()=>({checklistView:'story',filter:'all',onlyMissing:false,openedParts:['1'],openedCategories:CATEGORIES.map(c=>c.kind),achievementExpanded:false});
 function applyProfileUI(){
  const stored=profile().ui;
  const defaults=defaultUI();
@@ -2899,6 +2899,7 @@ function applyProfileUI(){
  onlyMissing=typeof stored?.onlyMissing==='boolean'?stored.onlyMissing:defaults.onlyMissing;
  openedParts=new Set(Array.isArray(stored?.openedParts)?stored.openedParts.map(String).filter(x=>validParts.has(x)):defaults.openedParts);
  openedCategories=new Set(Array.isArray(stored?.openedCategories)?stored.openedCategories.filter(x=>validCategories.has(x)):defaults.openedCategories);
+ $('achievementDetails').open=typeof stored?.achievementExpanded==='boolean'?stored.achievementExpanded:defaults.achievementExpanded;
  query='';
  $('typeFilter').value=filter;
  $('searchInput').value='';
@@ -2909,7 +2910,8 @@ function persistProfileUI(){
  profile().ui={
   checklistView:view==='gallery'?previousChecklistView:view,
   filter,onlyMissing,
-  openedParts:[...openedParts],openedCategories:[...openedCategories]
+  openedParts:[...openedParts],openedCategories:[...openedCategories],
+  achievementExpanded:$('achievementDetails').open
  };
  save();
 }
@@ -3980,6 +3982,9 @@ document.addEventListener('click',e=>{
  anim.oncancel=()=>{el.style.overflow='';};
 });
 
+// v34: The reference panel follows the same per-profile persistence as checklist sections.
+// 'toggle' also covers keyboard interaction and does not rebuild the panel.
+$('achievementDetails').addEventListener('toggle',persistProfileUI);
 applyProfileUI();profileSelectRender();render();save();
 // Correct saved view is now constructed. Reveal its controls immediately;
 // unlike v32, do not hold the whole document through multiple animation frames.
