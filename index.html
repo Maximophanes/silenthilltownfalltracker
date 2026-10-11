@@ -1909,6 +1909,126 @@ body.modal-open{overflow:hidden}
 #discoveryUndo[hidden]{display:none!important}
 @media(max-width:540px){#discoveryUndo{font-size:.78rem}}
 
+
+/* v112: Achievement reference shelf, visually matched to Collectibles v34.
+   Expanded/collapsed state is saved per Ending Tracker profile. */
+.achievements-card{
+  margin-top:20px;
+  padding:0;
+  overflow:hidden;
+  border-color:#493038;
+}
+.achievements-card details{border:0;margin:0}
+.achievements-card summary{
+  list-style:none;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  min-height:58px;
+  padding:15px 19px;
+  cursor:pointer;
+  color:#ddd2d4;
+  user-select:none;
+  -webkit-user-select:none;
+  touch-action:manipulation;
+  background:linear-gradient(180deg,rgba(38,19,25,.63),rgba(19,11,14,.42));
+}
+.achievements-card summary::-webkit-details-marker{display:none}
+.achievements-card summary::marker{content:''}
+.achievements-card summary:hover{background:linear-gradient(180deg,rgba(50,23,31,.7),rgba(24,13,18,.65))}
+.achievements-card summary:focus-visible{outline:2px solid #c56c7a;outline-offset:-3px;border-radius:12px}
+.achievements-card .achievement-heading{
+  flex:1 1 auto;
+  min-width:0;
+  font-size:.91rem;
+  font-weight:780;
+  letter-spacing:.008em;
+}
+.achievements-card .achievement-number{
+  flex:0 0 auto;
+  padding:2px 9px;
+  border:1px solid #65414b;
+  border-radius:999px;
+  color:#bca5ab;
+  font-size:.73rem;
+  font-weight:800;
+}
+.achievements-card .achievement-chevron{
+  display:inline-block;
+  flex:0 0 auto;
+  width:9px;
+  height:9px;
+  margin:0 4px 4px 5px;
+  border-right:2px solid #ac8d95;
+  border-bottom:2px solid #ac8d95;
+  transform:rotate(45deg);
+  transition:transform .18s ease, margin .18s ease;
+}
+.achievements-card details[open] .achievement-chevron{
+  transform:rotate(225deg);
+  margin:5px 4px 0 5px;
+}
+.achievements-card details[open]>summary{border-bottom:1px solid #423039}
+.achievements-card .achievement-panel{padding:14px 16px 16px}
+.achievements-card .achievement-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+}
+.achievements-card .achievement-item{
+  min-width:0;
+  display:flex;
+  align-items:center;
+  gap:13px;
+  padding:12px;
+  border:1px solid #422c33;
+  border-radius:12px;
+  background:linear-gradient(150deg,rgba(38,20,25,.58),rgba(14,8,11,.77));
+}
+.achievements-card .achievement-icon{
+  display:block;
+  width:74px;
+  height:74px;
+  flex:0 0 74px;
+  object-fit:contain;
+}
+.achievements-card .achievement-info{min-width:0}
+.achievements-card .achievement-name{
+  display:block;
+  color:#e5d8dc;
+  font-weight:780;
+  font-size:.86rem;
+  line-height:1.3;
+  overflow-wrap:break-word;
+}
+.achievements-card .achievement-description{
+  margin:4px 0 0;
+  color:#ab9ca1;
+  font-size:.77rem;
+  line-height:1.5;
+  overflow-wrap:break-word;
+}
+.achievements-card .achievement-footnote{
+  color:#8b7e83;
+  font-size:.70rem;
+  line-height:1.45;
+  margin:12px 2px 0;
+}
+@media(max-width:760px){
+  .achievements-card .achievement-grid{grid-template-columns:1fr}
+}
+@media(max-width:380px){
+  .achievements-card summary{padding:13px 15px}
+  .achievements-card .achievement-panel{padding:11px}
+  .achievements-card .achievement-item{padding:10px;gap:10px}
+  .achievements-card .achievement-icon{width:66px;height:66px;flex-basis:66px}
+  .achievements-card .achievement-description{font-size:.74rem}
+}
+@media(prefers-reduced-motion:reduce){
+  .achievements-card .achievement-chevron{transition:none}
+}
+
+
 </style>
 </head>
 <body>
@@ -2087,6 +2207,36 @@ body.modal-open{overflow:hidden}
 </div>
 </div>
 
+<section class="card achievements-card" aria-label="Achievements and trophies">
+ <details id="achievementDetails">
+  <summary><span class="achievement-heading">Achievements &amp; Trophies</span><span class="achievement-number">7</span><span class="achievement-chevron" aria-hidden="true"></span></summary>
+  <div class="achievement-panel">
+   <div class="achievement-grid"><article class="achievement-item">
+  <img class="achievement-icon" src="assets/achievements/observation.png" alt="" width="74" height="74" loading="lazy" decoding="async">
+  <div class="achievement-info"><strong class="achievement-name">Observation</strong><p class="achievement-description">Collect 50% of all documents.</p></div>
+</article><article class="achievement-item">
+  <img class="achievement-icon" src="assets/achievements/thorough-inspection.png" alt="" width="74" height="74" loading="lazy" decoding="async">
+  <div class="achievement-info"><strong class="achievement-name">Thorough Inspection</strong><p class="achievement-description">Collect all of the documents.</p></div>
+</article><article class="achievement-item">
+  <img class="achievement-icon" src="assets/achievements/for-st-amelia.png" alt="" width="74" height="74" loading="lazy" decoding="async">
+  <div class="achievement-info"><strong class="achievement-name">For St. Amelia</strong><p class="achievement-description">Reach the “Justice” ending.</p></div>
+</article><article class="achievement-item">
+  <img class="achievement-icon" src="assets/achievements/here-to-stay.png" alt="" width="74" height="74" loading="lazy" decoding="async">
+  <div class="achievement-info"><strong class="achievement-name">Here To Stay</strong><p class="achievement-description">Reach the “Forever” ending.</p></div>
+</article><article class="achievement-item">
+  <img class="achievement-icon" src="assets/achievements/just-making-things-worse.png" alt="" width="74" height="74" loading="lazy" decoding="async">
+  <div class="achievement-info"><strong class="achievement-name">Just Making Things Worse</strong><p class="achievement-description">Reach the “Abandoned” ending.</p></div>
+</article><article class="achievement-item">
+  <img class="achievement-icon" src="assets/achievements/lets-talk-this-out.png" alt="" width="74" height="74" loading="lazy" decoding="async">
+  <div class="achievement-info"><strong class="achievement-name">Let’s Talk This Out</strong><p class="achievement-description">Reached the “Dog” ending.</p></div>
+</article><article class="achievement-item">
+  <img class="achievement-icon" src="assets/achievements/sci-fi-lent-hill.png" alt="" width="74" height="74" loading="lazy" decoding="async">
+  <div class="achievement-info"><strong class="achievement-name">Sci-fi-lent Hill</strong><p class="achievement-description">Reached the “Sci-fi” ending.</p></div>
+</article></div>
+   <p class="achievement-footnote">For reference only — this tracker does not detect achievement unlocks.</p>
+  </div>
+ </details>
+</section>
 <div class="card sourcebox">
 <strong>Reference guides:</strong>
 <a href="https://www.powerpyx.com/silent-hill-townfall-all-clues-documents-locations/" target="_blank" rel="noopener">All 85 guide</a>
@@ -2244,6 +2394,7 @@ const els = {
  targetEndingSelect:$("targetEndingSelect"), targetEndingButton:$("targetEndingButton"),
  targetEndingValue:$("targetEndingValue"), targetEndingOptions:$("targetEndingOptions"),
  ending:$("ending"), score:$("score"), bDisc:$("bDisc"), bKills:$("bKills"), bRefills:$("bRefills"), bMistakes:$("bMistakes"), notice:$("notice"),
+ achievementDetails:$("achievementDetails"),
  appDialog:$("appDialog"), appDialogKicker:$("appDialogKicker"), appDialogTitle:$("appDialogTitle"),
  appDialogMessage:$("appDialogMessage"), appDialogInputWrap:$("appDialogInputWrap"),
  appDialogInput:$("appDialogInput"), appDialogCancel:$("appDialogCancel"), appDialogConfirm:$("appDialogConfirm")
@@ -2262,7 +2413,8 @@ function blankSave(name="Profile 1") {
    ng:{},
    openParts:[1],
    ngChecklistOpen:true,
-   showMissingOnly:false
+   showMissingOnly:false,
+   achievementExpanded:false
  };
 }
 function loadDB() {
@@ -4565,6 +4717,9 @@ function compute() {
 }
 
 function renderAll() {
+ // An older save has no achievementExpanded field; new and migrated profiles
+ // default to collapsed without modifying any Discovery or ending values.
+ els.achievementDetails.open=active().achievementExpanded===true;
  if(discoveryUndoSnapshot && discoveryUndoSnapshot.profileId!==active().id)hideDiscoveryUndo();
  renderSaveSelect();
  syncInputs();
@@ -4573,6 +4728,13 @@ function renderAll() {
  compute();
  requestAnimationFrame(updateFloatingNextMissing);
 }
+
+// Save only user-initiated panel changes, never programmatic profile switches.
+// Native summary click covers mouse, touch, Enter and Space activation.
+els.achievementDetails.querySelector('summary').addEventListener('click',()=>{
+ active().achievementExpanded=!els.achievementDetails.open;
+ saveDB();
+});
 
 els.saveSelectButton.addEventListener("click",()=>{
  if(els.saveSelectOptions.hidden){
@@ -5051,6 +5213,32 @@ if("IntersectionObserver" in window){
 }
 
 renderAll();
+// v112: Warm the seven small achievement icons after initial app rendering.
+// Keep prepared image instances alive so a collapsed panel opens without
+// downloading icons on demand. Never block initial page rendering.
+(function warmAchievementIcons(){
+ const paths=[
+  'assets/achievements/observation.png',
+  'assets/achievements/thorough-inspection.png',
+  'assets/achievements/for-st-amelia.png',
+  'assets/achievements/here-to-stay.png',
+  'assets/achievements/just-making-things-worse.png',
+  'assets/achievements/lets-talk-this-out.png',
+  'assets/achievements/sci-fi-lent-hill.png'
+ ];
+ const warmed=[];
+ window.__townfallV112WarmImages=warmed;
+ setTimeout(()=>{
+  for(const src of paths){
+   const img=new Image();
+   img.decoding='async';
+   img.src=src;
+   warmed.push(img);
+   if(img.decode)img.decode().catch(()=>{});
+  }
+ },120);
+})();
+
 requestAnimationFrame(updateFloatingNextMissing);
 </script>
 </body></html>
