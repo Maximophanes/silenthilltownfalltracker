@@ -2486,6 +2486,96 @@ body.modal-open{overflow:hidden}
 body.viewer-scroll-locked{position:fixed;left:0;right:0;width:100%;top:var(--viewer-scroll-lock-top,0px);overflow:hidden}
 html.viewer-scroll-locked{overflow:hidden}
 
+
+/* v29: Dedicated scrollable artwork with a stationary mobile viewer shell.
+   Desktop remains fluid, with the same original image and navigation layout. */
+.viewer-artwork-scroll{min-width:0}
+@media (max-width:720px){
+  /* A stable modal shell prevents one- versus two-image comparisons from
+     resizing the viewer as postcards change. The art itself retains its ratio. */
+  .viewer[open]{
+    display:flex;
+    flex-direction:column;
+    box-sizing:border-box;
+    height:calc(100dvh - 28px);
+    max-height:calc(100dvh - 28px);
+    overflow:hidden;
+  }
+  .viewer-head{flex:0 0 auto}
+  .viewer-body{
+    flex:1 1 auto;
+    display:flex;
+    flex-direction:column;
+    min-height:0;
+    overflow:hidden;
+    box-sizing:border-box;
+  }
+  /* Two explicitly sized rows; even when brightness is inapplicable,
+     row 2 stays reserved and the artwork's top edge never shifts. */
+  .viewer-tools{
+    flex:0 0 auto;
+    display:grid;
+    grid-template-rows:38px 33px;
+    row-gap:8px;
+    align-content:start;
+    align-items:center;
+    margin-bottom:9px;
+    min-height:79px;
+  }
+  .viewer-modes{align-items:center;flex-wrap:nowrap;min-width:0}
+  .viewer-modes button{min-width:0;white-space:nowrap}
+  .viewer-tools .brightness{
+    display:grid;
+    grid-template-columns:max-content minmax(0,130px) 5ch;
+    column-gap:6px;
+    width:100%;
+    min-width:0;
+    min-height:30px;
+    justify-content:start;
+  }
+  .viewer-tools .brightness input[type="range"]{width:100%;min-width:0;max-width:none}
+  /* The only scroll container inside the mobile dialog. Safari can freely
+     scroll the artwork without moving the frozen underlying document. */
+  .viewer-artwork-scroll{
+    flex:1 1 auto;
+    min-height:0;
+    min-width:0;
+    overflow-y:auto;
+    overflow-x:hidden;
+    overscroll-behavior:contain;
+    -webkit-overflow-scrolling:touch;
+    touch-action:pan-y;
+  }
+  .viewer-images{align-content:start}
+  /* Natural two- or three-line labels use the same space on every postcard.
+     Do not clip the longest solved-caption wording or distort the image. */
+  .viewer-frame figcaption{
+    box-sizing:border-box;
+    min-height:53px;
+    display:flex;
+    align-items:center;
+    line-height:1.35;
+    overflow-wrap:break-word;
+  }
+  /* Navigation never joins the artwork scroller or changes position. */
+  .viewer-footer{
+    flex:0 0 auto;
+    display:grid;
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+    grid-template-rows:auto;
+    align-items:center;
+    gap:8px;
+    margin-top:9px;
+    padding:10px 0 max(2px,env(safe-area-inset-bottom));
+    border-top:1px solid #482a31;
+  }
+  .viewer-footer #prevCard{grid-column:1;grid-row:1;justify-self:start}
+  .viewer-footer #nextCard{grid-column:2;grid-row:1;justify-self:end}
+  /* Keyboard instructions are unnecessary on the phone; hiding them keeps
+     both navigation buttons comfortably clear of the artwork area. */
+  .viewer-footer #viewerHint{display:none}
+}
+
 </style>
 </head>
 <body>
@@ -2603,7 +2693,7 @@ html.viewer-scroll-locked{overflow:hidden}
     </div>
   </div>
 </div>
-<dialog class="viewer" id="viewer" aria-labelledby="viewerTitle"><div class="viewer-head"><div><strong id="viewerTitle">Strange Postcard</strong><small id="viewerSubtitle"></small></div><button type="button" class="btn" id="closeViewer" aria-label="Close image viewer">✕ Close</button></div><div class="viewer-body"><div class="viewer-tools"><div class="viewer-modes" role="group" aria-label="Image mode"><button type="button" data-mode="original" aria-pressed="true">Original</button><button type="button" data-mode="solved" aria-pressed="false">Solved</button><button type="button" data-mode="compare" aria-pressed="false">Compare</button></div><label class="brightness" id="brightnessWrap">Solution brightness <input id="brightness" type="range" min="100" max="300" value="130" step="10"><span id="brightnessLabel">130%</span></label></div><div id="viewerImages" class="viewer-images"></div><div class="viewer-location-row"><button class="btn slim viewer-location" id="viewerLocation" type="button">View postcard location</button></div><div class="viewer-footer"><button class="btn slim" id="prevCard" type="button">← Previous</button><small id="viewerHint">Use ← → to browse, Esc to close.</small><button class="btn slim" id="nextCard" type="button">Next →</button></div></div></dialog>
+<dialog class="viewer" id="viewer" aria-labelledby="viewerTitle"><div class="viewer-head"><div><strong id="viewerTitle">Strange Postcard</strong><small id="viewerSubtitle"></small></div><button type="button" class="btn" id="closeViewer" aria-label="Close image viewer">✕ Close</button></div><div class="viewer-body"><div class="viewer-tools"><div class="viewer-modes" role="group" aria-label="Image mode"><button type="button" data-mode="original" aria-pressed="true">Original</button><button type="button" data-mode="solved" aria-pressed="false">Solved</button><button type="button" data-mode="compare" aria-pressed="false">Compare</button></div><label class="brightness" id="brightnessWrap">Solution brightness <input id="brightness" type="range" min="100" max="300" value="130" step="10"><span id="brightnessLabel">130%</span></label></div><div id="viewerArtworkScroll" class="viewer-artwork-scroll"><div id="viewerImages" class="viewer-images"></div><div class="viewer-location-row"><button class="btn slim viewer-location" id="viewerLocation" type="button">View postcard location</button></div></div><div class="viewer-footer"><button class="btn slim" id="prevCard" type="button">← Previous</button><small id="viewerHint">Use ← → to browse, Esc to close.</small><button class="btn slim" id="nextCard" type="button">Next →</button></div></div></dialog>
 <script>
 
 
@@ -3428,6 +3518,9 @@ async function viewerRender(){
  $('viewerImages').classList.toggle('compare',viewerMode==='compare');
  $('viewerImages').classList.toggle('compare-conventional',viewerMode==='compare'&&!has);
  $('viewerImages').replaceChildren(fragment);
+ // Start each new postcard/mode at the top of its own artwork scroller.
+ // This runs in the same frame as the decoded image swap, without animation.
+ $('viewerArtworkScroll').scrollTop=0;
  viewerDisplayedPostcard=n;
  $('viewerTitle').textContent=`Strange Postcard ${formatNo(n)}`;
  // Keep type/classification separate from the image-specific captions below.
