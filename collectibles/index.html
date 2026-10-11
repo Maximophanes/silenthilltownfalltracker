@@ -2576,6 +2576,16 @@ html.viewer-scroll-locked{overflow:hidden}
   .viewer-footer #viewerHint{display:none}
 }
 
+/* v30: Repeated-tap controls should not trigger mobile double-tap zoom.
+   Keep ordinary panning and pinch-to-zoom available elsewhere on the page. */
+#prevCard,
+#nextCard,
+#nextMissing,
+#nextMissingFloat,
+.viewer-modes button {
+  touch-action: manipulation;
+}
+
 </style>
 </head>
 <body>
