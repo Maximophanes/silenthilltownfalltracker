@@ -37,7 +37,6 @@ html.discovery-layout-coordinating{scroll-behavior:auto !important}
 html.discovery-layout-coordinating,
 html.discovery-layout-coordinating body,
 html.discovery-layout-coordinating #discoveryToolbar,
-html.discovery-layout-coordinating #discoveryUndo,
 html.discovery-layout-coordinating #parts,
 html.discovery-layout-coordinating #parts *{
   overflow-anchor:none !important;
@@ -553,11 +552,6 @@ input[type=number]:focus,input[type=text]:focus{border-color:#9e525c;box-shadow:
 .bulkundo .btn{
   flex:0 0 auto;
   padding:7px 11px;
-}
-.bulkundo.undo-layout-transition{
-  overflow:hidden;
-  box-sizing:border-box;
-  will-change:height,opacity,margin,padding;
 }
 .checkline{display:flex;gap:10px;align-items:center;cursor:pointer}
 input[type=checkbox]{width:19px;height:19px;accent-color:#b85a64;cursor:pointer}
@@ -1891,6 +1885,30 @@ body.modal-open{overflow:hidden}
   border-top:1px solid rgba(204,83,96,.12);
 }
 .sourcebox .companion-tracker-row strong{margin-right:4px}
+
+/* v111: Normal floating Next Missing presentation matches Collectibles v34.
+   Leave v110 completion-morph animations and effects untouched. */
+.next-missing-float{width:171px}
+.next-missing-default{display:grid;grid-template-columns:18px minmax(0,1fr);align-items:center;justify-content:center;gap:13px;padding:0 12px}
+.next-missing-arrow{position:static;left:auto;top:auto;transform:none;font-size:1.13rem;line-height:1;justify-self:center}
+.next-missing-copy{min-width:0;align-items:flex-start;text-align:left;gap:4px}
+.next-missing-primary{font-size:.77rem}
+.next-missing-scope{font-size:.59rem;letter-spacing:.04em;white-space:nowrap}
+@media(max-width:750px){.next-missing-float{width:164px}.next-missing-default{gap:9px;padding:0 10px}}
+@media(max-width:450px){.next-missing-scope{font-size:.57rem}}
+/* Safari iOS: rapid button taps aren't interpreted as double-tap zoom.
+   Pinch zoom and normal document panning remain enabled. */
+#nextMissing,#nextMissingFloat{touch-action:manipulation}
+/* v111: Non-layout-shifting, fixed floating Undo from Collectibles v34. */
+#discoveryUndo{
+ position:fixed;inset:auto auto max(18px,env(safe-area-inset-bottom)) 50%;
+ transform:translateX(-50%);z-index:900;width:max-content;max-width:calc(100vw - 30px);
+ margin:0;padding:10px 12px;box-shadow:0 14px 42px rgba(0,0,0,.7),0 0 0 1px rgba(160,68,85,.14);
+ background:linear-gradient(180deg,#241319,#140b0f);border-color:#70404b;
+}
+#discoveryUndo[hidden]{display:none!important}
+@media(max-width:540px){#discoveryUndo{font-size:.78rem}}
+
 </style>
 </head>
 <body>
@@ -2037,10 +2055,6 @@ body.modal-open{overflow:hidden}
   </div>
 </div>
 <div class="progressbar" aria-hidden="true"><span id="discoveryBar"></span></div>
-<div class="bulkundo hidden" id="discoveryUndo" role="status" aria-live="polite">
-<span id="discoveryUndoText"></span>
-<button class="btn" id="undoDiscoveries">Undo</button>
-</div>
 </div>
 <div class="parts" id="parts"></div>
 </div>
@@ -2131,6 +2145,10 @@ body.modal-open{overflow:hidden}
 </div>
 
 </main>
+<div class="bulkundo" id="discoveryUndo" role="status" aria-live="polite" aria-atomic="true" hidden>
+ <span id="discoveryUndoText">Progress updated.</span>
+ <button class="btn" type="button" id="undoDiscoveries">Undo</button>
+</div>
 
 <button
   class="btn next-missing-float float-hidden"
@@ -2195,8 +2213,8 @@ let discoveryCompletionFloatResultTimer=null;
 let discoveryCompletionFloatFadeTimer=null;
 let discoveryCompletionFloatHideTimer=null;
 let discoveryCompletionFloatProfileId=null;
-let discoveryUndoTransitionTimer=null;
-let discoveryUndoTransitionMode=null;
+let discoveryUndoSnapshot=null;
+let discoveryUndoTimeout=null;
 let discoveryFilterTransitionTimer=null;
 let discoveryToolbarAnchorRaf=null;
 let discoveryToolbarAnchorState=null;
@@ -2274,6 +2292,9 @@ function loadDB() {
        x.discoveryListVersion=2;
        localStorage.setItem(STORAGE_KEY,JSON.stringify(x));
      }
+     // v111: Older Undo snapshots were saved indefinitely inside profiles.
+     // They are no longer valid after a reload; remove only that obsolete key.
+     x.saves.forEach(s=>delete s.discoveryUndo);
      return x;
    }
  } catch(e) {}
@@ -2286,7 +2307,12 @@ let db=loadDB();
 
 function currentSave(){ return active(); }
 
-function saveDB() { db.discoveryListVersion=2; localStorage.setItem(STORAGE_KEY,JSON.stringify(db)); }
+function saveDB() {
+ db.discoveryListVersion=2;
+ // Ensure an existing v110 Undo is never accidentally persisted again.
+ db.saves.forEach(s=>delete s.discoveryUndo);
+ localStorage.setItem(STORAGE_KEY,JSON.stringify(db));
+}
 function active() { return db.saves.find(s=>s.id===db.active) || db.saves[0]; }
 
 function snapshotDiscoveries(s) {
@@ -2297,175 +2323,23 @@ function snapshotDiscoveries(s) {
  return snapshot;
 }
 
-function setDiscoveryUndo(s,message) {
- s.discoveryUndo={
-   discoveries:snapshotDiscoveries(s),
-   message,
-   createdAt:Date.now()
- };
+// v111: Single-use floating Undo, scoped to the active profile and memory only.
+// The saved Discovery state is never affected when the 10-second timer expires.
+function hideDiscoveryUndo(){
+ if(discoveryUndoTimeout!==null)clearTimeout(discoveryUndoTimeout);
+ discoveryUndoTimeout=null;
+ discoveryUndoSnapshot=null;
+ els.discoveryUndo.hidden=true;
 }
-
-function resetDiscoveryUndoTransitionStyles(){
- const el=els.discoveryUndo;
- el.classList.remove("undo-layout-transition");
- [
-   "height","overflow","boxSizing","opacity","marginTop",
-   "paddingTop","paddingBottom","borderTopWidth","borderBottomWidth",
-   "transition"
- ].forEach(prop=>el.style[prop]="");
+function setDiscoveryUndo(s,message){
+ hideDiscoveryUndo();
+ discoveryUndoSnapshot={profileId:s.id,discoveries:snapshotDiscoveries(s)};
+ els.discoveryUndoText.textContent=message;
+ els.discoveryUndo.hidden=false;
+ discoveryUndoTimeout=setTimeout(hideDiscoveryUndo,10000);
 }
-
-function animateDiscoveryUndoBanner(show){
- const el=els.discoveryUndo;
- if(!el)return;
-
- const reduceMotion=window.matchMedia &&
-   window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
- if(discoveryUndoTransitionTimer){
-   clearTimeout(discoveryUndoTransitionTimer);
-   discoveryUndoTransitionTimer=null;
- }
-
- if(reduceMotion){
-   resetDiscoveryUndoTransitionStyles();
-   el.classList.toggle("hidden",!show);
-   if(!show) els.discoveryUndoText.textContent="";
-   discoveryUndoTransitionMode=null;
-   return;
- }
-
- if(show){
-   if(!el.classList.contains("hidden") && discoveryUndoTransitionMode!=="hiding"){
-     discoveryUndoTransitionMode=null;
-     return;
-   }
-
-   // If reversing a hide, start from the element's current rendered geometry.
-   resetDiscoveryUndoTransitionStyles();
-   el.classList.remove("hidden");
-
-   const cs=getComputedStyle(el);
-   const targetHeight=Math.ceil(el.getBoundingClientRect().height);
-   const targetMarginTop=cs.marginTop;
-   const targetPaddingTop=cs.paddingTop;
-   const targetPaddingBottom=cs.paddingBottom;
-   const targetBorderTop=cs.borderTopWidth;
-   const targetBorderBottom=cs.borderBottomWidth;
-
-   el.classList.add("undo-layout-transition");
-   el.style.transition="none";
-   el.style.height="0px";
-   el.style.opacity="0";
-   el.style.marginTop="0px";
-   el.style.paddingTop="0px";
-   el.style.paddingBottom="0px";
-   el.style.borderTopWidth="0px";
-   el.style.borderBottomWidth="0px";
-   el.getBoundingClientRect();
-
-   discoveryUndoTransitionMode="showing";
-   requestAnimationFrame(()=>{
-     el.style.transition=[
-       "height .24s cubic-bezier(.20,.72,.24,1)",
-       "opacity .16s ease-out",
-       "margin-top .24s cubic-bezier(.20,.72,.24,1)",
-       "padding-top .24s cubic-bezier(.20,.72,.24,1)",
-       "padding-bottom .24s cubic-bezier(.20,.72,.24,1)",
-       "border-top-width .24s cubic-bezier(.20,.72,.24,1)",
-       "border-bottom-width .24s cubic-bezier(.20,.72,.24,1)"
-     ].join(",");
-     el.style.height=`${targetHeight}px`;
-     el.style.opacity="1";
-     el.style.marginTop=targetMarginTop;
-     el.style.paddingTop=targetPaddingTop;
-     el.style.paddingBottom=targetPaddingBottom;
-     el.style.borderTopWidth=targetBorderTop;
-     el.style.borderBottomWidth=targetBorderBottom;
-
-     discoveryUndoTransitionTimer=window.setTimeout(()=>{
-       resetDiscoveryUndoTransitionStyles();
-       discoveryUndoTransitionTimer=null;
-       discoveryUndoTransitionMode=null;
-     },250);
-   });
-   return;
- }
-
- if(el.classList.contains("hidden")){
-   discoveryUndoTransitionMode=null;
-   els.discoveryUndoText.textContent="";
-   return;
- }
- if(discoveryUndoTransitionMode==="hiding")return;
-
- const cs=getComputedStyle(el);
- const startHeight=Math.ceil(el.getBoundingClientRect().height);
-
- el.classList.add("undo-layout-transition");
- el.style.height=`${startHeight}px`;
- el.style.opacity=cs.opacity;
- el.style.marginTop=cs.marginTop;
- el.style.paddingTop=cs.paddingTop;
- el.style.paddingBottom=cs.paddingBottom;
- el.style.borderTopWidth=cs.borderTopWidth;
- el.style.borderBottomWidth=cs.borderBottomWidth;
- el.style.transition="none";
- el.getBoundingClientRect();
-
- discoveryUndoTransitionMode="hiding";
- requestAnimationFrame(()=>{
-   el.style.transition=[
-     "height .24s cubic-bezier(.20,.72,.24,1)",
-     "opacity .15s ease-out",
-     "margin-top .24s cubic-bezier(.20,.72,.24,1)",
-     "padding-top .24s cubic-bezier(.20,.72,.24,1)",
-     "padding-bottom .24s cubic-bezier(.20,.72,.24,1)",
-     "border-top-width .24s cubic-bezier(.20,.72,.24,1)",
-     "border-bottom-width .24s cubic-bezier(.20,.72,.24,1)"
-   ].join(",");
-   el.style.height="0px";
-   el.style.opacity="0";
-   el.style.marginTop="0px";
-   el.style.paddingTop="0px";
-   el.style.paddingBottom="0px";
-   el.style.borderTopWidth="0px";
-   el.style.borderBottomWidth="0px";
-
-   discoveryUndoTransitionTimer=window.setTimeout(()=>{
-     el.classList.add("hidden");
-     resetDiscoveryUndoTransitionStyles();
-     els.discoveryUndoText.textContent="";
-     discoveryUndoTransitionTimer=null;
-     discoveryUndoTransitionMode=null;
-   },250);
- });
-}
-
-function syncDiscoveryUndoBanner(undo){
- if(undo){
-   els.discoveryUndoText.textContent=undo.message;
-   if(els.discoveryUndo.classList.contains("hidden") ||
-      discoveryUndoTransitionMode==="hiding"){
-     animateDiscoveryUndoBanner(true);
-   }
- } else if(!els.discoveryUndo.classList.contains("hidden") &&
-           discoveryUndoTransitionMode!=="hiding"){
-   animateDiscoveryUndoBanner(false);
- }
-}
-
-function clearDiscoveryUndo(s) {
- if(!s || !s.discoveryUndo)return;
- delete s.discoveryUndo;
-
- // Keep the entire Discovery area in one coordinated layout transaction.
- // Calls made by a Part/row action may already have chosen a safer anchor;
- // in that case this simply extends the same transaction.
- if(active()?.id===s.id){
-   beginDiscoveryLayoutCoordination({duration:320});
-   animateDiscoveryUndoBanner(false);
- }
+function clearDiscoveryUndo(s){
+ if(s && discoveryUndoSnapshot?.profileId===s.id)hideDiscoveryUndo();
 }
 
 function num(v) { const n=parseInt(v,10); return Number.isFinite(n)&&n>0?n:0; }
@@ -2620,6 +2494,7 @@ function closeSaveSelect({restoreFocus=false}={}){
 function chooseProfile(id){
  if(!db.saves.some(s=>s.id===id))return;
 
+ hideDiscoveryUndo();
  db.active=id;
  saveDB();
  closeSaveSelect();
@@ -3453,19 +3328,14 @@ function renderMainList() {
    partToggle.addEventListener("change",e=>{
      e.stopPropagation();
      const mark=partToggle.checked;
-     const hadUndo=!!s.discoveryUndo;
-
-     if(hadUndo && s.showMissingOnly===true && mark){
-       beginDiscoveryLayoutCoordination({exclude:[d],duration:340});
-     }
-
+     // Floating Undo does not alter the Part or row layout.
      clearDiscoveryUndo(s);
      items.forEach(x=>s.discoveries[x.id]=mark);
      saveDB();
 
      if(s.showMissingOnly===true && mark){
        partToggle.disabled=true;
-       animateCompletedMissingFilterPart(d,{hadUndo});
+       animateCompletedMissingFilterPart(d);
      } else {
        renderAll();
      }
@@ -3487,25 +3357,14 @@ function renderMainList() {
      cb.disabled=false;
      cb.setAttribute("aria-label",`Discovery ${DISCOVERY_DISPLAY_NUMBER_BY_ID.get(x.id)}: ${x.name}`);
      cb.addEventListener("change",()=>{
-       const hadUndo=!!s.discoveryUndo;
        const checkingMissingInFilter=s.showMissingOnly===true && cb.checked;
-       const completesPart=checkingMissingInFilter &&
-         items.every(item=>item.id===x.id || !!s.discoveries[item.id]);
-
-       if(hadUndo && checkingMissingInFilter){
-         beginDiscoveryLayoutCoordination({
-           exclude:completesPart ? [d] : [],
-           duration:completesPart ? 470 : 330
-         });
-       }
-
        clearDiscoveryUndo(s);
        s.discoveries[x.id]=cb.checked;
        saveDB();
 
        if(s.showMissingOnly===true && cb.checked){
          cb.disabled=true;
-         animateMissingFilterRemoval(s,row,d,items,{hadUndo});
+         animateMissingFilterRemoval(s,row,d,items);
        } else {
          renderAll();
        }
@@ -4400,8 +4259,6 @@ function syncInputs() {
    triggerDiscoveryCompletionFloat(s.id);
  }
 
- const undo=s.discoveryUndo;
- syncDiscoveryUndoBanner(undo);
 }
 
 function setNextMissingFloatVisible(visible){
@@ -4708,6 +4565,7 @@ function compute() {
 }
 
 function renderAll() {
+ if(discoveryUndoSnapshot && discoveryUndoSnapshot.profileId!==active().id)hideDiscoveryUndo();
  renderSaveSelect();
  syncInputs();
  renderMainList();
@@ -4780,6 +4638,7 @@ els.newSave.addEventListener("click",()=>{
    initialValue:suggested,
    onConfirm:name=>{
      const s=blankSave(name.trim()||suggested);
+     hideDiscoveryUndo();
      db.saves.push(s);
      db.active=s.id;
      saveDB();
@@ -4830,6 +4689,7 @@ els.deleteSave.addEventListener("click",()=>{
      const id=s.id;
      if(!db.saves.some(x=>x.id===id))return;
 
+     hideDiscoveryUndo();
      db.saves=db.saves.filter(x=>x.id!==id);
      db.active=db.saves[0].id;
      saveDB();
@@ -5070,11 +4930,10 @@ els.clearDiscoveries.addEventListener("click",()=>{
 
 els.undoDiscoveries.addEventListener("click",()=>{
  const s=active();
- const undo=s.discoveryUndo;
- if(!undo)return;
-
- s.discoveries={...(undo.discoveries || {})};
- clearDiscoveryUndo(s);
+ const undo=discoveryUndoSnapshot;
+ if(!undo || undo.profileId!==s.id){hideDiscoveryUndo();return;}
+ s.discoveries={...undo.discoveries};
+ hideDiscoveryUndo();
  saveDB();
  renderAll();
 });
