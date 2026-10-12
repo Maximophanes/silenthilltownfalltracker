@@ -1,4 +1,12 @@
-# Silent Hill: Townfall — Collectibles & Secrets Tracker v35
+# Silent Hill: Townfall — Collectibles & Secrets Tracker v36
+
+## v36: Fresh achievement artwork (current release)
+
+- Replaced the four `assets/achievements/*.png` images with clean, consistently framed extractions from the original PlayStation screenshots.
+- The `index.html` source is byte-for-byte unchanged from approved v35; no checklist, Gallery, JavaScript, CSS, profile, animation, localStorage, or path changes.
+- To update an existing v35 GitHub Pages deployment, replace the four PNGs under `collectibles/assets/achievements/` and optionally this README. Keep every other folder and asset in place.
+- Browsers may temporarily display cached older achievement images until revalidated or refreshed.
+- The companion Ending & Progress Tracker artwork release is v113 and is deployed separately in the repository root.
 
 ## Preview locally
 
