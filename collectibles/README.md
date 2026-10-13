@@ -1,12 +1,45 @@
-# Silent Hill: Townfall — Collectibles & Secrets Tracker v36
+# Silent Hill: Townfall — Collectibles & Secrets Tracker v40
 
-## v36: Fresh achievement artwork (current release)
+## v40: Search index and formatting refinements
 
-- Replaced the four `assets/achievements/*.png` images with clean, consistently framed extractions from the original PlayStation screenshots.
-- The `index.html` source is byte-for-byte unchanged from approved v35; no checklist, Gallery, JavaScript, CSS, profile, animation, localStorage, or path changes.
-- To update an existing v35 GitHub Pages deployment, replace the four PNGs under `collectibles/assets/achievements/` and optionally this README. Keep every other folder and asset in place.
-- Browsers may temporarily display cached older achievement images until revalidated or refreshed.
-- The companion Ending & Progress Tracker artwork release is v113 and is deployed separately in the repository root.
+- Searches collectible titles, descriptions, warnings, notes, chapters, Parts, methods, actors, phone numbers, CRTV frequencies, solutions, and the meaningful category/pill labels.
+- Case-insensitive multi-keyword **AND** search, with normalized whitespace and targeted aliases for St. Amelia, New Game Plus/NG+, category names, and numbered identifiers (e.g., "Phone Call #1" or "CRTV 09").
+- Telephone-number searches accept spaces or hyphens, repeated spaces, or no separators (e.g., `496 0842`, `496-0842`, and `4960842`).
+- Category+number queries target the exact item. Active search in By Category displays only the matching portion of a paired Lockbox Key / Resource Container card; ordinary unfiltered pairs remain unchanged.
+- Preserves category filters, Show Missing Only, saved profiles/progress, and v39 immediate Return navigation, as well as all Gallery image behavior.
+- For existing GitHub Pages installs, replace only the **individual** `collectibles/index.html` and `collectibles/README.md` files. Do not replace their containing folder.
+
+# Silent Hill: Townfall — Collectibles & Secrets Tracker v39 (Transition Experiment)
+
+## v39: Experimental direct cross-view positioning
+
+- Changes only the **By Category → Find in story route → Story Route → Return to [item]** navigation pair to **immediate destination positioning with the existing highlight animation**.
+- The destination is rendered and positioned synchronously in the triggering click task to avoid showing a frame of the wrong checklist position. There is **no full-page overlay, flash, or intentionally blank intermediary state**.
+- Retains all v38 return context, filters, search, per-profile preferences, missing-only and paired-item fallbacks.
+- **Does not change** the Postcard Gallery's modal navigation or return sequencing, Next Missing smooth scrolling, other navigation, images, saved progress, or storage keys.
+- This is a **trial release**. Keep v38 as the proven fallback until Safari, Firefox, and iPhone testing confirms the feel and behavior.
+- To install the GitHub Update, replace only `collectibles/index.html` and `collectibles/README.md` in the existing repo folder; do not replace the whole `collectibles/` directory.
+
+## v38: Consistent Return-button text color
+
+- Corrects the new By Category → Story Route **Return to [item]** button's default text color to match the existing pale-pink **Return to Postcard** button (`#e9c4ca`), while preserving the white hover text.
+- A single shared CSS declaration was added to `.entry-return`. All JavaScript, navigation timing, highlighting, state management, postcard viewer behavior, and saved progress remain exactly as in v37.
+- For an existing GitHub Pages installation, replace only `collectibles/index.html` and (optionally) `collectibles/README.md` from the smaller GitHub Update ZIP. Copy these **individual files** into the existing `collectibles/` folder: **do not replace the whole folder**, which holds the Gallery artwork.
+
+
+
+## v37: Contextual return from Story Route to By Category
+
+- When **Find in story route →** is used from By Category, the Story Route item now displays a contextual **← Return to [collectible name and number]** button.
+- Returning restores the previous category filter, search, Show Missing Only preference, and expanded categories; it scrolls to and briefly highlights the originating item.
+- For Lockbox Keys and Resource Containers, the highlight targets the appropriate half of their paired card.
+- If the original item has become excluded by Show Missing Only, the return keeps that filter enabled and scrolls to the relevant category heading or the completion/empty message instead.
+- The button is temporary and clears after use, manual view changes, next-missing navigation, and profile changes. The postcard Gallery's existing Return to Postcard behavior is unchanged.
+- Progress identifiers, browser storage key (`townfallCollectibles.v1`), postcard images, artwork loading and caching, and other application behavior are preserved.
+
+## v36: Fresh achievement artwork
+
+- Replaced the four `assets/achievements/*.png` images with clean, consistently framed extractions from the original PlayStation screenshots. No additional asset edits are required for v37.
 
 ## Preview locally
 

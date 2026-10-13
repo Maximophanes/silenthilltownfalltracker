@@ -1983,6 +1983,8 @@ select,input[type="search"],input[type="text"]{border:1px solid #57363d;backgrou
 .pair-head h3{font-size:.92rem;margin:0}
 .pair-head small{color:#baa6a9}
 .pair-grid{display:grid;grid-template-columns:1fr 1fr;gap:0}
+/* v40: a search may match only one half of a key/container pair. */
+.pair-grid>.pair-step:only-child{grid-column:1/-1}
 .pair-step{padding:15px 17px}
 .pair-step+.pair-step{border-left:1px solid #39262d}
 .pair-step .entry-where{margin:8px 0}
@@ -2063,7 +2065,7 @@ header{padding-right:0}
 .collectibles-toolbar .profile-control label{margin-bottom:7px}
 .collectibles-toolbar .profile-control select{background:#0b0708;border:1px solid #4a3035;border-radius:10px}
 .collectibles-toolbar .profile-control select:focus-visible{outline:2px solid rgba(189,98,107,.78);outline-offset:2px}
-.entry.next-missing-hit{animation:nextMissingPulse 1.25s ease-out 1}
+.entry.next-missing-hit,.pair-step.next-missing-hit,#categoryContent .cat-part>summary.next-missing-hit,#categoryContent .missing-only-empty.next-missing-hit{animation:nextMissingPulse 1.25s ease-out 1}
 .view[hidden],.parts[hidden],.category-blocks[hidden],.gallery-grid[hidden]{display:none!important}
 @media(max-width:900px){.collectibles-toolbar{grid-template-columns:1fr auto}.collectibles-toolbar .bulk-actions{grid-column:1/-1}}
 @media(max-width:600px){.completion-label-row{flex-wrap:wrap}
@@ -2072,7 +2074,7 @@ header{padding-right:0}
  .collectibles-toolbar .profile-control{min-width:0;max-width:none}
  .collectibles-toolbar .bulk-actions{grid-column:auto}
 }
-@media(prefers-reduced-motion:reduce){.entry.next-missing-hit{animation:none;background:rgba(78,17,29,.22);box-shadow:inset 0 0 0 1px rgba(147,51,65,.20)}}
+@media(prefers-reduced-motion:reduce){.entry.next-missing-hit,.pair-step.next-missing-hit,#categoryContent .cat-part>summary.next-missing-hit,#categoryContent .missing-only-empty.next-missing-hit{animation:none;background:rgba(78,17,29,.22);box-shadow:inset 0 0 0 1px rgba(147,51,65,.20)}}
 
 
 /* v3: All shared colors, header and motion primitives are from v109 above. */
@@ -2221,6 +2223,7 @@ body.modal-open{overflow:hidden}
   margin-top:12px;padding:9px 12px;
   border:1px solid #683942;border-radius:10px;
   background:linear-gradient(180deg,rgba(48,19,27,.65),rgba(23,10,14,.65));
+  color:#e9c4ca!important;
   font-family:inherit;font-size:.76rem;font-weight:780;line-height:1.3;
   text-align:left;cursor:pointer;
   transition:border-color .16s ease,background .16s ease,color .16s ease;
@@ -2881,6 +2884,13 @@ let persistent=true;
 function readDB(){try{const raw=localStorage.getItem(STORAGE_KEY);if(!raw)return defaultDB();const parsed=JSON.parse(raw);if(!Array.isArray(parsed.profiles)||!parsed.profiles.length)throw Error('invalid');parsed.profiles=parsed.profiles.filter(p=>p&&typeof p.id==='string'&&typeof p.name==='string'&&p.checks&&typeof p.checks==='object');if(!parsed.profiles.length)throw Error('no profiles');if(!parsed.profiles.some(p=>p.id===parsed.active))parsed.active=parsed.profiles[0].id;return parsed;}catch(e){persistent=false;return defaultDB();}}
 let db=readDB();let view='story', filter='all', onlyMissing=false, query='', openedParts=new Set(['1']),openedCategories=new Set(CATEGORIES.map(c=>c.kind)),undoSnapshot=null,undoTimeout=null,viewerPostcard=1,viewerMode='original',viewerBrightness=130,viewerReturn=null;
 let previousChecklistView='story', galleryReturnContext=null;
+// v37: In-page return journey from By Category to Story Route, never persisted.
+let categoryReturnContext=null, categoryReturnNavigation=0;
+function clearCategoryReturn(){categoryReturnContext=null;categoryReturnNavigation++;}
+function categoryReturnLabel(item){
+ const labels={postcard:'Strange Postcard',phone:'Telephone Call',signal:'CRTV Signal',key:'Lockbox Key',container:'Resource Container'};
+ return `${labels[item.kind]} ${formatNo(item.number)}`;
+}
 
 const profile=()=>db.profiles.find(p=>p.id===db.active)||db.profiles[0];
 
@@ -3242,7 +3252,63 @@ const checked=id=>!!profile().checks[id];
 const save=()=>{try{localStorage.setItem(STORAGE_KEY,JSON.stringify(db));persistent=true;}catch(e){persistent=false;}};
 const isMain=item=>item.kind!=='key';
 const isType=(item,t)=>t==='all'||item.kind===t||(t==='container'&&item.kind==='key');
-const inQuery=item=>{const text=[item.title,item.where,item.note,item.warning,item.dial,item.frequency,PARTS[item.part][0],item.chapter,item.number,item.solution].filter(Boolean).join(' ').toLocaleLowerCase();return text.includes(query.toLocaleLowerCase());};
+// v40: Search the collectible's underlying content AND meaningful displayed
+// metadata. Keep indexing independent from the rendered checklist and its DOM.
+const SEARCH_CATEGORY_ALIASES={
+ postcard:['Strange Postcard','Strange Postcards','Postcard','Postcards'],
+ phone:['Telephone Call','Telephone Calls','Phone Call','Phone Calls','Telephone Number','Phone Number'],
+ signal:['CRTV','CRTV Signal','CRTV Signals'],
+ container:['Resource Container','Resource Containers','Container','Containers'],
+ key:['Lockbox Key','Lockbox Keys','Key','Keys']
+};
+function normalizeSearchText(value){
+ return String(value??'').normalize('NFKC').toLocaleLowerCase()
+  .replace(/\bnew[\s-]+game[\s-]+plus\b/g,'new game plus')
+  .replace(/\bng\s*\+/g,'ng+')
+  .replace(/\bst\.(?=\s|$)/g,'st')
+  .replace(/#\s*(?=\d)/g,'')
+  .replace(/\s+/g,' ').trim();
+}
+// Only join groups of two-or-more digits as a phone-number format, not
+// unrelated numbers or formatting-sensitive puzzle codes. Both spaced and
+// hyphenated queries resolve to the compact dialing string in the index.
+function normalizePhoneQuery(value){
+ return value.replace(/\b\d{2,}(?:[\s-]+\d{2,})+\b/g,part=>part.replace(/[\s-]+/g,''));
+}
+function searchIndexFor(item){
+ const no=String(item.number).padStart(2,'0'),n=String(item.number);
+ const aliases=SEARCH_CATEGORY_ALIASES[item.kind]||[];
+ const fields=[item.title,item.where,item.note,item.warning,item.dial,item.frequency,
+  item.method,item.actor,item.solution,PARTS[item.part][0],
+  `Part ${item.part}`,`Chapter ${item.chapter}`,n,no,
+  ...aliases,...aliases.flatMap(label=>[`${label} ${n}`,`${label} ${no}`,`${label} #${n}`,`${label} #${no}`])];
+ // Gallery classifies standard postcards and autostereograms separately.
+ if(item.kind==='postcard')fields.push(SOLVED[item.number]?'Autostereogram':'Standard Postcard');
+ if(item.frequency)fields.push(`Ch. ${item.frequency}`);
+ // This alias covers both the NG+ pill and prose using "New Game Plus".
+ if(item.ngplus||/\bnew[\s-]+game[\s-]+plus\b|\bng\s*\+/i.test([item.title,item.where,item.note,item.warning].join(' '))){
+  fields.push('NG+','NG+ only','New Game Plus');
+ }
+ if(item.dial)fields.push(String(item.dial).replace(/\D/g,''));
+ return normalizeSearchText(fields.filter(x=>x!==undefined&&x!==null&&x!=='').join(' '));
+}
+const SEARCH_INDEX=new Map(ITEMS.map(item=>[item.id,searchIndexFor(item)]));
+// Treat an entire category+number query as an exact identifier (so "CRTV 9"
+// finds Signal 09, not every signal that happens to mention a 9 elsewhere).
+function searchIdentifier(value){
+ const match=value.match(/^(?:(strange\s+)?(postcards?)|(telephone|phone)\s+(calls?|numbers?)|(crtv)(?:\s+signals?)?|(resource\s+)?(containers?)|(lockbox\s+)?(keys?))\s+0*(\d{1,2})$/);
+ if(!match)return null;
+ const kind=match[2]?'postcard':match[3]?'phone':match[5]?'signal':match[7]?'container':'key';
+ return {kind,number:Number(match[10])};
+}
+const inQuery=item=>{
+ if(!query.trim())return true;
+ const clean=normalizeSearchText(query),identifier=searchIdentifier(clean);
+ if(identifier)return item.kind===identifier.kind&&item.number===identifier.number;
+ const terms=normalizePhoneQuery(clean).split(/\s+/).filter(Boolean);
+ const haystack=SEARCH_INDEX.get(item.id)||'';
+ return terms.every(term=>haystack.includes(term));
+};
 const visible=item=>isType(item,filter)&&inQuery(item)&&(!onlyMissing||!checked(item.id));
 const smallCount=kind=>{const els=ITEMS.filter(x=>x.kind===kind);return {done:els.filter(x=>checked(x.id)).length,total:els.length};};
 // Preserve overview nodes between progress updates so CSS width transitions can run.
@@ -3356,6 +3422,7 @@ function entryHTML(item,routeIndex=-1){
  <p class="entry-where">${escapeHTML(item.where)}</p>${additional}
  ${item.kind==='postcard'||routeIndex<0?`<div class="entry-actions">${item.kind==='postcard'?`<button type="button" data-open-postcard="${item.number}">View postcard ↗</button>`:''}${routeIndex<0?`<button type="button" data-to-route="${item.id}">Find in story route →</button>`:''}</div>`:''}
  ${routeIndex>=0&&item.kind==='postcard'&&galleryReturnContext?.id===item.id&&galleryReturnContext?.profileId===profile().id?`<button type="button" class="entry-return return-to-postcard" data-return-postcard="${item.number}">← Return to Postcard ${formatNo(item.number)}</button>`:''}
+ ${routeIndex>=0&&categoryReturnContext?.id===item.id&&categoryReturnContext?.profileId===profile().id?`<button type="button" class="entry-return" data-return-category="${item.id}">← Return to ${escapeHTML(categoryReturnLabel(item))}</button>`:''}
  </article>`;
 }
 function captureParts(){const existing=[...document.querySelectorAll('#storyContent details.part')];if(existing.length)openedParts=new Set(existing.filter(el=>el.open).map(el=>el.dataset.part));}
@@ -3395,7 +3462,10 @@ function storyRender(){let html='',matches=0;for(let part=1;part<=6;part++){
  if(!html)html=checklistEmptyHTML();
  $('storyContent').innerHTML=html;updateSelectAllCheckboxes();
 }
-function pairHTML(n){const key=store.get('key-'+formatNo(n)),box=store.get('container-'+formatNo(n));if(!key||!box)return '';const available=(visible(key)||visible(box));if(!available)return '';return `<section class="pair-card ${checked(key.id)&&checked(box.id)?'pair-complete':''}"><div class="pair-head"><h3>Resource Container ${formatNo(n)}</h3><small>Part ${key.part} · Chapter ${key.chapter}</small></div><div class="pair-grid">${[key,box].map((x,idx)=>`<div class="pair-step"><div class="pair-step-top"><label class="pair-check"><input type="checkbox" data-item="${x.id}" ${checked(x.id)?'checked':''}><span>${idx===0?'KEY ACQUIRED':'CONTAINER OPENED'}</span></label><a class="guide pair-guide" target="_blank" rel="noopener noreferrer" href="${x.ref}" aria-label="Open location guide for ${escapeHTML(x.title)}">Guide ↗</a></div><div class="entry-meta"><span class="chip">${escapeHTML(x.title)}</span></div><p class="entry-where">${escapeHTML(x.where)}</p>${x.note?`<div class="entry-note">${escapeHTML(x.note)}</div>`:''}<div class="entry-actions"><button type="button" data-to-route="${x.id}">Find in story route →</button></div></div>`).join('')}</div></section>`;}
+function pairHTML(n){const key=store.get('key-'+formatNo(n)),box=store.get('container-'+formatNo(n));if(!key||!box)return '';const available=(visible(key)||visible(box));if(!available)return '';
+ // With an active search, show only halves that individually match all filters.
+ // Without search, retain the established two-step paired display.
+ const shown=query.trim()?[key,box].filter(visible):[key,box];return `<section class="pair-card ${checked(key.id)&&checked(box.id)?'pair-complete':''}"><div class="pair-head"><h3>Resource Container ${formatNo(n)}</h3><small>Part ${key.part} · Chapter ${key.chapter}</small></div><div class="pair-grid">${shown.map((x)=>`<div class="pair-step"><div class="pair-step-top"><label class="pair-check"><input type="checkbox" data-item="${x.id}" ${checked(x.id)?'checked':''}><span>${x.kind==='key'?'KEY ACQUIRED':'CONTAINER OPENED'}</span></label><a class="guide pair-guide" target="_blank" rel="noopener noreferrer" href="${x.ref}" aria-label="Open location guide for ${escapeHTML(x.title)}">Guide ↗</a></div><div class="entry-meta"><span class="chip">${escapeHTML(x.title)}</span></div><p class="entry-where">${escapeHTML(x.where)}</p>${x.note?`<div class="entry-note">${escapeHTML(x.note)}</div>`:''}<div class="entry-actions"><button type="button" data-to-route="${x.id}">Find in story route →</button></div></div>`).join('')}</div></section>`;}
 function categoryRender(){let html='',total=0;for(const c of CATEGORIES){
  if(!isType({kind:c.kind},filter))continue;
  const items=ITEMS.filter(x=>x.kind===c.kind||(c.kind==='container'&&x.kind==='key'));
@@ -3448,7 +3518,7 @@ function updateSelectAllCheckboxes(){updateOverviewCheckboxes();const all=$('mar
  document.querySelectorAll('input[data-select-category]').forEach(input=>{const k=input.dataset.selectCategory,arr=ITEMS.filter(x=>x.kind===k||(k==='container'&&x.kind==='key'));const count=arr.filter(x=>checked(x.id)).length;input.checked=count===arr.length;input.indeterminate=count>0&&count<arr.length;input.closest('.part-head-controls')?.querySelector('.countpill')?.replaceChildren(document.createTextNode(`${count} / ${arr.length}`));});
 }
 
-function setProfile(id){persistProfileUI();hideUndo();galleryReturnContext=null;db.active=id;applyProfileUI();save();profileSelectRender();render();}
+function setProfile(id){persistProfileUI();hideUndo();galleryReturnContext=null;clearCategoryReturn();db.active=id;applyProfileUI();save();profileSelectRender();render();}
 let modalState=null;
 function dismissAppModal(confirmed){const el=$('appDialog');if(el.hidden)return;const state=modalState;const value=state?.input?$('appDialogInput').value.trim():null;el.hidden=true;document.body.classList.remove('modal-open');modalState=null;if(confirmed&&typeof state?.callback==='function')state.callback(value);if(state?.restoreFocus?.isConnected)state.restoreFocus.focus({preventScroll:true});}
 function modalAsk({title,body,input=null,ok='OK',danger=false,kicker='Collectibles',showCancel=true},callback){
@@ -3509,10 +3579,13 @@ function beginNextMissingProgrammaticScroll(){
  if(nextMissingScrollTimer)clearTimeout(nextMissingScrollTimer);
  nextMissingScrollTimer=setTimeout(()=>{nextMissingProgrammaticScroll=false;nextMissingScrollTimer=null;},900);
 }
-function navigateHighlight(target,{instant=false}={}){
+function navigateHighlight(target,{instant=false,synchronous=false}={}){
+ const owner=profile().id;
  const part=$('storyContent').querySelector(`details.part[data-part="${target.part}"]`);
  if(part&&!part.open){part.open=true;openedParts.add(String(target.part));persistProfileUI();}
- requestAnimationFrame(()=>{
+ const positionAndHighlight=()=>{
+  // A rapid view/profile change must not scroll a now-hidden Story Route.
+  if(view!=='story'||profile().id!==owner)return;
   const row=$(`entry-${target.id}-route`);if(!row)return;
   $('storyContent').querySelectorAll('.entry.next-missing-hit').forEach(el=>el.classList.remove('next-missing-hit'));
   if(nextMissingHighlightTimer){clearTimeout(nextMissingHighlightTimer);nextMissingHighlightTimer=null;}
@@ -3524,20 +3597,40 @@ function navigateHighlight(target,{instant=false}={}){
   const box=row.querySelector('input[type="checkbox"]');
   if(box){try{box.focus({preventScroll:true});}catch{box.focus();}}
   nextMissingHighlightTimer=setTimeout(()=>{row.classList.remove('next-missing-hit');nextMissingHighlightTimer=null;},reduce?900:1300);
- });
+ };
+ // Cross-view jumps from By Category prepare and position the destination
+ // before the browser can paint the newly rendered Story Route. The existing
+ // deferred path is retained for Gallery and Next Missing navigation.
+ if(synchronous)positionAndHighlight();
+ else requestAnimationFrame(positionAndHighlight);
 }
 function goToRoute(id,fromPostcardViewer=false){
+ const t=store.get(id);if(!t)return;
+ const fromCategory=view==='categories'&&!fromPostcardViewer;
+ // Capture filters before goToRoute clears them. Keep this separate from the
+ // gallery's established modal/scroll path (which is deliberately untouched).
+ clearCategoryReturn();
+ if(view==='categories'){
+  categoryReturnContext={id,profileId:profile().id,filter,query,onlyMissing,openedCategories:[...openedCategories]};
+ }
  if(id.startsWith('postcard-') && (view==='gallery'||fromPostcardViewer))galleryReturnContext={id,profileId:profile().id};
  else if(view!=='gallery')galleryReturnContext=null;
  // A deliberate jump from the gallery or category list starts a fresh navigation sequence.
- const t=store.get(id);if(!t)return;
  nextMissingLastTargetByProfile.set(profile().id,null);
  nextMissingUserMovedByProfile.set(profile().id,false);
  view='story';filter='all';query='';onlyMissing=false;
  $('typeFilter').value='all';$('searchInput').value='';
  $('missingOnly').setAttribute('aria-pressed','false');$('missingOnly').classList.remove('is-active');
  openedParts.add(String(t.part));previousChecklistView='story';persistProfileUI();render();
+ if(fromCategory){
+  // Render, position, focus and highlight in the same click task: no visible
+  // intermediate Story Route position, and no temporary overlay or blank frame.
+  navigateHighlight(t,{instant:true,synchronous:true});
+  return;
+ }
+ const jumpOwner=profile().id,jumpToken=categoryReturnNavigation;
  requestAnimationFrame(()=>{
+  if(view!=='story'||profile().id!==jumpOwner||categoryReturnNavigation!==jumpToken)return;
   navigateHighlight(t,{instant:fromPostcardViewer});
   // navigateHighlight itself schedules an animation frame. Run a second frame
   // only after the destination has been positioned; keep it obscured by the
@@ -3549,7 +3642,54 @@ function goToRoute(id,fromPostcardViewer=false){
   }
  });
 }
+function returnToCategory(id){
+ const ctx=categoryReturnContext;
+ if(!ctx||ctx.id!==id||ctx.profileId!==profile().id||!store.has(id))return;
+ // A return is a single-use journey; another navigation may not revive it.
+ clearCategoryReturn();
+ const returnToken=categoryReturnNavigation, owner=ctx.profileId, item=store.get(id);
+ clearMissingTransition();
+ view='categories';previousChecklistView='categories';galleryReturnContext=null;
+ filter=ctx.filter;query=ctx.query;onlyMissing=ctx.onlyMissing;
+ openedCategories=new Set(ctx.openedCategories);
+ $('typeFilter').value=filter;$('searchInput').value=query;
+ $('missingOnly').setAttribute('aria-pressed',String(onlyMissing));
+ $('missingOnly').classList.toggle('is-active',onlyMissing);
+ persistProfileUI();render();
+ // Position the restored category in this same click task. Waiting a frame
+ // could expose the new view at the previous Story Route scroll position.
+ if(view!=='categories'||profile().id!==owner||categoryReturnNavigation!==returnToken)return;
+  const root=$('categoryContent');
+  const itemVisible=visible(item);
+  let row=null;
+  if(itemVisible){
+   // Key/container pairs render as two independently targetable halves.
+   row=root.querySelector(`.entry[data-entry-id="${id}"]`);
+   if(!row){
+    const link=root.querySelector(`[data-to-route="${id}"]`);
+    row=link?.closest('.pair-step')||null;
+   }
+  }
+  // Missing-only may now exclude a just-completed item. Do not change the
+  // user's filters; focus its category summary, or the filtered empty state.
+  const kind=(item.kind==='key')?'container':item.kind;
+  const heading=root.querySelector(`details.cat-part[data-kind="${kind}"]>summary`);
+  const target=row||heading||root.querySelector('.missing-only-empty')||root;
+  if(!target)return;
+  root.querySelectorAll('.next-missing-hit').forEach(el=>el.classList.remove('next-missing-hit'));
+  if(nextMissingHighlightTimer){clearTimeout(nextMissingHighlightTimer);nextMissingHighlightTimer=null;}
+  const reduce=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  void target.offsetWidth;target.classList.add('next-missing-hit');
+  beginNextMissingProgrammaticScroll();
+  target.scrollIntoView({behavior:'instant',block:'center'});
+  const box=row?.querySelector('input[type="checkbox"]');
+  const focusTarget=box||target;
+  if(!box&&!focusTarget.hasAttribute('tabindex'))focusTarget.tabIndex=-1;
+  try{focusTarget.focus({preventScroll:true});}catch{focusTarget.focus();}
+  nextMissingHighlightTimer=setTimeout(()=>{target.classList.remove('next-missing-hit');nextMissingHighlightTimer=null;},reduce?900:1300);
+}
 function nextMissing(){
+ clearCategoryReturn();
  const s=profile();const missing=ITEMS.filter(x=>!checked(x.id));
  if(!missing.length){
   nextMissingLastTargetByProfile.set(s.id,null);nextMissingUserMovedByProfile.set(s.id,false);
@@ -3729,7 +3869,7 @@ $('addProfile').addEventListener('click',()=>modalAsk({kicker:'Profile managemen
 $('renameProfile').addEventListener('click',()=>modalAsk({kicker:'Profile management',title:'Rename profile',body:`Rename "${profile().name}".`,input:profile().name,ok:'Rename'},name=>{profile().name=name?.trim()||profile().name;save();profileSelectRender();}));
 $('deleteProfile').addEventListener('click',()=>{
  if(db.profiles.length===1){modalAsk({kicker:'Profile management',title:'Profile required',body:'Keep at least one profile.',ok:'OK',showCancel:false});return;}
- modalAsk({kicker:'Profile management',title:'Delete profile?',body:`Delete "${profile().name}"? This removes its locally stored tracker progress.`,ok:'Delete profile',danger:true},()=>{db.profiles=db.profiles.filter(p=>p.id!==db.active);db.active=db.profiles[0].id;hideUndo();applyProfileUI();save();profileSelectRender();render();});
+ modalAsk({kicker:'Profile management',title:'Delete profile?',body:`Delete "${profile().name}"? This removes its locally stored tracker progress.`,ok:'Delete profile',danger:true},()=>{db.profiles=db.profiles.filter(p=>p.id!==db.active);db.active=db.profiles[0].id;hideUndo();galleryReturnContext=null;clearCategoryReturn();applyProfileUI();save();profileSelectRender();render();});
 });
 $('markAll').addEventListener('change',e=>{
  if(!e.target.checked){bulkUpdate(false);return;}
@@ -3747,8 +3887,9 @@ $('clearAll').addEventListener('click',()=>modalAsk({title:'Clear all Collectibl
 $('undoButton').addEventListener('click',()=>{if(!undoSnapshot)return;const p=db.profiles.find(p=>p.id===undoSnapshot.profileId);if(p){p.checks={...undoSnapshot.checks};save();if(view==='gallery')redrawProgress();else render();}hideUndo();});
 $('searchInput').addEventListener('input',e=>{query=e.target.value.trim();render();});
 $('missingOnly').addEventListener('click',toggleMissingWithAnimation);
-function showChecklist(){view=previousChecklistView==='categories'?'categories':'story';galleryReturnContext=null;persistProfileUI();render();$('tab-'+view).focus({preventScroll:true});}
+function showChecklist(){clearCategoryReturn();view=previousChecklistView==='categories'?'categories':'story';galleryReturnContext=null;persistProfileUI();render();$('tab-'+view).focus({preventScroll:true});}
 function activateGallery(){
+ clearCategoryReturn();
  if(view==='gallery'){showChecklist();return;}
  if(view==='story'||view==='categories')previousChecklistView=view;
  view='gallery';galleryReturnContext=null;persistProfileUI();render();
@@ -3761,6 +3902,7 @@ function activateGallery(){
  }
 }
 function returnToPostcard(n){
+ clearCategoryReturn();
  // Do not scroll or rebuild an intermediate gallery tile while the dialog is
  // absent. Open the viewer in this same task after the gallery view is ready;
  // only the viewer-location action is allowed to relocate the document.
@@ -3773,10 +3915,10 @@ function returnToPostcard(n){
   card?.scrollIntoView({behavior:'instant',block:'center'});
  });
 }
-document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>{if(b.dataset.view==='gallery'){activateGallery();return;}view=b.dataset.view;previousChecklistView=view;galleryReturnContext=null;persistProfileUI();render();}));
+document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>{if(b.dataset.view==='gallery'){activateGallery();return;}clearCategoryReturn();view=b.dataset.view;previousChecklistView=view;galleryReturnContext=null;persistProfileUI();render();}));
 $('galleryBack').addEventListener('click',showChecklist);
 document.addEventListener('change',e=>{const input=e.target.closest('input[data-item]');if(!input)return;profile().checks[input.dataset.item]=input.checked;save();redrawProgress();});
-document.addEventListener('click',e=>{const back=e.target.closest('[data-return-postcard]');if(back){returnToPostcard(Number(back.dataset.returnPostcard));return;}const card=e.target.closest('[data-open-postcard]');if(card){openPostcard(Number(card.dataset.openPostcard));return;}const link=e.target.closest('[data-to-route]');if(link){goToRoute(link.dataset.toRoute);}});
+document.addEventListener('click',e=>{const categoryBack=e.target.closest('[data-return-category]');if(categoryBack){returnToCategory(categoryBack.dataset.returnCategory);return;}const back=e.target.closest('[data-return-postcard]');if(back){returnToPostcard(Number(back.dataset.returnPostcard));return;}const card=e.target.closest('[data-open-postcard]');if(card){openPostcard(Number(card.dataset.openPostcard));return;}const link=e.target.closest('[data-to-route]');if(link){goToRoute(link.dataset.toRoute);}});
 document.addEventListener('toggle',e=>{if(!e.target.isConnected)return;if(e.target.matches('#storyContent details.part')){if(e.target.open)openedParts.add(e.target.dataset.part);else openedParts.delete(e.target.dataset.part);persistProfileUI();}},true);
 $('nextMissing').addEventListener('click',nextMissing);$('nextMissingFloat').addEventListener('click',nextMissing);
 $('closeViewer').addEventListener('click',()=>$('viewer').close());let viewerLocationInProgress=false;
