@@ -1,3 +1,14 @@
+# Silent Hill: Townfall — Collectibles & Secrets Tracker v41 (proposed bug fix)
+
+## v41: Preserve By Category completion counters
+
+- Restricts the Story Route counter update in `redrawProgress()` to sections with `data-part`. Category sections use `data-kind`; including them in the Story Route update incorrectly overwrote their counters with `0 / 0` after individual checkbox changes.
+- Keeps the existing category counter calculations, including the combined 14-item Resource Containers / Lockbox Keys group.
+- Preserves search, filters, navigation, Gallery behavior, animations, item identifiers, profiles, and the `townfallCollectibles.v1` storage key. The Ending Tracker is unchanged.
+- This bug predates v40's expanded search. The same counter update is present in the repository's original Collectibles commit.
+- Automated DOM regression tests are in `tests/counter-regression.mjs`. They exercise desktop/mobile media-query settings and both motion preferences; they do not verify real browser layout or painting. Safari, Firefox, and physical mobile browser validation remain pending.
+- For an existing GitHub Pages installation, the application fix requires replacing only `collectibles/index.html`; the README is documentation and the tests are development-only. This proposed version has not been committed or deployed.
+
 # Silent Hill: Townfall — Collectibles & Secrets Tracker v40
 
 ## v40: Search index and formatting refinements
