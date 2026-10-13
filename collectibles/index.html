@@ -3310,6 +3310,10 @@ const inQuery=item=>{
  return terms.every(term=>haystack.includes(term));
 };
 const visible=item=>isType(item,filter)&&inQuery(item)&&(!onlyMissing||!checked(item.id));
+// Part progress follows category scope; search narrows All, not the counter.
+// Missing-only hides rows without changing either stable scope.
+const partCategoryItems=part=>ITEMS.filter(x=>String(x.part)===String(part)&&isType(x,filter));
+const partSelectionItems=part=>partCategoryItems(part).filter(inQuery);
 const smallCount=kind=>{const els=ITEMS.filter(x=>x.kind===kind);return {done:els.filter(x=>checked(x.id)).length,total:els.length};};
 // Preserve overview nodes between progress updates so CSS width transitions can run.
 // Count prior completions by profile, and play the v109 glow only for real
@@ -3452,11 +3456,12 @@ function partFiveNoticeHTML(){
  return '<div class="part-empty part-five-note"><strong>No collectibles to track</strong><span>Part 5 contains none of the collectible types covered by this tracker. Continue to Part 6: Simon for the remaining collectibles.</span></div>';
 }
 function storyRender(){let html='',matches=0;for(let part=1;part<=6;part++){
- const all=ITEMS.filter(x=>x.part===part),list=all.filter(visible),done=all.filter(x=>checked(x.id)).length;
+ const all=partCategoryItems(part),list=all.filter(visible),done=all.filter(x=>checked(x.id)).length;
+ const selection=partSelectionItems(part),selectionDone=selection.filter(x=>checked(x.id)).length;
  matches+=list.length;
  if(!list.length&&(query||onlyMissing||filter!=='all'))continue;
  const display=`Part ${part}: ${PARTS[part][0]}`;
- const allBox=all.length?`<label class="part-all" title="Mark all ${all.length} items in ${display}"><input type="checkbox" data-select-part="${part}" ${done===all.length?'checked':''}><span>All</span></label>`:'';
+ const allBox=selection.length?`<label class="part-all" title="Select or clear all ${selection.length} ${query.trim()?'search-matching ':''}items in ${display}"><input type="checkbox" data-select-part="${part}" ${selectionDone===selection.length?'checked':''}><span>All</span></label>`:'';
  html+=`<details class="part" data-part="${part}" ${openedParts.has(String(part))?'open':''}><summary><div class="part-titles"><strong>${display}</strong></div><span class="part-head-controls"><span class="countpill">${done} / ${all.length}</span>${allBox}</span></summary><div class="part-body"><div class="part-items">${list.length?list.map(x=>entryHTML(x,ITEMS.indexOf(x))).join(''):partFiveNoticeHTML()}</div></div></details>`;
  }
  if(!html)html=checklistEmptyHTML();
@@ -3502,7 +3507,7 @@ function syncGalleryCompletion(){
  });
 }
 function render(){progressUpdate();const views={story:'storyContent',categories:'categoryContent',gallery:'galleryContent'};for(const [name,id] of Object.entries(views))$(id).hidden=name!==view;for(const n of Object.keys(views)){$('tab-'+n).setAttribute('aria-selected',String(n===view));$(n==='story'?'storyView':n==='categories'?'categoryView':'galleryView').hidden=n!==view;} $('filters').hidden=view==='gallery';$('typeFilter').closest('.select-holder').hidden=view==='gallery'; $('checklistTools').hidden=view==='gallery';syncCustomSelects();if(view==='story')storyRender();if(view==='categories')categoryRender();if(view==='gallery')galleryRender();updateOverviewCheckboxes();requestAnimationFrame(updateFloatingNextMissing);}
-function redrawProgress(){progressUpdate();updateSelectAllCheckboxes();if(onlyMissing&&view!=='gallery'){animateFilteredChecklistUpdate();return;}document.querySelectorAll('[data-item]').forEach(el=>{el.checked=checked(el.dataset.item);const e=el.closest('.entry');if(e)e.classList.toggle('done',el.checked);});document.querySelectorAll('.pair-card').forEach(card=>{const checks=[...card.querySelectorAll('input[data-item]')];card.classList.toggle('pair-complete',checks.every(i=>i.checked));});document.querySelectorAll('details.part[data-part]').forEach(d=>{const all=ITEMS.filter(x=>String(x.part)===d.dataset.part),count=all.filter(x=>checked(x.id)).length;d.querySelector('.countpill').textContent=`${count} / ${all.length}`;});document.querySelectorAll('.cathead').forEach((head)=>{const name=head.querySelector('h2')?.textContent,c=CATEGORIES.find(c=>c.name===name);if(c){const count=smallCount(c.kind);head.querySelector('small').textContent=`${count.done} / ${count.total} completed`;}});}
+function redrawProgress(){progressUpdate();updateSelectAllCheckboxes();if(onlyMissing&&view!=='gallery'){animateFilteredChecklistUpdate();return;}document.querySelectorAll('[data-item]').forEach(el=>{el.checked=checked(el.dataset.item);const e=el.closest('.entry');if(e)e.classList.toggle('done',el.checked);});document.querySelectorAll('.pair-card').forEach(card=>{const checks=[...card.querySelectorAll('input[data-item]')];card.classList.toggle('pair-complete',checks.every(i=>i.checked));});document.querySelectorAll('details.part[data-part]').forEach(d=>{const all=partCategoryItems(d.dataset.part),count=all.filter(x=>checked(x.id)).length;d.querySelector('.countpill').textContent=`${count} / ${all.length}`;});document.querySelectorAll('.cathead').forEach((head)=>{const name=head.querySelector('h2')?.textContent,c=CATEGORIES.find(c=>c.name===name);if(c){const count=smallCount(c.kind);head.querySelector('small').textContent=`${count.done} / ${count.total} completed`;}});}
 function profileSelectRender(){
  $('profileSelect').innerHTML=db.profiles.map(p=>`<option value="${escapeHTML(p.id)}" ${p.id===db.active?'selected':''}>${escapeHTML(p.name)}</option>`).join('');
  $('profileValue').textContent=profile().name;
@@ -3514,7 +3519,7 @@ function dropdownOpen(type){const button=$(type+'Button'),options=$(type+'Option
 function syncCustomSelects(){const opt=$('typeFilter');if(!opt)return;$('categoryValue').textContent=opt.selectedOptions[0]?.textContent||'All categories';document.querySelectorAll('#categoryOptions [data-value]').forEach(el=>el.setAttribute('aria-selected',String(el.dataset.value===filter)));}
 function updateOverviewCheckboxes(){document.querySelectorAll('input[data-overview-all],input[data-gallery-all]').forEach(input=>{const kind=input.dataset.overviewAll||input.dataset.galleryAll;const items=ITEMS.filter(x=>x.kind===kind);const done=items.filter(x=>checked(x.id)).length;input.checked=done===items.length;input.indeterminate=done>0&&done<items.length;});}
 function updateSelectAllCheckboxes(){updateOverviewCheckboxes();const all=$('markAll');if(all){const count=ITEMS.filter(x=>checked(x.id)).length;all.checked=count===ITEMS.length;all.indeterminate=count>0&&count<ITEMS.length;}
- document.querySelectorAll('input[data-select-part]').forEach(input=>{const arr=ITEMS.filter(x=>String(x.part)===input.dataset.selectPart);const count=arr.filter(x=>checked(x.id)).length;input.checked=count===arr.length;input.indeterminate=count>0&&count<arr.length;input.closest('.part-head-controls')?.querySelector('.countpill')?.replaceChildren(document.createTextNode(`${count} / ${arr.length}`));});
+ document.querySelectorAll('input[data-select-part]').forEach(input=>{const arr=partCategoryItems(input.dataset.selectPart),selection=partSelectionItems(input.dataset.selectPart);const count=arr.filter(x=>checked(x.id)).length,selectionDone=selection.filter(x=>checked(x.id)).length;input.checked=selection.length>0&&selectionDone===selection.length;input.indeterminate=selectionDone>0&&selectionDone<selection.length;input.closest('.part-head-controls')?.querySelector('.countpill')?.replaceChildren(document.createTextNode(`${count} / ${arr.length}`));});
  document.querySelectorAll('input[data-select-category]').forEach(input=>{const k=input.dataset.selectCategory,arr=ITEMS.filter(x=>x.kind===k||(k==='container'&&x.kind==='key'));const count=arr.filter(x=>checked(x.id)).length;input.checked=count===arr.length;input.indeterminate=count>0&&count<arr.length;input.closest('.part-head-controls')?.querySelector('.countpill')?.replaceChildren(document.createTextNode(`${count} / ${arr.length}`));});
 }
 
@@ -3884,7 +3889,20 @@ $('markAll').addEventListener('change',e=>{
  updateSelectAllCheckboxes();
 });
 $('clearAll').addEventListener('click',()=>modalAsk({title:'Clear all Collectibles?',body:'Clear all 54 collectible checkboxes and 7 Lockbox Key checkboxes for this profile?',ok:'Clear all',danger:true,kicker:'COLLECTIBLES'},()=>bulkUpdate(false)));
-$('undoButton').addEventListener('click',()=>{if(!undoSnapshot)return;const p=db.profiles.find(p=>p.id===undoSnapshot.profileId);if(p){p.checks={...undoSnapshot.checks};save();if(view==='gallery')redrawProgress();else render();}hideUndo();});
+$('undoButton').addEventListener('click',()=>{
+ if(!undoSnapshot)return;
+ const p=db.profiles.find(p=>p.id===undoSnapshot.profileId);
+ if(p){
+  if(undoSnapshot.itemIds){
+   for(const id of undoSnapshot.itemIds){
+    if(Object.prototype.hasOwnProperty.call(undoSnapshot.checks,id))p.checks[id]=undoSnapshot.checks[id];
+    else delete p.checks[id];
+   }
+  }else p.checks={...undoSnapshot.checks};
+  save();if(view==='gallery')redrawProgress();else render();
+ }
+ hideUndo();
+});
 $('searchInput').addEventListener('input',e=>{query=e.target.value.trim();render();});
 $('missingOnly').addEventListener('click',toggleMissingWithAnimation);
 function showChecklist(){clearCategoryReturn();view=previousChecklistView==='categories'?'categories':'story';galleryReturnContext=null;persistProfileUI();render();$('tab-'+view).focus({preventScroll:true});}
@@ -4077,10 +4095,12 @@ function animateFilteredChecklistUpdate(){
 
 // v109-style section controls. Preserve saved identities and check states across views.
 function captureCategoryParts(){const els=[...document.querySelectorAll('#categoryContent details.cat-part')];if(els.length)openedCategories=new Set(els.filter(el=>el.open).map(el=>el.dataset.kind));}
-function selectGroup(items,checkedState){
+function selectGroup(items,checkedState,{scopedUndo=false}={}){
  const targets=items.filter(x=>checked(x.id)!==checkedState);
  if(!targets.length){if(view==='gallery')redrawProgress();else renderWithViewportAnchor();return;}
  const snap={profileId:profile().id,checks:{...profile().checks}};
+ // Part All must not undo later edits to items outside this operation.
+ if(scopedUndo)snap.itemIds=targets.map(x=>x.id);
  targets.forEach(x=>{if(checkedState)profile().checks[x.id]=true;else delete profile().checks[x.id];});
  save();
  // A gallery completion edit only changes checkboxes and counters. Do not
@@ -4096,8 +4116,8 @@ document.addEventListener('click',e=>{const label=e.target.closest('.part-all');
 document.addEventListener('keydown',e=>{if(e.target.closest('.part-all')&&e.key===' '){e.stopPropagation();}});
 document.addEventListener('change',e=>{
  const p=e.target.closest('input[data-select-part]');const c=e.target.closest('input[data-select-category]');if(!p&&!c)return;
- const items=p?ITEMS.filter(x=>String(x.part)===p.dataset.selectPart):ITEMS.filter(x=>x.kind===c.dataset.selectCategory||(c.dataset.selectCategory==='container'&&x.kind==='key'));
- selectGroup(items,e.target.checked);
+ const items=p?partSelectionItems(p.dataset.selectPart):ITEMS.filter(x=>x.kind===c.dataset.selectCategory||(c.dataset.selectCategory==='container'&&x.kind==='key'));
+ selectGroup(items,e.target.checked,{scopedUndo:!!p});
 });
 document.addEventListener('toggle',e=>{const el=e.target;if(!el.isConnected||!el.matches?.('#categoryContent details.cat-part'))return;if(el.open)openedCategories.add(el.dataset.kind);else openedCategories.delete(el.dataset.kind);persistProfileUI();},true);
 // Keep collapsed section animations smooth while honoring reduced-motion users.

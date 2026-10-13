@@ -1,3 +1,16 @@
+# Silent Hill: Townfall — Collectibles & Secrets Tracker v42 (proposed bug fix)
+
+## v42: Story Route category progress and scoped Part All
+
+- Each Part counter now uses the active category: All categories counts every item, while Containers & Keys counts both individual types. Search and Show Missing Only do not change this progress numerator or denominator.
+- A Part's All checkbox affects only items matching the active category and search. Its checked/partial state follows that selection scope, which can be smaller than the counter's category scope. The tooltip reports the selection count and identifies search-matching items.
+- Show Missing Only hides completed rows without changing either scope. Selecting All can remove a completed Part from the filtered view; Undo restores its changed checkmarks and visible rows. Clearing All affects the same category/search scope, including completed matches hidden by Show Missing Only.
+- Parts without visible matches remain omitted under filters, as before. Unfiltered Part 5 retains its established 0 / 0 notice and no All checkbox.
+- Undo for Part All restores only items changed by that operation, preserving later unrelated edits. Other bulk controls retain their established Undo behavior.
+- Preserves the v41 By Category correction, overall 61-item statistics, profile preferences, item identifiers, and `townfallCollectibles.v1`. Styling, Gallery code/navigation, image assets, and the Ending Tracker are unchanged.
+- Focused DOM tests cover all six Parts, category/search combinations, both container/key identities, Show Missing Only, scoped Undo, profiles, and reload persistence, alongside the v41 regression cases. They use desktop/mobile media queries and both motion preferences, without validating real browser layout or painting.
+- Application update: replace only `collectibles/index.html`; README and tests are documentation/development files. No commit, push, or deployment has been performed for this proposed fix.
+
 # Silent Hill: Townfall — Collectibles & Secrets Tracker v41 (proposed bug fix)
 
 ## v41: Preserve By Category completion counters

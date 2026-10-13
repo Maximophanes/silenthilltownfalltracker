@@ -69,6 +69,11 @@ function app(width, reducedMotion, saved = null) {
   const checks = () => JSON.parse(evaluate('JSON.stringify(profile().checks)'));
   const items = JSON.parse(evaluate('JSON.stringify(ITEMS)'));
   const count = list => list.filter(x => checks()[x.id]).length;
+  const categoryItems = part => {
+    const filter = evaluate('filter');
+    return items.filter(x => String(x.part) === String(part) &&
+      (filter === 'all' || x.kind === filter || filter === 'container' && x.kind === 'key'));
+  };
   const expectCounts = () => {
     for (const section of document.querySelectorAll('#categoryContent details.cat-part')) {
       const kind = section.dataset.kind;
@@ -78,8 +83,8 @@ function app(width, reducedMotion, saved = null) {
       assert.equal(all.checked, count(list) === totals[kind]);
       assert.equal(all.indeterminate, count(list) > 0 && count(list) < totals[kind]);
     }
-    for (const section of document.querySelectorAll('#storyContent details.part')) {
-      const list = items.filter(x => String(x.part) === section.dataset.part);
+    for (const section of document.querySelectorAll('#storyContent:not([hidden]) details.part')) {
+      const list = categoryItems(section.dataset.part);
       assert.equal(section.querySelector('.countpill').textContent, `${count(list)} / ${list.length}`, `Story Part ${section.dataset.part}`);
     }
     const done = count(items);
@@ -102,12 +107,125 @@ function app(width, reducedMotion, saved = null) {
     expectCounts();
   };
   const confirm = () => click('#appDialogConfirm');
+  const categoryFilter = value => { click('#categoryButton'); click(`#categoryOptions [data-value="${value}"]`); };
   return { window, document, $, click, change, search, tick, evaluate, items, checks,
-    expectCounts, categories, confirm, saved: () => window.localStorage.getItem(storageKey),
-    close: () => window.happyDOM.abort() };
+    expectCounts, categories, confirm, categoryFilter, categoryItems, saved: () => window.localStorage.getItem(storageKey),
+    close: async () => {
+      timers.clear();
+      await window.happyDOM.close();
+      Object.defineProperty(window.Element.prototype, 'textContent', textContent);
+    } };
 }
 
 const scenarios = {
+  'Story Route category counters and All scope across all six Parts'(a) {
+    for (const category of ['postcard', 'phone', 'signal', 'container', 'all']) {
+      a.categoryFilter(category);
+      for (let part = 1; part <= 6; part++) {
+        const items = a.categoryItems(part);
+        const section = a.document.querySelector(`#storyContent details[data-part="${part}"]`);
+        if (!items.length) {
+          assert.equal(!!section, category === 'all' && part === 5);
+          if (section) assert.equal(section.querySelector('.countpill').textContent, '0 / 0');
+          continue;
+        }
+        assert.ok(section); a.expectCounts();
+        const before = a.checks();
+        a.change(`[data-select-part="${part}"]`, true); a.expectCounts();
+        for (const item of a.items) {
+          assert.equal(!!a.checks()[item.id], items.some(x => x.id === item.id) || !!before[item.id], item.id);
+        }
+        a.change(`[data-select-part="${part}"]`, false); a.expectCounts();
+        for (const item of a.items) {
+          assert.equal(!!a.checks()[item.id], items.some(x => x.id === item.id) ? false : !!before[item.id], item.id);
+        }
+        a.change(`#storyContent input[data-item="${items[0].id}"]`, true); a.expectCounts();
+        a.change(`#storyContent input[data-item="${items[0].id}"]`, false); a.expectCounts();
+      }
+    }
+  },
+  'Part counters ignore search while Part All obeys category and search'(a) {
+    const target = a.items.find(x => x.kind === 'postcard');
+    a.categoryFilter('postcard'); a.search(`postcard #${target.number}`); a.expectCounts();
+    assert.equal(a.document.querySelectorAll('#storyContent input[data-item]').length, 1);
+    const scope = a.categoryItems(target.part);
+    assert.ok(scope.length > 1);
+    a.change(`[data-select-part="${target.part}"]`, true); a.expectCounts();
+    assert.equal(a.$(`[data-select-part="${target.part}"]`).checked, true);
+    assert.equal(a.$(`#storyContent [data-part="${target.part}"] .countpill`).textContent, `1 / ${scope.length}`);
+    assert.deepEqual(Object.keys(a.checks()).filter(id => a.checks()[id]), [target.id]);
+    a.search('');
+    assert.equal(a.$(`[data-select-part="${target.part}"]`).checked, false);
+    assert.equal(a.$(`[data-select-part="${target.part}"]`).indeterminate, true);
+    a.search(`postcard #${target.number}`);
+    a.change(`[data-select-part="${target.part}"]`, false); a.expectCounts();
+    assert.equal(Object.values(a.checks()).filter(Boolean).length, 0);
+    a.search(''); a.expectCounts();
+    a.search(`postcard #${target.number}`); a.categoryFilter('all');
+    a.change(`[data-select-part="${target.part}"]`, true); a.expectCounts();
+    assert.deepEqual(Object.keys(a.checks()).filter(id => a.checks()[id]), [target.id]);
+    a.search('no matching collectible');
+    assert.equal(a.document.querySelectorAll('#storyContent [data-select-part]').length, 0);
+    assert.deepEqual(Object.keys(a.checks()).filter(id => a.checks()[id]), [target.id]);
+  },
+  'Show Missing Only keeps category totals stable and filtered All supports Undo'(a) {
+    a.categoryFilter('postcard');
+    const target = a.items.find(x => x.kind === 'postcard');
+    const scope = a.categoryItems(target.part);
+    a.change(`#storyContent input[data-item="${target.id}"]`, true);
+    a.click('#missingOnly'); a.tick(); a.expectCounts();
+    assert.equal(a.$(`[data-select-part="${target.part}"]`).indeterminate, true);
+    assert.equal(a.document.querySelector(`#storyContent input[data-item="${target.id}"]`), null);
+    const before = a.checks();
+    a.change(`[data-select-part="${target.part}"]`, true); a.expectCounts();
+    assert.equal(a.document.querySelector(`#storyContent [data-part="${target.part}"]`), null);
+    for (const item of a.items) assert.equal(!!a.checks()[item.id], scope.some(x => x.id === item.id) || !!before[item.id]);
+    a.click('#undoButton'); a.expectCounts(); assert.deepEqual(a.checks(), before);
+    // Clearing the matching scope remains available while some missing items are visible.
+    a.change(`[data-select-part="${target.part}"]`, false); a.expectCounts();
+    assert.equal(a.document.querySelectorAll(`#storyContent [data-part="${target.part}"] input[data-item]`).length, scope.length);
+    a.click('#undoButton'); a.expectCounts(); assert.deepEqual(a.checks(), before);
+    a.search(`postcard #${target.number}`); a.expectCounts();
+    assert.equal(a.document.querySelectorAll('#storyContent [data-select-part]').length, 0);
+    a.click('#missingOnly'); a.tick(); a.expectCounts();
+    assert.equal(a.$(`[data-select-part="${target.part}"]`).checked, true);
+  },
+  'Containers and Keys stay independent under search-scoped Part All'(a) {
+    a.categoryFilter('container');
+    for (const kind of ['key', 'container']) {
+      const target = a.items.find(x => x.kind === kind && x.number === 1);
+      a.search(`${kind === 'key' ? 'Lockbox Key' : 'Resource Container'} 1`); a.expectCounts();
+      const before = a.checks();
+      a.change(`[data-select-part="${target.part}"]`, true); a.expectCounts();
+      for (const item of a.items) assert.equal(!!a.checks()[item.id], item.id === target.id || !!before[item.id]);
+      a.change(`[data-select-part="${target.part}"]`, false); a.expectCounts();
+      for (const item of a.items) assert.equal(!!a.checks()[item.id], item.id === target.id ? false : !!before[item.id]);
+      a.click('#undoButton'); a.expectCounts();
+      assert.equal(a.checks()[target.id], true);
+    }
+  },
+  async 'Part Undo preserves later unrelated edits and profile/storage state'(a, width, motion) {
+    const target = a.items.find(x => x.kind === 'postcard');
+    const unrelated = a.items.find(x => x.kind === 'signal' && x.part === target.part);
+    a.change(`#storyContent input[data-item="${unrelated.id}"]`, true);
+    a.categoryFilter('postcard'); a.search(`postcard #${target.number}`);
+    a.change(`[data-select-part="${target.part}"]`, true); a.expectCounts();
+    a.search(''); a.categoryFilter('all');
+    a.change(`#storyContent input[data-item="${unrelated.id}"]`, false);
+    a.click('#undoButton'); a.expectCounts();
+    assert.equal(a.checks()[target.id], undefined);
+    assert.equal(a.checks()[unrelated.id], false, 'Undo must preserve the later unrelated edit');
+    a.categoryFilter('container'); a.change('[data-select-part="1"]', true); a.expectCounts();
+    const expected = a.checks();
+    a.click('#addProfile'); a.$('#appDialogInput').value = 'Filtered Part test'; a.confirm();
+    assert.equal(Object.values(a.checks()).filter(Boolean).length, 0);
+    a.click('#profileButton'); a.click('#profileOptions [data-profile="default"]'); a.expectCounts();
+    assert.deepEqual(a.checks(), expected);
+    assert.equal(a.evaluate('filter'), 'container');
+    const reloaded = app(width, motion, a.saved());
+    try { reloaded.expectCounts(); assert.deepEqual(reloaded.checks(), expected); }
+    finally { await reloaded.close(); }
+  },
   'individual checkbox check and uncheck in all five types'(a) {
     a.categories();
     for (const kind of ['postcard', 'phone', 'signal', 'key', 'container']) {
@@ -193,7 +311,7 @@ const scenarios = {
     a.categories();
     a.change('#categoryContent input[data-item="postcard-01"]', false); a.expectCounts();
   },
-  'profile isolation, preferences, and reload'(a, width, motion) {
+  async 'profile isolation, preferences, and reload'(a, width, motion) {
     a.categories(); a.change('#categoryContent input[data-item="postcard-01"]', true); a.expectCounts();
     a.click('#addProfile'); a.$('#appDialogInput').value = 'Regression profile'; a.confirm(); a.expectCounts();
     assert.equal(a.$('#doneMain').textContent, '0');
@@ -208,9 +326,9 @@ const scenarios = {
       assert.equal(reloaded.evaluate('onlyMissing'), true);
       assert.equal(reloaded.checks()['postcard-01'], true);
       assert.equal(reloaded.evaluate('db.profiles.length'), 2);
-    } finally { reloaded.close(); }
+    } finally { await reloaded.close(); }
   },
-  'existing v40 profile at 13/15 postcards remains compatible'(a, width, motion) {
+  async 'existing v40 profile at 13/15 postcards remains compatible'(a, width, motion) {
     const postcards = a.items.filter(x => x.kind === 'postcard').sort((x, y) => x.number - y.number);
     const checks = Object.fromEntries(postcards.slice(0, 13).map(x => [x.id, true]));
     const fixture = JSON.stringify({ active: 'existing', profiles: [{ id: 'existing', name: 'Existing v40 progress',
@@ -227,7 +345,7 @@ const scenarios = {
       assert.equal(counter(), '13 / 15');
       assert.equal(restored.$('#discoveryPercent').textContent, '21%');
       assert.deepEqual(Object.keys(restored.checks()).filter(id => restored.checks()[id]), Object.keys(checks));
-    } finally { restored.close(); }
+    } finally { await restored.close(); }
   },
   'Gallery checkbox, Select All and Undo preserve thumbnail nodes'(a) {
     a.categories(); a.click('#tab-gallery');
@@ -255,11 +373,11 @@ for (const width of [1280, 390]) {
       const a = app(width, motion);
       try {
         assert.equal(a.window.matchMedia('(max-width:650px)').matches, width < 650);
-        run(a, width, motion); passed++;
+        await run(a, width, motion); passed++;
         console.log(`PASS ${width}px reduced-motion=${motion}: ${name}`);
       } catch (error) {
         failed++; console.error(`FAIL ${width}px reduced-motion=${motion}: ${name}\n${error.stack}`);
-      } finally { a.close(); }
+      } finally { await a.close(); }
     }
   }
 }
