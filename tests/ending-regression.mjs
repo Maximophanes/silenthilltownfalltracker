@@ -32,7 +32,7 @@ const expectedOrder = oldItems.map(x => x.id);
 [expectedOrder[11], expectedOrder[12]] = [expectedOrder[12], expectedOrder[11]];
 assert.deepEqual(items.map(x => x.id), expectedOrder);
 const titleChanges = new Set([6, 26, 38, 40, 68]);
-const whereChanges = new Set([1, 2, 7, 8, 9, 11, 12, 13, 16, 17, 21, 23, 25, 30, 32, 36, 37, 38, 39, 40, 42, 47, 49,
+const whereChanges = new Set([1, 2, 7, 8, 9, 11, 12, 13, 15, 16, 17, 21, 23, 25, 30, 32, 36, 37, 38, 39, 40, 42, 47, 49,
   56, 57, 58, 59, 61, 62, 63, 66, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83]);
 for (const old of oldItems) {
   const current = items.find(x => x.id === old.id);
@@ -148,7 +148,8 @@ const scenarios = {
   },
   'final Clinic wording, room names and Ground Floor corrections'(a) {
     const expected = {
-      16: 'Inside the Clinic, enter Z Ellis’s room through the second door at the end of the hallway, then use the computer to open “Where Are You?”.',
+      15: 'Inside the Clinic, enter Z Ellis’s room through the second door at the end of the hallway, then inspect the paper to the left of the scales.',
+      16: 'Inside the Clinic, use the computer in Z Ellis’s room to open “Where Are You?”.',
       17: 'Inside the Clinic, use the computer in Z Ellis’s room to open “Answer Phone Message”.',
       30: 'On a bed inside the tent at the back-left corner of the parking lot.',
       36: 'Victoria Ward Ground Floor: go to the end of the hallway past Reception and enter Consult Room B; use the computer and open “Supply Situation Update”.',
@@ -221,7 +222,7 @@ const scenarios = {
   },
   async 'v113 saved emails, renamed entries, profiles and reload'(a, width, motion) {
     const saved = fixture({ 12: true, 6: true, 26: true, 38: true, 40: true, 68: true, 21: true,
-      16: true, 17: true, 30: true, 36: true, 37: true, 42: true, 59: true, 66: true });
+      15: true, 16: true, 17: true, 30: true, 36: true, 37: true, 42: true, 59: true, 66: true });
     const b = app(width, motion, saved);
     try {
       b.expectCounts();
