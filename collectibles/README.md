@@ -1,4 +1,16 @@
-# Silent Hill: Townfall — Collectibles & Secrets Tracker v43 (proposed release)
+# Silent Hill: Townfall — Collectibles & Secrets Tracker v44 (proposed release)
+
+## v44: Complete header category badges
+
+- Replaces the three introductory badges with exactly five, in order: **15 STRANGE POSTCARDS**, **13 PHONE CALLS**, **19 CRTV SIGNALS**, **7 RESOURCE CONTAINERS**, **7 LOCK BOX KEYS**. Removes the 54-objective aggregate badge; no replacement aggregate badge is added.
+- These fixed inventory counts total 61 and do not follow profile completion. Existing `.tag` styling, header spacing and flex wrapping are unchanged; no CSS or JavaScript changes are needed.
+- All 61 records, saved progress, profiles, counters, filters, spoilers, warnings, navigation, Gallery and assets remain byte-identical to published v43. Ending v115 is untouched.
+- The existing accuracy suite adds a desktop/mobile, both-motion-settings check for exact labels/order/counts, wrapping CSS and badge stability through individual completion, Mark All, Undo and profile switching. A source comparison permits only the badge markup and version comment to differ from v43.
+- Application update: `collectibles/index.html` only; this README and `tests/accuracy-regression.mjs` support review/testing. No commit, push or deployment is included.
+
+Validation: **60/60 counter scenarios and 44/44 accuracy scenarios passed**, at 1280px and 390px with both motion preferences. Both inline scripts passed syntax checks, and `git diff --check` passed. The application source comparison confirms only the badge markup and version comment changed.
+
+Actual browser painting and measured line wrapping require manual inspection: confirm one row where desktop width permits and natural wrapping without horizontal overflow on mobile. Automated DOM/media-query checks do not measure layout.
 
 ## v43: Approved accuracy, wording and presentation refinements
 

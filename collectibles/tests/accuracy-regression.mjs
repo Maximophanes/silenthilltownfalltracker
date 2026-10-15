@@ -12,6 +12,12 @@ const git = args => {
   return new TextDecoder().decode(r.stdout);
 };
 const baseline = git(['show', '7975cd1:collectibles/index.html']); // Clean v42 baseline.
+const v43 = git(['show', 'b0d73c3:collectibles/index.html']); // Published v43.
+const headerBadges = ['15 STRANGE POSTCARDS','13 PHONE CALLS','19 CRTV SIGNALS','7 RESOURCE CONTAINERS','7 LOCK BOX KEYS'];
+assert.equal(html, v43
+  .replace('<!-- Collectibles & Secrets Tracker v43: approved accuracy and presentation refinements. -->', '<!-- Collectibles & Secrets Tracker v44: complete header category badges. -->')
+  .replace('<div class="headerline"><span class="tag">54 collectible objectives</span><span class="tag">7 Lock Box Keys</span><span class="tag">19 CRTV signals</span></div>', `<div class="headerline">${headerBadges.map(label=>`<span class="tag">${label}</span>`).join('')}</div>`),
+  'v44 changes only the version comment and header badges; all CSS, data and JavaScript stay byte-identical to v43');
 const scriptsFor = source => [...source.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/g)].map(m => m[1]);
 const scripts = scriptsFor(html);
 scripts.forEach(code => new vm.Script(code));
@@ -233,6 +239,28 @@ const row = (a, id) => a.$(`${activeRoot(a)} input[data-item="${id}"]`).closest(
 const matches = a => [...a.document.querySelectorAll(`${activeRoot(a)} input[data-item]`)].map(x => x.dataset.item);
 const settle = async () => { for (let i=0; i<20; i++) await Promise.resolve(); };
 const scenarios = {
+  'v44 five fixed header badges retain exact labels, order and styling across progress and profiles'(a) {
+    const header=a.$('header .headerline');
+    const labels=()=>[...header.children].map(x=>x.textContent);
+    assert.deepEqual(labels(),headerBadges);
+    assert.equal(header.children.length,5);
+    assert.ok([...header.children].every(x=>x.matches('span.tag')));
+    assert.equal(headerBadges.reduce((sum,label)=>sum+parseInt(label,10),0),61);
+    for (const [i,kind] of ['postcard','phone','signal','container','key'].entries()) {
+      assert.equal(parseInt(headerBadges[i],10),items.filter(x=>x.kind===kind).length);
+    }
+    assert.equal(a.window.getComputedStyle(header).display,'flex');
+    assert.equal(a.window.getComputedStyle(header).flexWrap,'wrap');
+    a.change('#storyContent input[data-item="postcard-01"]',true); a.expectCounts();
+    assert.deepEqual(labels(),headerBadges);
+    a.change('#markAll',true); a.confirm(); a.expectCounts();
+    assert.equal(a.$('#doneMain').textContent,'61'); assert.deepEqual(labels(),headerBadges);
+    a.click('#undoButton'); a.expectCounts(); assert.deepEqual(labels(),headerBadges);
+    a.click('#addProfile'); a.$('#appDialogInput').value='Header badge check'; a.confirm(); a.expectCounts();
+    assert.equal(a.$('#doneMain').textContent,'0'); assert.deepEqual(labels(),headerBadges);
+    a.click('#profileButton'); a.click('#profileOptions [data-profile="default"]'); a.expectCounts();
+    assert.equal(a.$('#doneMain').textContent,'1'); assert.deepEqual(labels(),headerBadges);
+  },
   'final approved wording in both views; tuning and calibration retain their identities'(a) {
     for (const view of ['story','categories']) {
       a.click(`#tab-${view}`);
@@ -515,5 +543,5 @@ for (const width of [1280,390]) {
     }
   }
 }
-console.log(`JavaScript syntax: PASS (${scripts.length} inline scripts). v43 DOM scenarios: ${passed} passed, ${failed} failed.`);
+console.log(`JavaScript syntax: PASS (${scripts.length} inline scripts). Collectibles DOM scenarios: ${passed} passed, ${failed} failed.`);
 if (failed) Deno.exit(1);
