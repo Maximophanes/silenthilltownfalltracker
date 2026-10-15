@@ -9,6 +9,9 @@ const html = await Deno.readTextFile(new URL('../index.html', import.meta.url));
 const baselineResult = new Deno.Command('git', { args: ['show', 'cb0f17a:index.html'] }).outputSync();
 assert.equal(baselineResult.code, 0, 'v113 baseline must be available');
 const baseline = new TextDecoder().decode(baselineResult.stdout);
+const v114Result = new Deno.Command('git', { args: ['show', 'b0d73c3:index.html'] }).outputSync();
+assert.equal(v114Result.code, 0, 'Published v114 baseline must be available');
+const v114 = new TextDecoder().decode(v114Result.stdout);
 const scriptsFor = source => [...source.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/g)].map(m => m[1]);
 const scripts = scriptsFor(html);
 scripts.forEach(code => new vm.Script(code));
@@ -16,7 +19,12 @@ const dataset = (source, name) => JSON.parse(source.match(new RegExp(`const ${na
 const items = dataset(html, 'COLLECTIBLES'), oldItems = dataset(baseline, 'COLLECTIBLES');
 const ngItems = dataset(html, 'NG_ITEMS'), oldNG = dataset(baseline, 'NG_ITEMS');
 const storageKey = 'townfallEndingTracker.v2';
-const codes = { 21: '2896', 59: '4895', 63: '486' }; // Stable ID 21 is displayed Discovery 18.
+const codes = { 21: '2896', 26: '1993', 59: '4895', 63: '486' }; // Stable ID 21 is displayed Discovery 18.
+const v115Descriptions = {
+  26: 'In the Community Gardens, unlock the Jane’s Garden shed using code 1993, found on Jane Chalmers’ commemorative plaque. Read the obituary on the middle shelf.',
+  83: 'SWDP - Different: in the AUX room, insert the AUX Disk into the computer and read “Auxiliary Lines”.',
+  bronzeCoin: 'Follow the main road to VIDEO STAR (the Video Rental Store marked 1 on the Shorefront map). Enter the shop and collect the Bronze Coin from the shelf in the small back room.'
+};
 let passed = 0, failed = 0;
 
 // Assert classifications, IDs, Parts and every unrelated data field remain intact.
@@ -32,7 +40,7 @@ const expectedOrder = oldItems.map(x => x.id);
 [expectedOrder[11], expectedOrder[12]] = [expectedOrder[12], expectedOrder[11]];
 assert.deepEqual(items.map(x => x.id), expectedOrder);
 const titleChanges = new Set([6, 26, 38, 40, 68]);
-const whereChanges = new Set([1, 2, 7, 8, 9, 11, 12, 13, 15, 16, 17, 21, 23, 25, 30, 32, 36, 37, 38, 39, 40, 42, 47, 49,
+const whereChanges = new Set([1, 2, 7, 8, 9, 11, 12, 13, 15, 16, 17, 21, 23, 25, 26, 30, 32, 36, 37, 38, 39, 40, 42, 47, 49,
   56, 57, 58, 59, 61, 62, 63, 66, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83]);
 for (const old of oldItems) {
   const current = items.find(x => x.id === old.id);
@@ -46,7 +54,7 @@ for (const old of oldNG) {
   const current = ngItems.find(x => x.id === old.id);
   for (const key of Object.keys(old)) {
     if (key === 'name' && ['book1', 'book2', 'book3'].includes(old.id) ||
-      key === 'where' && ['book1', 'book3', 'goldCoin'].includes(old.id)) continue;
+      key === 'where' && ['book1', 'book3', 'goldCoin', 'bronzeCoin'].includes(old.id)) continue;
     assert.deepEqual(current[key], old[key], `Unapproved change: NG ${old.id} ${key}`);
   }
 }
@@ -60,6 +68,24 @@ for (const name of ['blankSave', 'loadDB', 'saveDB', 'updateNGState', 'choosePro
 const styles = source => source.match(/<style>([\s\S]*?)<\/style>/)[1];
 assert.equal(styles(html).replace(/\.discovery-spoiler\{[^]*?(?=\.guide\{)/, ''), styles(baseline), 'Only spoiler CSS was added');
 console.log('PASS static inventory, approved change scope, stable IDs, existing logic and CSS');
+
+// v115 is strictly three description edits, a version comment and one existing code-map entry.
+for (const [name, current] of [['COLLECTIBLES', items], ['NG_ITEMS', ngItems]]) {
+  const previous = dataset(v114, name);
+  assert.deepEqual(current.map(x => x.id), previous.map(x => x.id), `${name} ordering`);
+  for (const old of previous) {
+    const item = current.find(x => x.id === old.id);
+    assert.deepEqual(item, old.id in v115Descriptions ? { ...old, where: v115Descriptions[old.id] } : old);
+  }
+}
+const withoutDatasets = source => source.replace(/const (COLLECTIBLES|NG_ITEMS) = (\[.*?\]);/g, 'const $1 = [];');
+assert.equal(withoutDatasets(html), withoutDatasets(v114)
+  .replace('<!-- Ending & Progress Tracker v114 -->', '<!-- Ending & Progress Tracker v115 -->')
+  .replace('const DISCOVERY_ACCESS_CODES={21:"2896",59:"4895",63:"486"};', 'const DISCOVERY_ACCESS_CODES={21:"2896",26:"1993",59:"4895",63:"486"};'),
+  'All other v114 code, storage, calculations, spoiler rendering, CSS and markup remain byte-identical');
+const collectiblesDiff = new Deno.Command('git', { args: ['diff', '--exit-code', 'b0d73c3', '--', 'collectibles/'] }).outputSync();
+assert.equal(collectiblesDiff.code, 0, 'Published Collectibles v43 must remain untouched');
+console.log('PASS exact v115 change scope and untouched Collectibles v43');
 
 function app(width, reducedMotion, saved = null, source = html) {
   const window = new Window({ width, height: width < 650 ? 844 : 900, url: 'https://ending.test/',
@@ -129,6 +155,54 @@ function fixture(discoveries = {}) {
 }
 
 const scenarios = {
+  'v115 exact wording, shared spoiler markup and preserved metadata'(a) {
+    const where = a.$('#discovery-26 .where');
+    const reconstructed = where.cloneNode(true);
+    const button = reconstructed.querySelector('.discovery-spoiler');
+    button.replaceWith(a.document.createTextNode(button.querySelector('.discovery-spoiler-code').textContent));
+    assert.equal(reconstructed.textContent, v115Descriptions[26]);
+    const outside = where.cloneNode(true);
+    outside.querySelector('.discovery-spoiler').remove();
+    assert.equal(outside.textContent.includes('1993'), false, 'No duplicate plaintext code outside the control');
+    assert.equal(where.querySelector('.entry-note,.discovery-warning'), null);
+    assert.equal(a.$('#discovery-83 .where').textContent, v115Descriptions[83]);
+    for (const id of [26, 83]) assert.equal(a.$(`#discovery-${id} .meta`).textContent,
+      `${items.find(x => x.id === id).type} · Part ${items.find(x => x.id === id).part}`);
+    assert.equal(a.$('#discovery-26 .discovery-spoiler').className, a.$('#discovery-21 .discovery-spoiler').className);
+    a.change('#ngPlus', true);
+    assert.equal(a.$('#ngList [data-ng-id="bronzeCoin"] .where').textContent, v115Descriptions.bronzeCoin);
+    assert.equal(ngItems.find(x => x.id === 'bronzeCoin').chapter, 'Chapter 1 · Cold Open');
+  },
+  async 'v114 saved corrected entries, Bronze Coin, profiles and reload remain compatible'(a, width, motion) {
+    const legacy = app(width, motion, fixture({ 26: true, 83: true }), v114);
+    let saved;
+    try {
+      legacy.change('#ngList input[data-ng-id="bronzeCoin"]', true);
+      legacy.change('#ngList input[data-ng-id="bronzeInserted"]', true);
+      saved = legacy.saved();
+    } finally { await legacy.close(); }
+    const restored = app(width, motion, saved);
+    let reloadData;
+    try {
+      assert.deepEqual(restored.json('db'), JSON.parse(saved), 'No saved schema migration');
+      assert.equal(restored.$('#discovery-26 > input').checked, true);
+      assert.equal(restored.$('#discovery-83 > input').checked, true);
+      assert.equal(restored.$('#ngList input[data-ng-id="bronzeCoin"]').checked, true);
+      assert.equal(restored.$('#ngList input[data-ng-id="bronzeInserted"]').checked, true);
+      restored.click('#discovery-26 .discovery-spoiler');
+      restored.click('#saveSelectButton'); restored.click('#saveSelectOptions [data-id="second"]');
+      assert.equal(restored.$('#discovery-26 > input').checked, false);
+      assert.equal(restored.$('#discovery-26 .discovery-spoiler').getAttribute('aria-pressed'), 'false');
+      restored.click('#saveSelectButton'); restored.click('#saveSelectOptions [data-id="existing"]');
+      assert.deepEqual(restored.json('db'), JSON.parse(saved)); restored.expectCounts();
+      restored.click('#discovery-26 .discovery-spoiler'); reloadData = restored.saved();
+    } finally { await restored.close(); }
+    const reloaded = app(width, motion, reloadData);
+    try {
+      assert.deepEqual(reloaded.json('db'), JSON.parse(saved)); reloaded.expectCounts();
+      assert.equal(reloaded.$('#discovery-26 .discovery-spoiler').getAttribute('aria-pressed'), 'false');
+    } finally { await reloaded.close(); }
+  },
   'approved text, numbering, inventory and exact subjects'(a) {
     const titles = { 6: 'Vigil & Protest Flyer', 26: 'Jane Chalmers Obituary', 38: 'Unrealistic Expectations (number 1098512....)',
       40: 'Records Room Code', 68: 'Facilities: “DONTREAD.DOC”' };
@@ -176,7 +250,7 @@ const scenarios = {
     assert.equal(a.window.getComputedStyle(a.$('#discovery-59 .discovery-spoiler-code')).visibility, 'hidden');
   },
   'concealed codes, activation, focus and checkbox independence'(a) {
-    assert.equal(a.document.querySelectorAll('.discovery-spoiler').length, 3);
+    assert.equal(a.document.querySelectorAll('.discovery-spoiler').length, Object.keys(codes).length);
     for (const [id, code] of Object.entries(codes)) {
       const selector = `#discovery-${id} .discovery-spoiler`;
       let button = a.$(selector);
