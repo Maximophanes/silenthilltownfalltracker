@@ -4,6 +4,7 @@
 import { Window } from 'npm:happy-dom@20.8.4';
 import vm from 'node:vm';
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { withApprovedSocialPreview } from '../../tests/social-preview-fixture.mjs';
 
 const html = await Deno.readTextFile(Deno.args[0] || new URL('../index.html', import.meta.url));
@@ -14,16 +15,30 @@ const git = args => {
 };
 const baseline = git(['show', '7975cd1:collectibles/index.html']); // Clean v42 baseline.
 const v43 = git(['show', 'b0d73c3:collectibles/index.html']); // Published v43.
+const v44 = git(['show', 'fb3bf7d:collectibles/index.html']); // Published v44, with approved social metadata.
 const headerBadges = ['15 STRANGE POSTCARDS','13 PHONE CALLS','19 CRTV SIGNALS','7 RESOURCE CONTAINERS','7 LOCK BOX KEYS'];
-assert.equal(html, withApprovedSocialPreview(v43
+assert.equal(v44, withApprovedSocialPreview(v43
   .replace('<!-- Collectibles & Secrets Tracker v43: approved accuracy and presentation refinements. -->', '<!-- Collectibles & Secrets Tracker v44: complete header category badges. -->')
   .replace('<div class="headerline"><span class="tag">54 collectible objectives</span><span class="tag">7 Lock Box Keys</span><span class="tag">19 CRTV signals</span></div>', `<div class="headerline">${headerBadges.map(label=>`<span class="tag">${label}</span>`).join('')}</div>`), 'collectibles'),
   'Only the v44 version comment, header badges and exact social metadata may differ from v43');
+// Pin the complete reviewed v45 source, including the exact approved head.
+// Historical v43/v44 fixtures and their exact transition check remain intact.
+assert.equal(createHash('sha256').update(html).digest('hex'), '6c3707dabf7c32c40fc722800543f07ab3edeaf716eacff901fbd75caaa0df6f',
+  'Only the reviewed v45 search helpers, aliases and version comment may differ from v44');
 const scriptsFor = source => [...source.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/g)].map(m => m[1]);
 const scripts = scriptsFor(html);
 scripts.forEach(code => new vm.Script(code));
 const dataset = source => JSON.parse(source.match(/const ITEMS = (\[.*?\]);/)[1]);
 const items = dataset(html), oldItems = dataset(baseline);
+assert.deepEqual(items,dataset(v44),'v45 preserves every v44 collectible field and its order');
+// Execute the published matcher against its own data for exact compatibility sets.
+const legacySearch = vm.createContext({});
+vm.runInContext(['ITEMS','SOLVED','PARTS'].map(name=>v44.match(new RegExp(`const ${name} = ([^\\n]+);`))[0]).join('\n') +
+  "\nlet query='';\n" + v44.slice(v44.indexOf('const SEARCH_CATEGORY_ALIASES='),v44.indexOf('const visible=item=>')), legacySearch);
+const legacyMatches = value => {
+  legacySearch.value=value;
+  return JSON.parse(vm.runInContext('query=value; JSON.stringify(ITEMS.filter(inQuery).map(x=>x.id))',legacySearch));
+};
 const storageKey = 'townfallCollectibles.v1';
 const totals = { postcard: 15, phone: 13, signal: 19, container: 14 };
 const spoilers = { 'phone-09': '3 → 2 → 2 → 1', 'postcard-07': '7103', 'signal-13': '575', 'signal-ceg-security': '4895' };
@@ -240,6 +255,65 @@ const row = (a, id) => a.$(`${activeRoot(a)} input[data-item="${id}"]`).closest(
 const matches = a => [...a.document.querySelectorAll(`${activeRoot(a)} input[data-item]`)].map(x => x.dataset.item);
 const settle = async () => { for (let i=0; i<20; i++) await Promise.resolve(); };
 const scenarios = {
+  'v45 Unicode word starts preserve prefixes and reject incidental infixes'(a) {
+    for (const [term,text,expected] of [
+      ['ward','Ward',true],['war','Ward',true],['war','Warning',true],['war','Stewart’s',false],
+      ...['afterward','toward','backward','forward'].flatMap(word=>[['ward',word,false],[word,word,true]]),
+      ['ward','éward',false],['ward','x\u0301ward',false],['ward','𐐀ward',false],['ward','中ward',false],
+      ['ward','—Ward',true],['é','Étage',true],['ward','afterward Ward',true],
+      ['0842','4960842',true],['~61','Ch. ~61',true],['ng+','NG+ only',true],
+      ['.*','Ward',false],['[','Ward',false]
+    ]) assert.equal(a.evaluate(`searchTermMatches(normalizeSearchText(${JSON.stringify(text)}),normalizeSearchText(${JSON.stringify(term)}))`),expected,`${term} / ${text}`);
+  },
+  'v45 exact Ward results and audited semantic aliases in both checklist views'(a) {
+    const routeIds = numbers => numbers.map(n=>items[n-1].id);
+    const expected = {
+      ward:routeIds([30,31,32,33]),war:routeIds([18,30,31,32,33]),
+      'ward key':routeIds([30,31,32]),'ward barcode':[],
+      card:[...items.filter(x=>x.kind==='postcard').map(x=>x.id),'container-06'],
+      phone:routeIds([1,2,3,4,5,8,18,19,20,22,27,36,37,44,53]),
+      room:routeIds([6,7,12,15,17,18,24,25,26,28,30,31,32,33,40,45,53,55,57,58,59,60,61]),
+      stereo:routeIds([10,13,15,22,26,28,34,40,41]),
+      stereogram:routeIds([10,13,15,22,26,28,34,40,41])
+    };
+    assert.deepEqual(legacyMatches('ward'),routeIds([24,25,30,31,32,33,34]));
+    for (const query of ['card','phone','room','stereo','stereogram'])
+      assert.deepEqual(legacyMatches(query).sort(),[...expected[query]].sort(),`v44 ${query}`);
+    for (const view of ['story','categories']) {
+      a.click(`#tab-${view}`);
+      for (const [query,ids] of Object.entries(expected)) {
+        a.search(query); assert.deepEqual(matches(a).sort(),[...ids].sort(),`${view}: ${query}`);
+      }
+      a.search('cards'); assert.deepEqual(matches(a).sort(),items.filter(x=>x.kind==='postcard').map(x=>x.id).sort());
+    }
+  },
+  'v45 numeric suffixes, exact identifiers, warning searches and existing normalization'(a) {
+    const exact = [
+      ...['496 0842','496-0842','4960842','0842'].map(q=>[q,'phone-06']),
+      ['7103','postcard-07'],['575','signal-13'],['4895','signal-ceg-security'],
+      ['ch. 45','signal-03'],['channel 45','signal-03'],['CRTV 09','signal-09'],
+      ['Lock Box Key (2/7)','key-02'],['Resource Container 2','container-02'],
+      ['postcard #01','postcard-01'],['Phone Call 1','phone-06'],
+      ['POSTCARD   #01','postcard-01'],['Ｐｏｓｔｃａｒｄ　＃０１','postcard-01']
+    ];
+    const unchanged = ['postcard','post','telephone','container','key','lockbox','medical','CRTV',
+      'radio calibration','tuning','standard postcard','autostereogram','Simon','Zoe','NG+','new-game-plus',
+      'St. Amelia','st amelia','before','hole','lockdown','barcode','afterward','toward','61','~61',
+      'Part 2','Part 5','chapter 6','card 1','phone 1','signal 9','postcard arrival','Saturn',
+      '496.0842','60–62','60-62','Jess’s',"Jess's",'new game+','postcard#1','CRTV9'];
+    for (const view of ['story','categories']) {
+      a.click(`#tab-${view}`);
+      for (const [query,id] of exact) {
+        a.search(query); assert.deepEqual(matches(a),[id],`${view}: ${query}`);
+      }
+      for (const query of unchanged) {
+        a.search(query); assert.deepEqual(matches(a).sort(),legacyMatches(query).sort(),`${view}: ${query}`);
+      }
+      a.search('afterward'); assert.deepEqual(matches(a).sort(),['container-02','key-02']);
+      a.search('4895'); assert.equal(row(a,'signal-ceg-security').querySelector('.discovery-spoiler').getAttribute('aria-pressed'),'false');
+      for (const query of ['','   ']) { a.search(query); assert.equal(matches(a).length,61); }
+    }
+  },
   'v44 five fixed header badges retain exact labels, order and styling across progress and profiles'(a) {
     const header=a.$('header .headerline');
     const labels=()=>[...header.children].map(x=>x.textContent);

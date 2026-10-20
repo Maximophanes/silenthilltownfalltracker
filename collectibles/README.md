@@ -1,4 +1,14 @@
-# Silent Hill: Townfall — Collectibles & Secrets Tracker v44 (proposed release)
+# Silent Hill: Townfall — Collectibles & Secrets Tracker v45 (proposed release)
+
+## v45: Word-aware search precision
+
+- Ordinary text matches whole words and word prefixes: `war` finds Ward and Warning, while `ward` no longer matches afterward or toward. Unicode letters, combining marks and numbers keep an embedded fragment from being treated as a word start.
+- Explicit compatibility aliases preserve postcard `card`/`cards`, autostereogram `stereo`/`stereogram`, and the documented compounds `telephone`/`payphone` → `phone`, `bedroom` → `room`. No generic suffix or fuzzy matching is added.
+- Numeric infix matching, telephone formatting, exact numbered identifiers, cross-field AND matching, searchable warnings/hidden codes and established normalization are retained. Part/Chapter and shortened numbered queries keep their existing loose semantics; search does not reveal spoilers.
+- All 61 records, stable IDs, frequencies, key/container relationships and `townfallCollectibles.v1` data remain unchanged. Rendering, counters, bulk-operation scopes, Undo, profiles, contextual Return, Gallery, styling and animations are unchanged. Ending v115 and approved social-preview metadata/images are unchanged.
+- Existing accuracy and counter suites cover the new matcher and compatibility/integration cases in desktop/mobile media-query and both motion configurations. Whole-file release guards pin the reviewed v45 source while retaining historical baselines and exact social-metadata validation. These DOM tests do not establish native browser rendering.
+
+No commit, push or deployment is included.
 
 ## v44: Complete header category badges
 

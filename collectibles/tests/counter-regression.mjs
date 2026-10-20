@@ -118,6 +118,62 @@ function app(width, reducedMotion, saved = null) {
 }
 
 const scenarios = {
+  'v45 Ward search keeps category totals, missing-only Part All and scoped Undo correct'(a) {
+    a.change('#storyContent input[data-item="key-02"]',true);
+    a.change('#storyContent input[data-item="postcard-08"]',true);
+    a.categoryFilter('postcard'); a.search('ward'); a.expectCounts();
+    const visibleIds=()=>[...a.document.querySelectorAll('#storyContent input[data-item]')].map(x=>x.dataset.item);
+    assert.deepEqual(visibleIds(),['postcard-08','postcard-09']);
+    a.click('#missingOnly'); a.tick(); a.expectCounts();
+    assert.deepEqual(visibleIds(),['postcard-09']);
+    a.change('[data-select-part="3"]',true); a.expectCounts();
+    assert.deepEqual(visibleIds(),[]);
+    assert.equal(a.checks()['postcard-08'],true); assert.equal(a.checks()['postcard-09'],true);
+    assert.equal(a.checks()['postcard-07'],undefined,'Hidden non-Ward postcard remains untouched');
+    a.search(''); a.categoryFilter('all'); a.click('#missingOnly'); a.tick();
+    a.change('#storyContent input[data-item="key-02"]',false);
+    a.click('#undoButton'); a.expectCounts();
+    assert.equal(a.checks()['key-02'],false,'Scoped Undo preserves the later unrelated edit');
+    assert.equal(a.checks()['postcard-08'],true); assert.equal(a.checks()['postcard-09'],undefined);
+    a.categoryFilter('postcard'); a.search('ward'); a.click('#missingOnly'); a.tick();
+    a.change('[data-select-part="3"]',false); a.expectCounts();
+    assert.equal(a.checks()['postcard-08'],undefined,'Part clear includes completed search matches');
+    assert.deepEqual(visibleIds(),['postcard-08','postcard-09']);
+  },
+  async 'v45 search preserves category All, paired isolation, Return, Gallery and saved profiles'(a,width,motion) {
+    a.categories(); a.categoryFilter('postcard'); a.search('ward'); a.expectCounts();
+    a.change('[data-select-category="postcard"]',true); a.expectCounts();
+    assert.equal(a.items.filter(x=>x.kind==='postcard'&&a.checks()[x.id]).length,15);
+    assert.equal(Object.values(a.checks()).filter(Boolean).length,15);
+    a.click('#undoButton'); a.expectCounts();
+    assert.equal(Object.values(a.checks()).filter(Boolean).length,0);
+    a.categoryFilter('container'); a.search('Lock Box Key (2/7)');
+    const ids=()=>[...a.document.querySelectorAll('#categoryContent input[data-item]')].map(x=>x.dataset.item);
+    assert.deepEqual(ids(),['key-02']);
+    a.search('Resource Container 2'); assert.deepEqual(ids(),['container-02']);
+    a.search('ward'); assert.deepEqual(ids(),['key-03','container-03']);
+    a.click('#categoryContent [data-to-route="key-03"]');
+    assert.equal(a.$('#searchInput').value,'');
+    a.change('#storyContent input[data-item="key-03"]',true); a.expectCounts();
+    a.click('[data-return-category="key-03"]'); a.expectCounts();
+    assert.equal(a.$('#searchInput').value,'ward'); assert.equal(a.evaluate('filter'),'container');
+    assert.deepEqual(ids(),['key-03','container-03']);
+    a.click('#tab-gallery');
+    assert.equal(a.document.querySelectorAll('#galleryContent input[data-item]').length,15);
+    const image=a.document.querySelector('#galleryContent img');
+    a.change('#galleryContent input[data-item="postcard-01"]',true); a.expectCounts();
+    assert.equal(a.document.querySelector('#galleryContent img'),image);
+    a.click('#galleryBack'); assert.equal(a.$('#searchInput').value,'ward');
+    const expected=a.checks();
+    a.click('#addProfile'); a.$('#appDialogInput').value='v45 search profile'; a.confirm();
+    assert.equal(a.$('#searchInput').value,''); assert.equal(Object.values(a.checks()).filter(Boolean).length,0);
+    a.click('#profileButton'); a.click('#profileOptions [data-profile="default"]'); a.expectCounts();
+    assert.equal(a.$('#searchInput').value,''); assert.deepEqual(a.checks(),expected);
+    const reloaded=app(width,motion,a.saved());
+    try { reloaded.expectCounts(); assert.deepEqual(reloaded.checks(),expected); reloaded.search('ward');
+      assert.equal(reloaded.document.querySelectorAll('#categoryContent input[data-item]').length,2);
+    } finally { await reloaded.close(); }
+  },
   'Story Route category counters and All scope across all six Parts'(a) {
     for (const category of ['postcard', 'phone', 'signal', 'container', 'all']) {
       a.categoryFilter(category);

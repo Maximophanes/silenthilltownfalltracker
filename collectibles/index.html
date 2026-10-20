@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en">
-<!-- Collectibles & Secrets Tracker v44: complete header category badges. -->
+<!-- Collectibles & Secrets Tracker v45: word-aware search with compatibility aliases. -->
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -3298,7 +3298,7 @@ const isType=(item,t)=>t==='all'||item.kind===t||(t==='container'&&item.kind==='
 // v40: Search the collectible's underlying content AND meaningful displayed
 // metadata. Keep indexing independent from the rendered checklist and its DOM.
 const SEARCH_CATEGORY_ALIASES={
- postcard:['Strange Postcard','Strange Postcards','Postcard','Postcards'],
+ postcard:['Strange Postcard','Strange Postcards','Postcard','Postcards','Card','Cards'],
  phone:['Telephone Call','Telephone Calls','Phone Call','Phone Calls','Telephone Number','Phone Number'],
  signal:['CRTV','CRTV Signal','CRTV Signals'],
  container:['Resource Container','Resource Containers','Container','Containers'],
@@ -3318,6 +3318,19 @@ function normalizeSearchText(value){
 function normalizePhoneQuery(value){
  return value.replace(/\b\d{2,}(?:[\s-]+\d{2,})+\b/g,part=>part.replace(/[\s-]+/g,''));
 }
+// Only these approved compounds gain a semantic alias; arbitrary suffixes do not.
+const SEARCH_COMPOUND_ALIASES={telephone:'phone',payphone:'phone',bedroom:'room'};
+const SEARCH_WORD_CHAR=/[\p{L}\p{M}\p{N}]/u;
+function searchTermMatches(haystack,term){
+ // Numbers retain infix matching for dial suffixes, frequencies and puzzle codes.
+ if(/^\d+$/.test(term))return haystack.includes(term);
+ for(let at=haystack.indexOf(term);at!==-1;at=haystack.indexOf(term,at+1)){
+  // Two UTF-16 units include the preceding code point even for an astral letter.
+  const before=Array.from(haystack.slice(Math.max(0,at-2),at)).pop()||'';
+  if(!SEARCH_WORD_CHAR.test(before))return true;
+ }
+ return false;
+}
 function searchIndexFor(item){
  const no=String(item.number).padStart(2,'0'),n=String(item.number);
  const aliases=SEARCH_CATEGORY_ALIASES[item.kind]||[];
@@ -3326,14 +3339,16 @@ function searchIndexFor(item){
   `Part ${item.part}`,`Chapter ${item.chapter}`,n,no,
   ...aliases,...aliases.flatMap(label=>[`${label} ${n}`,`${label} ${no}`,`${label} #${n}`,`${label} #${no}`])];
  // Gallery classifies standard postcards and autostereograms separately.
- if(item.kind==='postcard')fields.push(SOLVED[item.number]?'Autostereogram':'Standard Postcard');
+ if(item.kind==='postcard')fields.push(SOLVED[item.number]?'Autostereogram Stereogram':'Standard Postcard');
  if(item.frequency)fields.push(`Ch. ${item.frequency}`);
  // This alias covers both the NG+ pill and prose using "New Game Plus".
  if(item.ngplus||/\bnew[\s-]+game[\s-]+plus\b|\bng\s*\+/i.test([item.title,item.where,item.note,item.warning].join(' '))){
   fields.push('NG+','NG+ only','New Game Plus');
  }
  if(item.dial)fields.push(String(item.dial).replace(/\D/g,''));
- return normalizeSearchText(fields.filter(x=>x!==undefined&&x!==null&&x!=='').join(' '));
+ const text=normalizeSearchText(fields.filter(x=>x!==undefined&&x!==null&&x!=='').join(' '));
+ const words=new Set(text.match(/[\p{L}\p{M}\p{N}]+/gu)||[]);
+ return [text,...Object.entries(SEARCH_COMPOUND_ALIASES).filter(([word])=>words.has(word)).map(([,alias])=>alias)].join(' ');
 }
 const SEARCH_INDEX=new Map(ITEMS.map(item=>[item.id,searchIndexFor(item)]));
 // Treat an entire category+number query as an exact identifier (so "CRTV 9"
@@ -3352,7 +3367,7 @@ const inQuery=item=>{
  if(identifier)return item.kind===identifier.kind&&item.number===identifier.number;
  const terms=normalizePhoneQuery(clean).split(/\s+/).filter(Boolean);
  const haystack=SEARCH_INDEX.get(item.id)||'';
- return terms.every(term=>haystack.includes(term));
+ return terms.every(term=>searchTermMatches(haystack,term));
 };
 const visible=item=>isType(item,filter)&&inQuery(item)&&(!onlyMissing||!checked(item.id));
 // Part progress follows category scope; search narrows All, not the counter.
