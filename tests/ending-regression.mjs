@@ -4,8 +4,10 @@
 import { Window } from 'npm:happy-dom@20.8.4';
 import vm from 'node:vm';
 import assert from 'node:assert/strict';
+import { withApprovedSocialPreview } from './social-preview-fixture.mjs';
 
-const html = await Deno.readTextFile(new URL('../index.html', import.meta.url));
+// An optional input fixture exercises rejection guards through this same entry point.
+const html = await Deno.readTextFile(Deno.args[0] || new URL('../index.html', import.meta.url));
 const baselineResult = new Deno.Command('git', { args: ['show', 'cb0f17a:index.html'] }).outputSync();
 assert.equal(baselineResult.code, 0, 'v113 baseline must be available');
 const baseline = new TextDecoder().decode(baselineResult.stdout);
@@ -79,13 +81,23 @@ for (const [name, current] of [['COLLECTIBLES', items], ['NG_ITEMS', ngItems]]) 
   }
 }
 const withoutDatasets = source => source.replace(/const (COLLECTIBLES|NG_ITEMS) = (\[.*?\]);/g, 'const $1 = [];');
-assert.equal(withoutDatasets(html), withoutDatasets(v114)
+assert.equal(withoutDatasets(html), withApprovedSocialPreview(withoutDatasets(v114)
   .replace('<!-- Ending & Progress Tracker v114 -->', '<!-- Ending & Progress Tracker v115 -->')
-  .replace('const DISCOVERY_ACCESS_CODES={21:"2896",59:"4895",63:"486"};', 'const DISCOVERY_ACCESS_CODES={21:"2896",26:"1993",59:"4895",63:"486"};'),
-  'All other v114 code, storage, calculations, spoiler rendering, CSS and markup remain byte-identical');
-const collectiblesDiff = new Deno.Command('git', { args: ['diff', '--exit-code', 'b0d73c3', '--', 'collectibles/'] }).outputSync();
-assert.equal(collectiblesDiff.code, 0, 'Published Collectibles v43 must remain untouched');
-console.log('PASS exact v115 change scope and untouched Collectibles v43');
+  .replace('const DISCOVERY_ACCESS_CODES={21:"2896",59:"4895",63:"486"};', 'const DISCOVERY_ACCESS_CODES={21:"2896",26:"1993",59:"4895",63:"486"};'), 'ending'),
+  'Only approved v115 changes and exact social metadata may differ from v114');
+// The active counterpart is published v44, not the earlier v43 release.
+const collectiblesV44 = new Deno.Command('git', { args: ['show', '8a4c10e:collectibles/index.html'] }).outputSync();
+assert.equal(collectiblesV44.code, 0, 'Published Collectibles v44 baseline must be available');
+assert.equal(await Deno.readTextFile(new URL('../collectibles/index.html', import.meta.url)),
+  withApprovedSocialPreview(new TextDecoder().decode(collectiblesV44.stdout), 'collectibles'),
+  'Collectibles v44 HTML may differ only by the exact approved social metadata');
+// Keep the directory guard; allow only the strictly checked HTML and this
+// task's active accuracy-test maintenance, not other files or assets.
+const collectiblesDiff = new Deno.Command('git', { args: ['diff', '--exit-code', '8a4c10e', '--',
+  'collectibles/', ':(exclude)collectibles/index.html',
+  ':(exclude)collectibles/tests/accuracy-regression.mjs'] }).outputSync();
+assert.equal(collectiblesDiff.code, 0, 'All other published Collectibles v44 files must remain untouched');
+console.log('PASS exact v115/v44 application scope and approved static sharing metadata');
 
 function app(width, reducedMotion, saved = null, source = html) {
   const window = new Window({ width, height: width < 650 ? 844 : 900, url: 'https://ending.test/',

@@ -4,6 +4,7 @@
 import { Window } from 'npm:happy-dom@20.8.4';
 import vm from 'node:vm';
 import assert from 'node:assert/strict';
+import { withApprovedSocialPreview } from '../../tests/social-preview-fixture.mjs';
 
 const html = await Deno.readTextFile(Deno.args[0] || new URL('../index.html', import.meta.url));
 const git = args => {
@@ -14,10 +15,10 @@ const git = args => {
 const baseline = git(['show', '7975cd1:collectibles/index.html']); // Clean v42 baseline.
 const v43 = git(['show', 'b0d73c3:collectibles/index.html']); // Published v43.
 const headerBadges = ['15 STRANGE POSTCARDS','13 PHONE CALLS','19 CRTV SIGNALS','7 RESOURCE CONTAINERS','7 LOCK BOX KEYS'];
-assert.equal(html, v43
+assert.equal(html, withApprovedSocialPreview(v43
   .replace('<!-- Collectibles & Secrets Tracker v43: approved accuracy and presentation refinements. -->', '<!-- Collectibles & Secrets Tracker v44: complete header category badges. -->')
-  .replace('<div class="headerline"><span class="tag">54 collectible objectives</span><span class="tag">7 Lock Box Keys</span><span class="tag">19 CRTV signals</span></div>', `<div class="headerline">${headerBadges.map(label=>`<span class="tag">${label}</span>`).join('')}</div>`),
-  'v44 changes only the version comment and header badges; all CSS, data and JavaScript stay byte-identical to v43');
+  .replace('<div class="headerline"><span class="tag">54 collectible objectives</span><span class="tag">7 Lock Box Keys</span><span class="tag">19 CRTV signals</span></div>', `<div class="headerline">${headerBadges.map(label=>`<span class="tag">${label}</span>`).join('')}</div>`), 'collectibles'),
+  'Only the v44 version comment, header badges and exact social metadata may differ from v43');
 const scriptsFor = source => [...source.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/g)].map(m => m[1]);
 const scripts = scriptsFor(html);
 scripts.forEach(code => new vm.Script(code));
