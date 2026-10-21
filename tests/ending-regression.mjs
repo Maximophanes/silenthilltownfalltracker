@@ -15,6 +15,9 @@ const baseline = new TextDecoder().decode(baselineResult.stdout);
 const v114Result = new Deno.Command('git', { args: ['show', 'b0d73c3:index.html'] }).outputSync();
 assert.equal(v114Result.code, 0, 'Published v114 baseline must be available');
 const v114 = new TextDecoder().decode(v114Result.stdout);
+const v115Result = new Deno.Command('git', { args: ['show', '4de5dad:index.html'] }).outputSync();
+assert.equal(v115Result.code, 0, 'Published v115 baseline must be available');
+const v115 = new TextDecoder().decode(v115Result.stdout);
 const scriptsFor = source => [...source.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/g)].map(m => m[1]);
 const scripts = scriptsFor(html);
 scripts.forEach(code => new vm.Script(code));
@@ -22,6 +25,7 @@ const dataset = (source, name) => JSON.parse(source.match(new RegExp(`const ${na
 const items = dataset(html, 'COLLECTIBLES'), oldItems = dataset(baseline, 'COLLECTIBLES');
 const ngItems = dataset(html, 'NG_ITEMS'), oldNG = dataset(baseline, 'NG_ITEMS');
 const storageKey = 'townfallEndingTracker.v2';
+const mechanicsKey = 'townfallEndingTracker.ui.mechanicsExpanded.v1';
 const codes = { 21: '2896', 26: '1993', 59: '4895', 63: '486' }; // Stable ID 21 is displayed Discovery 18.
 const v115Descriptions = {
   26: 'In the Community Gardens, unlock the Jane’s Garden shed using code 1993, found on Jane Chalmers’ commemorative plaque. Read the obituary on the middle shelf.',
@@ -69,7 +73,10 @@ for (const name of ['blankSave', 'loadDB', 'saveDB', 'updateNGState', 'choosePro
   assert.equal(html.match(pattern)?.[0], baseline.match(pattern)[0], name);
 }
 const styles = source => source.match(/<style>([\s\S]*?)<\/style>/)[1];
-assert.equal(styles(html).replace(/\.discovery-spoiler\{[^]*?(?=\.guide\{)/, ''), styles(baseline), 'Only spoiler CSS was added');
+assert.equal(styles(v115).replace(/\.discovery-spoiler\{[^]*?(?=\.guide\{)/, ''), styles(baseline), 'Historical v115 added only spoiler CSS');
+const mechanicsStyleStart=styles(html).indexOf('/* v116: Isolated mechanics disclosure;');
+assert.ok(mechanicsStyleStart>=0,'Dedicated mechanics styles');
+assert.equal(styles(html).slice(0,mechanicsStyleStart),styles(v115),'Every existing v115 style is unchanged');
 console.log('PASS static inventory, approved change scope, stable IDs, existing logic and CSS');
 
 // v115 is strictly three description edits, a version comment and one existing code-map entry.
@@ -82,10 +89,14 @@ for (const [name, current] of [['COLLECTIBLES', items], ['NG_ITEMS', ngItems]]) 
   }
 }
 const withoutDatasets = source => source.replace(/const (COLLECTIBLES|NG_ITEMS) = (\[.*?\]);/g, 'const $1 = [];');
-assert.equal(withoutDatasets(html), withApprovedSocialPreview(withoutDatasets(v114)
+assert.equal(withoutDatasets(v115), withApprovedSocialPreview(withoutDatasets(v114)
   .replace('<!-- Ending & Progress Tracker v114 -->', '<!-- Ending & Progress Tracker v115 -->')
   .replace('const DISCOVERY_ACCESS_CODES={21:"2896",59:"4895",63:"486"};', 'const DISCOVERY_ACCESS_CODES={21:"2896",26:"1993",59:"4895",63:"486"};'), 'ending'),
   'Only approved v115 changes and exact social metadata may differ from v114');
+assert.deepEqual(items,dataset(v115,'COLLECTIBLES'),'v116 preserves every Discovery field and its order');
+assert.deepEqual(ngItems,dataset(v115,'NG_ITEMS'),'v116 preserves every NG+ field and its order');
+assert.equal(createHash('sha256').update(html).digest('hex'),'f870c4cf10fc5346182897ef0ff6cdd569effbe4328a78bb2d16a47e8375acc0',
+  'Only the complete reviewed v116 disclosure, preference helper, styles and version comment may differ from v115');
 // Retain historical social-metadata and v45 baselines; pin reviewed v46 separately.
 const collectiblesV44 = new Deno.Command('git', { args: ['show', '8a4c10e:collectibles/index.html'] }).outputSync();
 assert.equal(collectiblesV44.code, 0, 'Published Collectibles v44 baseline must be available');
@@ -107,9 +118,9 @@ const collectiblesDiff = new Deno.Command('git', { args: ['diff', '--exit-code',
   ':(exclude)collectibles/tests/accuracy-regression.mjs',
   ':(exclude)collectibles/tests/counter-regression.mjs', ':(exclude)collectibles/README.md'] }).outputSync();
 assert.equal(collectiblesDiff.code, 0, 'All other published Collectibles files must remain untouched');
-console.log('PASS exact v115/v46 application scope and approved static sharing metadata');
+console.log('PASS exact v116/v46 application scope and approved static sharing metadata');
 
-function app(width, reducedMotion, saved = null, source = html) {
+function app(width, reducedMotion, saved = null, source = html, options = {}) {
   const window = new Window({ width, height: width < 650 ? 844 : 900, url: 'https://ending.test/',
     settings: { disableJavaScriptFileLoading: true, disableCSSFileLoading: true,
       device: { prefersReducedMotion: reducedMotion ? 'reduce' : 'no-preference' } } });
@@ -119,6 +130,27 @@ function app(width, reducedMotion, saved = null, source = html) {
     set(value) { textContent.set.call(this, value == null ? '' : String(value)); } });
   document.write(source.replace(/<script[^>]*>[\s\S]*?<\/script>/g, ''));
   if (saved) window.localStorage.setItem(storageKey, saved);
+  if (options.preference!==undefined) window.localStorage.setItem(mechanicsKey,String(options.preference));
+  const storage=window.localStorage,preferenceWrites=[];
+  // Intercept preference access (or all access for the denial case). Existing
+  // storage checks still use the real isolated Storage and original schema.
+  Object.defineProperty(window,'localStorage',{configurable:true,value:new Proxy(storage,{
+    get(target,property){
+      if(property==='getItem')return key=>{
+        if((key===mechanicsKey||options.denyAll)&&options.denyRead)throw new window.DOMException('Storage read denied','SecurityError');
+        return target.getItem(key);
+      };
+      if(property==='setItem')return (key,value)=>{
+        if(key===mechanicsKey){
+          preferenceWrites.push(String(value));
+        }
+        if((key===mechanicsKey||options.denyAll)&&options.denyWrite)throw new window.DOMException('Storage write denied','QuotaExceededError');
+        return target.setItem(key,value);
+      };
+      const value=Reflect.get(target,property,target);
+      return typeof value==='function'?value.bind(target):value;
+    }
+  })});
   let now = 0, nextId = 0;
   const timers = new Map();
   window.setTimeout = (fn, delay = 0) => {
@@ -163,7 +195,8 @@ function app(width, reducedMotion, saved = null, source = html) {
     }
     assert.deepEqual(JSON.parse(savedState()).saves.find(s => s.id === json('db.active')).discoveries, checks());
   };
-  return { window, document, $, click, change, tick, evaluate, json, checks, saved: savedState, expectCounts, scrollTargets,
+  return { window, document, $, click, change, tick, evaluate, json, checks, saved: savedState, expectCounts, scrollTargets, preferenceWrites,
+    storedProgress:()=>storage.getItem(storageKey),
     close: async () => { timers.clear(); await window.happyDOM.close();
       Object.defineProperty(window.Element.prototype, 'textContent', textContent); } };
 }
@@ -176,7 +209,124 @@ function fixture(discoveries = {}) {
     { ...profile, id: 'second', name: 'Second profile', discoveries: { 13: true }, ng: { book2: true } }], discoveryListVersion: 2 });
 }
 
+const referenceWindow=new Window();
+referenceWindow.document.write(v115.replace(/<script[^>]*>[\s\S]*?<\/script>/g,''));
+const originalMechanics={
+  intro:referenceWindow.document.querySelector('.mechanics-card .cardhead p').outerHTML,
+  controls:referenceWindow.document.querySelector('.mechanics-card .controls').outerHTML,
+  badge:referenceWindow.document.querySelector('.mechanics-card .sourcebadge').outerHTML
+};
+await referenceWindow.happyDOM.close();
 const scenarios = {
+  'v116 native disclosure preserves the complete explanation, links, badge and scoped responsive styles'(a,width,motion) {
+    const panel=a.$('#mechanicsDetails'),summary=a.$('#mechanicsDetails > summary');
+    assert.equal(panel.open,false); assert.equal(panel.hasAttribute('open'),false);
+    assert.equal(panel.classList.contains('part'),false); assert.equal(panel.hasAttribute('data-part'),false);
+    assert.equal(a.$('#mechanicsBody .mechanics-intro p').outerHTML,originalMechanics.intro);
+    assert.equal(a.$('#mechanicsBody > .controls').outerHTML,originalMechanics.controls);
+    assert.equal(summary.querySelector('.sourcebadge').outerHTML,originalMechanics.badge);
+    assert.equal(summary.querySelector('.mechanics-subtitle').textContent,'Scoring formula, ending thresholds & NG+ branches');
+    assert.equal(summary.querySelector('.mechanics-heading').firstChild.textContent,'How the ending calculation works');
+    assert.equal(summary.querySelector('button,a,input,select,textarea,details'),null);
+    assert.equal(summary.querySelector('.mechanics-chevron').getAttribute('aria-hidden'),'true');
+    assert.equal(a.$('#mechanicsBody').parentElement,panel);
+    summary.focus(); assert.equal(a.document.activeElement,summary);
+    assert.equal(a.window.getComputedStyle(summary).display,'block');
+    assert.equal(a.window.getComputedStyle(summary.querySelector('h2')).display,'grid');
+    const arrowStyle=a.window.getComputedStyle(summary.querySelector('.mechanics-chevron'));
+    assert.equal(arrowStyle.transition,motion?'none':'transform .16s ease');
+    if(width===390)assert.equal(a.window.getComputedStyle(summary.querySelector('.sourcebadge')).gridRow,'2');
+    assert.ok(styles(html).includes('.mechanics-summary:focus-visible{outline:2px solid #c56c7a;outline-offset:-3px;'));
+    a.click('#mechanicsDetails > summary'); assert.equal(panel.open,true);
+    a.click('#mechanicsDetails > summary'); assert.equal(panel.open,false);
+    // Native rendering/tab exclusion and keyboard default activation require a real browser.
+  },
+  async 'v116 absent, invalid and restored preferences initialize without writes or profile changes'(a,width,motion) {
+    assert.equal(a.window.localStorage.length,0,'First visit does not eagerly create either storage key');
+    assert.deepEqual(a.preferenceWrites,[]);
+    for(const preference of [undefined,'','invalid','true','0','1']){
+      const b=app(width,motion,fixture({26:true,83:true}),html,{preference});
+      try{
+        const before=b.saved(),expected=preference==='1';
+        assert.equal(b.$('#mechanicsDetails').open,expected);
+        b.$('#mechanicsDetails').dispatchEvent(new b.window.Event('toggle'));
+        b.tick(); assert.deepEqual(b.preferenceWrites,[],'Restoration and unchanged toggle events do not write');
+        assert.equal(b.saved(),before); b.expectCounts();
+        assert.equal(b.window.localStorage.length,preference===undefined?1:2);
+      }finally{await b.close();}
+    }
+  },
+  async 'v116 explicit expanded and collapsed choices persist separately from progress across reload'(a,width,motion) {
+    a.evaluate('saveDB()'); // Seed ordinary progress before checking two-key isolation.
+    const before=a.saved();
+    for(const value of ['1','0']){
+      a.click('#mechanicsDetails > summary');
+      assert.equal(a.$('#mechanicsDetails').open,value==='1');
+      assert.equal(a.window.localStorage.getItem(mechanicsKey),value);
+      assert.equal(a.saved(),before); assert.equal(a.window.localStorage.length,2);
+      const b=app(width,motion,a.saved(),html,{preference:a.window.localStorage.getItem(mechanicsKey)});
+      try{
+        assert.equal(b.$('#mechanicsDetails').open,value==='1');
+        assert.equal(b.saved(),before); assert.deepEqual(b.preferenceWrites,[]);
+      }finally{await b.close();}
+    }
+    assert.deepEqual(a.preferenceWrites,['1','0']);
+  },
+  async 'v116 preference survives profile switching, creation, rename, deletion and progress operations'(a,width,motion) {
+    const b=app(width,motion,fixture({26:true,83:true}));
+    try{
+      const panel=b.$('#mechanicsDetails'),before=b.saved();
+      b.click('#mechanicsDetails > summary'); assert.equal(b.saved(),before);
+      b.click('#saveSelectButton'); b.click('#saveSelectOptions [data-id="second"]');
+      assert.equal(panel.open,true); b.expectCounts();
+      b.click('#newSave'); b.$('#appDialogInput').value='Mechanics test'; b.click('#appDialogConfirm');
+      assert.equal(panel.open,true); assert.equal(b.json('db.saves.length'),3);
+      b.click('#renameSave'); b.$('#appDialogInput').value='Renamed mechanics test'; b.click('#appDialogConfirm');
+      assert.equal(panel.open,true); assert.equal(b.json('active().name'),'Renamed mechanics test');
+      b.change('#discovery-1 > input',true); b.expectCounts(); assert.equal(panel.open,true);
+      b.click('#deleteSave'); b.click('#appDialogConfirm');
+      assert.equal(b.json('db.saves.length'),2); assert.equal(panel.open,true); b.expectCounts();
+      assert.equal(b.$('#mechanicsDetails'),panel,'Profile rendering never rebuilds or resets this disclosure');
+      assert.deepEqual(b.preferenceWrites,['1']);
+      assert.equal(b.window.localStorage.getItem(mechanicsKey),'1');
+      for(const profile of b.json('db.saves'))assert.equal(Object.keys(profile).some(key=>/mechanics/i.test(key)),false);
+    }finally{await b.close();}
+  },
+  async 'v116 Part defaults, per-profile expansion and global Part controls remain independent'(a,width,motion) {
+    assert.equal(a.$('#parts details[data-part="1"]').open,true);
+    a.click('#mechanicsDetails > summary');
+    a.click('#collapseParts'); assert.equal(a.$('#mechanicsDetails').open,true);
+    assert.equal(a.document.querySelectorAll('#parts details[open]').length,0);
+    a.click('#expandParts'); assert.equal(a.$('#mechanicsDetails').open,true);
+    assert.equal(a.document.querySelectorAll('#parts details[open]').length,6);
+    a.click('#mechanicsDetails > summary'); a.click('#collapseParts'); a.click('#expandParts');
+    assert.equal(a.$('#mechanicsDetails').open,false); assert.deepEqual(a.preferenceWrites,['1','0']);
+    const saved=JSON.parse(fixture());saved.saves[0].openParts=[2];saved.saves[1].openParts=[1,3];
+    const b=app(width,motion,JSON.stringify(saved),html,{preference:'1'});
+    try{
+      assert.equal(b.$('#parts details[data-part="1"]').open,false);
+      b.click('#saveSelectButton'); b.click('#saveSelectOptions [data-id="second"]');
+      assert.equal(b.$('#parts details[data-part="1"]').open,true);
+      b.click('#parts details[data-part="1"] > summary'); b.tick();
+      assert.deepEqual(b.json('active().openParts'),[3]);
+      b.click('#saveSelectButton'); b.click('#saveSelectOptions [data-id="existing"]');
+      assert.deepEqual(b.json('active().openParts'),[2]);
+      assert.equal(b.$('#mechanicsDetails').open,true); assert.deepEqual(b.preferenceWrites,[]);
+    }finally{await b.close();}
+  },
+  async 'v116 denied preference reads/writes retain session disclosure and untouched saved progress'(a,width,motion) {
+    for(const failure of [{denyRead:true},{denyWrite:true},{denyRead:true,denyWrite:true},{denyAll:true,denyRead:true,denyWrite:true}]){
+      const b=app(width,motion,fixture({26:true}),html,{preference:'1',...failure});
+      try{
+        const before=b.storedProgress(),panel=b.$('#mechanicsDetails'),initial=!failure.denyRead;
+        assert.equal(panel.open,initial); assert.deepEqual(b.preferenceWrites,[]);
+        b.click('#mechanicsDetails > summary'); assert.equal(panel.open,!initial);
+        b.click('#mechanicsDetails > summary'); assert.equal(panel.open,initial);
+        assert.equal(b.storedProgress(),before); assert.equal(b.preferenceWrites.length,2);
+        if(!failure.denyAll)b.expectCounts();
+      }finally{await b.close();}
+    }
+  },
   'v115 exact wording, shared spoiler markup and preserved metadata'(a) {
     const where = a.$('#discovery-26 .where');
     const reconstructed = where.cloneNode(true);

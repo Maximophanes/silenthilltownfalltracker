@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<!-- Ending & Progress Tracker v115 -->
+<!-- Ending & Progress Tracker v116 -->
 <meta name="description" content="Silent Hill: Townfall save tracker, complete Discovery checklist, New Game+ route tracker, and ending calculator.">
 <meta name="theme-color" content="#120507">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2064%2064%27%3E%0A%3Crect%20width%3D%2764%27%20height%3D%2764%27%20rx%3D%2711%27%20fill%3D%27%23080607%27%2F%3E%0A%3Ccircle%20cx%3D%2732%27%20cy%3D%2732%27%20r%3D%2725%27%20fill%3D%27%2326070c%27%20opacity%3D%27.55%27%2F%3E%0A%3Cg%20fill%3D%27%23c63f4d%27%20stroke%3D%27%236f1922%27%20stroke-width%3D%271%27%3E%0A%3Crect%20x%3D%2712%27%20y%3D%2712%27%20width%3D%2710%27%20height%3D%2710%27%2F%3E%3Crect%20x%3D%2727%27%20y%3D%2712%27%20width%3D%2710%27%20height%3D%2710%27%2F%3E%3Crect%20x%3D%2742%27%20y%3D%2712%27%20width%3D%2710%27%20height%3D%2710%27%2F%3E%0A%3Crect%20x%3D%2712%27%20y%3D%2727%27%20width%3D%2710%27%20height%3D%2710%27%2F%3E%3Crect%20x%3D%2727%27%20y%3D%2727%27%20width%3D%2710%27%20height%3D%2710%27%2F%3E%3Crect%20x%3D%2742%27%20y%3D%2727%27%20width%3D%2710%27%20height%3D%2710%27%2F%3E%0A%3Crect%20x%3D%2712%27%20y%3D%2742%27%20width%3D%2710%27%20height%3D%2710%27%2F%3E%3Crect%20x%3D%2727%27%20y%3D%2742%27%20width%3D%2710%27%20height%3D%2710%27%2F%3E%3Crect%20x%3D%2742%27%20y%3D%2742%27%20width%3D%2710%27%20height%3D%2710%27%2F%3E%0A%3C%2Fg%3E%3C%2Fsvg%3E">
@@ -2071,6 +2071,57 @@ body.modal-open{overflow:hidden}
 }
 
 
+/* v116: Isolated mechanics disclosure; Part and profile styles stay unchanged. */
+.mechanics-card .mechanics-summary{
+  display:block;
+  list-style:none;
+  cursor:pointer;
+  user-select:none;
+  -webkit-user-select:none;
+  touch-action:manipulation;
+}
+.mechanics-summary::-webkit-details-marker{display:none}
+.mechanics-summary::marker{content:''}
+.mechanics-card .mechanics-summary h2{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto 10px;
+  align-items:center;
+  gap:16px;
+}
+.mechanics-heading{min-width:0}
+.mechanics-subtitle{
+  display:block;
+  margin-top:6px;
+  color:#9f9698;
+  font-size:.86rem;
+  font-weight:400;
+  letter-spacing:normal;
+}
+.mechanics-summary .sourcebadge{margin:0;justify-self:start}
+.mechanics-chevron{
+  width:9px;
+  height:9px;
+  border-right:2px solid #ac8d95;
+  border-bottom:2px solid #ac8d95;
+  transform:rotate(-45deg);
+  transition:transform .16s ease;
+}
+#mechanicsDetails[open]>.mechanics-summary .mechanics-chevron{transform:rotate(45deg)}
+#mechanicsDetails:not([open])>.mechanics-summary{border-bottom-color:transparent}
+.mechanics-summary:hover{background:rgba(190,70,82,.025)}
+.mechanics-summary:focus-visible{outline:2px solid #c56c7a;outline-offset:-3px;border-radius:16px}
+.mechanics-intro{padding:18px 22px 0}
+.mechanics-intro p{margin:0;max-width:850px;color:#9f9698;font-size:.86rem}
+@media (max-width:700px){
+  .mechanics-card .mechanics-summary h2{grid-template-columns:minmax(0,1fr) 10px;gap:10px 14px}
+  .mechanics-heading{grid-column:1;grid-row:1}
+  .mechanics-summary .sourcebadge{grid-column:1;grid-row:2}
+  .mechanics-chevron{grid-column:2;grid-row:1 / 3}
+}
+@media (prefers-reduced-motion:reduce){
+  .mechanics-chevron{transition:none}
+}
+/* End v116 mechanics disclosure styles. */
 </style>
 </head>
 <body>
@@ -2143,13 +2194,18 @@ body.modal-open{overflow:hidden}
 </div>
 
 <div class="card mechanics-card">
-  <div class="cardhead">
-    <div>
-      <h2>How the ending calculation works</h2>
+ <details id="mechanicsDetails">
+  <summary class="cardhead mechanics-summary">
+    <h2>
+      <span class="mechanics-heading">How the ending calculation works<span class="mechanics-subtitle">Scoring formula, ending thresholds &amp; NG+ branches</span></span>
+      <span class="sourcebadge">Reverse-engineered</span>
+      <span class="mechanics-chevron" aria-hidden="true"></span>
+    </h2>
+  </summary>
+  <div id="mechanicsBody">
+    <div class="mechanics-intro">
       <p>The normal endings use a points system. The rules below are based on community reverse-engineering of the game’s Unreal Engine blueprints rather than official Konami documentation.</p>
     </div>
-    <span class="sourcebadge">Reverse-engineered</span>
-  </div>
   <div class="controls">
     <div class="formulabox">
       <div class="formula">Ending score = Discoveries − (2 × qualifying Simon kills) − (4 × cannula refills) − (3 × Zoe mistakes)</div>
@@ -2198,6 +2254,8 @@ body.modal-open{overflow:hidden}
       Source: <a href="https://www.reddit.com/r/silenthill/comments/1wqv5hk/spoilers_the_true_math_behind_silent_hill/" target="_blank" rel="noopener noreferrer">“The True Math Behind Silent Hill: Townfall Endings” on r/silenthill</a>. As a useful reference point, with all 85 Discoveries and no other penalties, 32 qualifying Simon kills leave a score of 21; a 33rd drops the score to 19.
     </div>
   </div>
+  </div>
+ </details>
 </div>
 
 <div class="card" style="margin-top:20px">
@@ -2387,6 +2445,20 @@ const DISCOVERY_DISPLAY_NUMBER_BY_ID=new Map(COLLECTIBLES.map((item,index)=>[ite
 const STORAGE_KEY = "townfallEndingTracker.v2";
 
 const $ = id => document.getElementById(id);
+function initMechanicsDisclosure(){
+ const panel=$("mechanicsDetails");
+ const key="townfallEndingTracker.ui.mechanicsExpanded.v1";
+ try{panel.open=localStorage.getItem(key)==="1";}catch(e){}
+ // Native toggle events may be queued by restoration. Only a changed state
+ // writes a preference; no profile data or renderAll lifecycle is involved.
+ let remembered=panel.open;
+ panel.addEventListener("toggle",()=>{
+   if(panel.open===remembered)return;
+   remembered=panel.open;
+   try{localStorage.setItem(key,remembered?"1":"0");}catch(e){}
+ });
+}
+initMechanicsDisclosure();
 const nextMissingLastTargetByProfile=new Map();
 const nextMissingUserMovedByProfile=new Map();
 let nextMissingHighlightTimer=null;

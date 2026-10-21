@@ -1,4 +1,17 @@
-# Silent Hill: Townfall — Ending & Progress Tracker v115 (proposed release)
+# Silent Hill: Townfall — Ending & Progress Tracker v116 (proposed release)
+
+## v116: Persistent mechanics disclosure
+
+- The existing **How the ending calculation works** card now uses a dedicated native disclosure, collapsed on first visit. Its header always shows the approved subtitle **Scoring formula, ending thresholds & NG+ branches**, the **REVERSE-ENGINEERED** badge and a decorative chevron.
+- The original introductory qualification paragraph moves into the collapsible body. The formula, thresholds, all four scoring cards, NG+ branches/flow, source link/attributes and worked example remain unchanged. The existing controls subtree is preserved.
+- The separate browser preference `townfallEndingTracker.ui.mechanicsExpanded.v1` stores `1` for expanded and `0` for collapsed. Missing/invalid values default to collapsed. Restoration does not write the preference; changed native toggle states do. Denied reads/writes are caught locally, leaving the disclosure usable in the session.
+- The preference is initialized once before profile setup. Profile switching/creation/rename/deletion, Part controls and progress operations do not reset it. `townfallEndingTracker.v2`, profile defaults/schema and all existing storage/calculation functions remain unchanged; no migration is added. Browser site-data clearing resets the preference; progress-clearing controls retain it.
+- Native summary activation provides keyboard disclosure semantics without nested controls. Scoped styling includes an inset focus outline, right/down chevron, narrow-screen badge stacking and reduced-motion handling; no height animation is added.
+- All 85 Discoveries, 11 NG+ entries, ending calculations, scoring explanations, Part 1/per-profile expansion behaviour, assets and sharing metadata are preserved. Collectibles v46 is untouched. The official Ending suite adds initialization, persistence, profile/Part isolation, content integrity and preference-storage failure coverage, retaining the historical v115 baseline and existing regressions.
+
+No commit, push, deployment or pull request is included. Native Firefox review remains a manual approval step.
+
+Validation: **72/72 Ending scenarios, 80/80 Collectibles counter scenarios and 64/64 Collectibles accuracy scenarios passed**, with zero failures, at 1280px/390px and both motion preferences. Inline JavaScript syntax and `git diff --check` passed. Real in-app-browser checks at 1280px and 390px verified native Enter/Space operation, focus, hidden-link Tab exclusion, open/closed reload persistence and responsive wrapping; these are not native Firefox/Safari or physical-mobile results.
 
 ## v115: Three targeted corrections
 
@@ -30,7 +43,7 @@ For an existing installation, the application update is **root `index.html` only
 
 `tests/ending-regression.mjs` executes the real inline application script in isolated Happy DOM windows. It checks approved data changes against commit `cb0f17a` (Ending v113), preserved IDs/classifications, saved email states, profiles/reload, counters, individual/Part/global selection, Clear All/Undo, Show missing only, Next missing, NG+ dependencies, concealed codes/focus/event isolation, reduced-motion CSS, unchanged warnings, DOM IDs and local resources.
 
-The suite runs at 1280px and 390px with normal and reduced motion. Its 48 scenarios include the three v115 corrections, all four spoiler controls, v114 saved-progress/profile/reload compatibility, the final Clinic/room-name/Ground Floor wording checks and 1,120 comparisons of ending scores/notices against v113 across score boundaries, penalties, targets and special routes. Existing calculation, storage, navigation, animation and NG+ rendering functions are also compared byte-for-byte; only spoiler CSS is added to the existing stylesheet.
+The suite runs at 1280px and 390px with normal and reduced motion. It retains the three v115 corrections, all four spoiler controls, v114 saved-progress/profile/reload compatibility, the final Clinic/room-name/Ground Floor wording checks and 1,120 comparisons of ending scores/notices against v113 across score boundaries, penalties, targets and special routes. v116 adds mechanics disclosure/content, browser-preference persistence, initialization without writes, profile/Part isolation and denied-preference-storage scenarios. Existing calculation, storage, navigation, animation and NG+ rendering functions are compared byte-for-byte. Historical v115 CSS/HTML checks remain intact; v116 appends only scoped disclosure styles and pins the complete reviewed source.
 
 Run with Deno and Happy DOM 20.8.4 available in the existing dependency cache:
 
