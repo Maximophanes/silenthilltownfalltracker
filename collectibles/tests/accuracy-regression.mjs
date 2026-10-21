@@ -16,21 +16,28 @@ const git = args => {
 const baseline = git(['show', '7975cd1:collectibles/index.html']); // Clean v42 baseline.
 const v43 = git(['show', 'b0d73c3:collectibles/index.html']); // Published v43.
 const v44 = git(['show', 'fb3bf7d:collectibles/index.html']); // Published v44, with approved social metadata.
+const v45 = git(['show', '72ef69b:collectibles/index.html']); // Published word-aware search baseline.
 const headerBadges = ['15 STRANGE POSTCARDS','13 PHONE CALLS','19 CRTV SIGNALS','7 RESOURCE CONTAINERS','7 LOCK BOX KEYS'];
 assert.equal(v44, withApprovedSocialPreview(v43
   .replace('<!-- Collectibles & Secrets Tracker v43: approved accuracy and presentation refinements. -->', '<!-- Collectibles & Secrets Tracker v44: complete header category badges. -->')
   .replace('<div class="headerline"><span class="tag">54 collectible objectives</span><span class="tag">7 Lock Box Keys</span><span class="tag">19 CRTV signals</span></div>', `<div class="headerline">${headerBadges.map(label=>`<span class="tag">${label}</span>`).join('')}</div>`), 'collectibles'),
   'Only the v44 version comment, header badges and exact social metadata may differ from v43');
-// Pin the complete reviewed v45 source, including the exact approved head.
-// Historical v43/v44 fixtures and their exact transition check remain intact.
-assert.equal(createHash('sha256').update(html).digest('hex'), '6c3707dabf7c32c40fc722800543f07ab3edeaf716eacff901fbd75caaa0df6f',
-  'Only the reviewed v45 search helpers, aliases and version comment may differ from v44');
+// Keep the published v45 pin and all historical transitions; pin reviewed v46 separately.
+assert.equal(createHash('sha256').update(v45).digest('hex'), '6c3707dabf7c32c40fc722800543f07ab3edeaf716eacff901fbd75caaa0df6f',
+  'Published v45 search baseline must remain intact');
+assert.equal(createHash('sha256').update(html).digest('hex'), 'aa075917ea0927e9fbeb0793f77abab34b799572f7ef753934ba96a408ccff51',
+  'Only the reviewed v46 metadata helper, predicate and version comment may differ from v45');
+for (const [name,digest] of [
+  ['ending-progress-preview.png','5385ac02e1de9d3e98442af1bb34b419f39a48613929c88de2d52e5345aa8fc0'],
+  ['collectibles-secrets-preview.png','398c088a39fff22040bf05d95c69801a0bacca66d31f449e22a3c3a546ac2849']
+]) assert.equal(createHash('sha256').update(await Deno.readFile(new URL(`../../assets/social/${name}`,import.meta.url))).digest('hex'),digest,`Approved social image: ${name}`);
 const scriptsFor = source => [...source.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/g)].map(m => m[1]);
 const scripts = scriptsFor(html);
 scripts.forEach(code => new vm.Script(code));
 const dataset = source => JSON.parse(source.match(/const ITEMS = (\[.*?\]);/)[1]);
 const items = dataset(html), oldItems = dataset(baseline);
 assert.deepEqual(items,dataset(v44),'v45 preserves every v44 collectible field and its order');
+assert.deepEqual(items,dataset(v45),'v46 preserves every v45 collectible field and its order');
 // Execute the published matcher against its own data for exact compatibility sets.
 const legacySearch = vm.createContext({});
 vm.runInContext(['ITEMS','SOLVED','PARTS'].map(name=>v44.match(new RegExp(`const ${name} = ([^\\n]+);`))[0]).join('\n') +
@@ -38,6 +45,13 @@ vm.runInContext(['ITEMS','SOLVED','PARTS'].map(name=>v44.match(new RegExp(`const
 const legacyMatches = value => {
   legacySearch.value=value;
   return JSON.parse(vm.runInContext('query=value; JSON.stringify(ITEMS.filter(inQuery).map(x=>x.id))',legacySearch));
+};
+const v45Search = vm.createContext({});
+vm.runInContext(['ITEMS','SOLVED','PARTS'].map(name=>v45.match(new RegExp(`const ${name} = ([^\\n]+);`))[0]).join('\n') +
+  "\nlet query='';\n" + v45.slice(v45.indexOf('const SEARCH_CATEGORY_ALIASES='),v45.indexOf('const visible=item=>')), v45Search);
+const v45Matches = value => {
+  v45Search.value=value;
+  return JSON.parse(vm.runInContext('query=value; JSON.stringify(ITEMS.filter(inQuery).map(x=>x.id))',v45Search));
 };
 const storageKey = 'townfallCollectibles.v1';
 const totals = { postcard: 15, phone: 13, signal: 19, container: 14 };
@@ -254,7 +268,76 @@ const activeRoot = a => a.evaluate('view') === 'categories' ? '#categoryContent'
 const row = (a, id) => a.$(`${activeRoot(a)} input[data-item="${id}"]`).closest('.entry,.pair-step');
 const matches = a => [...a.document.querySelectorAll(`${activeRoot(a)} input[data-item]`)].map(x => x.dataset.item);
 const settle = async () => { for (let i=0; i<20; i++) await Promise.resolve(); };
+// Fixed stable identities, independent of the new parser and matching implementation.
+const partIds = {
+  1:['phone-06','phone-01','phone-02','phone-03','phone-04','signal-01','signal-02','phone-05','signal-03','postcard-01','signal-04','signal-05','postcard-02','postcard-03','postcard-04','key-01','container-01'],
+  2:['phone-07','phone-08','phone-09','signal-06','postcard-05','signal-07','key-02','container-02','postcard-06'],
+  3:['phone-10','postcard-07','signal-08','postcard-08','key-03','container-03','postcard-09'],
+  4:['postcard-10','signal-09','phone-11','phone-12','key-04','container-04','postcard-11','postcard-12','signal-10','signal-11','phone-13','signal-12','signal-13','postcard-13','postcard-14','signal-14','key-05','signal-15','container-05','signal-ceg-security'],
+  5:[],6:['signal-16','signal-17','postcard-15','key-06','signal-18','container-06','key-07','container-07']
+};
 const scenarios = {
+  'v46 exact metadata, approved separators and mixed remainders in both views'(a) {
+    const cases = [
+      ...Object.entries(partIds).map(([part,ids])=>[`Part ${part}`,ids]),
+      ['Part 7',[]],['Part 0',[]],['Chapter 1',partIds[1].slice(0,5)],
+      ['Chapter 8',partIds[3].slice(1)],['Chapter 11',['signal-ceg-security']],
+      ['Chapter 16',[]],['Chapter 18',[]],['Chapter 0',[]],['Part 999999999999999999999',[]],
+      ['part 03',partIds[3]],['  PART   3  ',partIds[3]],['PART 6',partIds[6]],
+      ['chapter 011',['signal-ceg-security']],['ＣＨＡＰＴＥＲ　０１１',['signal-ceg-security']],
+      ['Ｐａｒｔ　０３',partIds[3]],['Part #03',partIds[3]],
+      ['Part 3 Part 3',partIds[3]],['Part 3 Part 4',[]],['Chapter 8 Chapter 11',[]],
+      ['Part 3 Chapter 11',[]],['Part 3 Chapter 8',partIds[3].slice(1)],
+      ['Part 3 postcard',['postcard-07','postcard-08','postcard-09']],
+      ['Part 3 ward',['postcard-08','key-03','container-03','postcard-09']],
+      ['Chapter 10 tuning',['signal-10','signal-11','signal-13','signal-14','signal-15']],
+      ['Chapter 11 CRTV',['signal-ceg-security']],['Chapter 11 postcard',[]],
+      ['Part 4 CRTV',['signal-09','signal-10','signal-11','signal-12','signal-13','signal-14','signal-15','signal-ceg-security']],
+      ['Part 2 phone',['phone-07','phone-08','phone-09','postcard-05']],
+      ['Part 3 postcard #08',['postcard-08']],['postcard #08 Part 3',['postcard-08']],
+      ['Part 4 postcard #08',[]],['Chapter 8 Lock Box Key (3/7)',['key-03']],
+      ['Chapter 8 Resource Container 3',['container-03']],
+      ['Part 3 afterward',[]],['Part 2 afterward',['key-02','container-02']],
+      ['Part 4 4895',['signal-ceg-security']],['Part 1 0842',['phone-06']]
+    ];
+    for (const separator of [' ',' · ', ', ', '·',',']) {
+      for (const fields of [`Part 4${separator}Chapter 11`,`Chapter 11${separator}Part 4`]) {
+        for (const rest of ['',' CRTV',' phone']) cases.push([fields+rest,['signal-ceg-security']]);
+        cases.push([`${fields} CRTV 16`,['signal-ceg-security']]);
+      }
+      cases.push([`Part 3${separator}Part 3`,partIds[3]],[`Part 3${separator}Part 4`,[]]);
+    }
+    for (const view of ['story','categories']) {
+      a.click(`#tab-${view}`);
+      for (const [query,expected] of cases) {
+        a.search(query); assert.deepEqual(matches(a).sort(),[...expected].sort(),`${view}: ${query}`);
+      }
+      a.search('Part 4 · Chapter 11 4895');
+      assert.equal(row(a,'signal-ceg-security').querySelector('.discovery-spoiler').getAttribute('aria-pressed'),'false');
+    }
+  },
+  'v46 strict boundaries and local separators preserve literal v45 searches'(a) {
+    const malformed = ['Part','Chapter','Part three','Part -3','Part 3a','Part 3.5','Part 3-4',
+      'Part 3/4','Part 3\u0301','Part3','Part: 3','Chapter: 11','counterpart 3','apart 3','éPart 3',
+      'Part 4;Chapter 11','Part 4,,Chapter 11','Part 3, ward','Part 3 · ward','ward, Part 3',
+      'Part 3 ward,','Part 3 · Chapter 8 · ward','Part 3, Chapter 8, ward',
+      'postcard,#01','496,0842','496·0842','St.·Amelia'];
+    for (const query of malformed.slice(0,16)) {
+      assert.deepEqual(json(a,`structuredSearchFor(normalizeSearchText(${JSON.stringify(query)})).restrictions`),[],query);
+    }
+    for (const view of ['story','categories']) {
+      a.click(`#tab-${view}`);
+      for (const query of malformed) {
+        a.search(query); assert.deepEqual(matches(a).sort(),v45Matches(query).sort(),`${view}: ${query}`);
+      }
+      for (const query of ['P','Pa','Par','Part','Part ','Part 3','Part 3a','Part 3','Part','']) {
+        a.search(query);
+        const expected=query.trim()==='Part 3'?partIds[3]:v45Matches(query);
+        assert.deepEqual(matches(a).sort(),[...expected].sort(),`typing: ${query}`);
+      }
+      a.search(''); assert.equal(matches(a).length,61);
+    }
+  },
   'v45 Unicode word starts preserve prefixes and reject incidental infixes'(a) {
     for (const [term,text,expected] of [
       ['ward','Ward',true],['war','Ward',true],['war','Warning',true],['war','Stewart’s',false],
@@ -299,7 +382,7 @@ const scenarios = {
     const unchanged = ['postcard','post','telephone','container','key','lockbox','medical','CRTV',
       'radio calibration','tuning','standard postcard','autostereogram','Simon','Zoe','NG+','new-game-plus',
       'St. Amelia','st amelia','before','hole','lockdown','barcode','afterward','toward','61','~61',
-      'Part 2','Part 5','chapter 6','card 1','phone 1','signal 9','postcard arrival','Saturn',
+      'card 1','phone 1','signal 9','postcard arrival','Saturn',
       '496.0842','60–62','60-62','Jess’s',"Jess's",'new game+','postcard#1','CRTV9'];
     for (const view of ['story','categories']) {
       a.click(`#tab-${view}`);
@@ -308,6 +391,10 @@ const scenarios = {
       }
       for (const query of unchanged) {
         a.search(query); assert.deepEqual(matches(a).sort(),legacyMatches(query).sort(),`${view}: ${query}`);
+        assert.deepEqual(matches(a).sort(),v45Matches(query).sort(),`v45 ${view}: ${query}`);
+      }
+      for (const [query,expected] of [['Part 2',partIds[2]],['Part 5',[]],['chapter 6',partIds[2].slice(3)]]) {
+        a.search(query); assert.deepEqual(matches(a).sort(),[...expected].sort(),`${view}: ${query}`);
       }
       a.search('afterward'); assert.deepEqual(matches(a).sort(),['container-02','key-02']);
       a.search('4895'); assert.equal(row(a,'signal-ceg-security').querySelector('.discovery-spoiler').getAttribute('aria-pressed'),'false');

@@ -1,4 +1,16 @@
-# Silent Hill: Townfall — Collectibles & Secrets Tracker v45 (proposed release)
+# Silent Hill: Townfall — Collectibles & Secrets Tracker v46 (proposed release)
+
+## v46: Precise Part and Chapter searching
+
+- Complete `Part N` and `Chapter N` expressions restrict the item's actual metadata. Multiple expressions use AND: duplicates are harmless; conflicting or nonexistent values return no matches. Case, repeated whitespace, NFKC-compatible fullwidth input and leading zeros are supported.
+- Metadata expressions may be separated by whitespace, a middle dot or a comma: `Part 4 Chapter 11`, `Part 4 · Chapter 11` and `Part 4, Chapter 11` all find only Story Route #53. Reverse order works. Commas and middle dots are consumed only between recognized metadata expressions; they are not stripped from ordinary search text.
+- Remaining text uses the existing exact collectible identifier recognizer first, then v45 word-prefix/numeric AND matching. `Part 3 postcard #08` finds #30; `Chapter 8 Lock Box Key (3/7)` finds only #31; `Part 2 phone` retains the payphone-location match #22 alongside calls #18–20.
+- Bare/incomplete `Part` and `Chapter` stay ordinary searches. Malformed numbers (`3a`, `3.5`, `3-4`), compact `Part3` and colon forms are not added. The unchanged normalizer already removes `#` before digits, so `Part #03` normalizes to `Part 03` and selects Part 3. A separator before ordinary text remains literal: use `Part 3 · Chapter 8 ward`, not `Part 3 · ward`.
+- Search affects visible entries and Part All, while progress counters retain category scope. `Part 3 Chapter 8` displays six entries with a seven-item Part denominator. Missing Only, category-wide All, scoped Undo, paired halves, profiles, saved data, Return and Gallery behaviour remain unchanged. Parsing uses the current query on every path, without a cache.
+- All v45 aliases, flexible actor/category/method/subtype/NG+ searches, exact identifiers, telephone normalization, numeric substrings, warning and concealed-code searches remain supported. No descriptions, IDs, frequencies, storage keys/schema, spoilers, CSS, Gallery assets, social metadata/images or Ending v115 application files change.
+- Official accuracy/counter tests extend the desktop/mobile media-query and both-motion configurations. Historical v45 and social-metadata baselines remain pinned alongside the complete reviewed v46 source; simulated DOM checks are distinct from native browser verification.
+
+No commit, push or deployment is included.
 
 ## v45: Word-aware search precision
 

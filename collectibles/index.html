@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en">
-<!-- Collectibles & Secrets Tracker v45: word-aware search with compatibility aliases. -->
+<!-- Collectibles & Secrets Tracker v46: precise Part and Chapter search restrictions. -->
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -3361,11 +3361,31 @@ function searchIdentifier(value){
  const kind=match[2]?'postcard':match[3]?'phone':match[5]?'signal':match[7]?'container':'key';
  return {kind,number:Number(match[10])};
 }
+function structuredSearchFor(value){
+ const restrictions=[];
+ // Complete whitespace-delimited fields; comma/dot separators belong only
+ // to a chain of metadata fields, never to ordinary text normalization.
+ const field='(?:part|chapter)\\s+\\d+';
+ const separator='(?:\\s+|\\s*[,·]\\s*)';
+ const chain=new RegExp(`(^|\\s)(${field}(?:${separator}${field})*)(?=$|\\s)`,'g');
+ const text=value.replace(chain,(_match,before,fields)=>{
+  for(const [,name,number] of fields.matchAll(/(part|chapter)\s+(\d+)/g)){
+   restrictions.push([name,Number(number)]);
+  }
+  return before;
+ }).trim();
+ return {restrictions,text};
+}
 const inQuery=item=>{
  if(!query.trim())return true;
  const clean=normalizeSearchText(query),identifier=searchIdentifier(clean);
  if(identifier)return item.kind===identifier.kind&&item.number===identifier.number;
- const terms=normalizePhoneQuery(clean).split(/\s+/).filter(Boolean);
+ // Derive from the current query on every path, including Return and profiles.
+ const {restrictions,text}=structuredSearchFor(clean);
+ if(!restrictions.every(([field,number])=>item[field]===number))return false;
+ const remainingIdentifier=searchIdentifier(text);
+ if(remainingIdentifier)return item.kind===remainingIdentifier.kind&&item.number===remainingIdentifier.number;
+ const terms=normalizePhoneQuery(text).split(/\s+/).filter(Boolean);
  const haystack=SEARCH_INDEX.get(item.id)||'';
  return terms.every(term=>searchTermMatches(haystack,term));
 };

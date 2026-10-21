@@ -86,7 +86,7 @@ assert.equal(withoutDatasets(html), withApprovedSocialPreview(withoutDatasets(v1
   .replace('<!-- Ending & Progress Tracker v114 -->', '<!-- Ending & Progress Tracker v115 -->')
   .replace('const DISCOVERY_ACCESS_CODES={21:"2896",59:"4895",63:"486"};', 'const DISCOVERY_ACCESS_CODES={21:"2896",26:"1993",59:"4895",63:"486"};'), 'ending'),
   'Only approved v115 changes and exact social metadata may differ from v114');
-// Retain the historical v44 + exact social-metadata transition; pin reviewed v45 separately.
+// Retain historical social-metadata and v45 baselines; pin reviewed v46 separately.
 const collectiblesV44 = new Deno.Command('git', { args: ['show', '8a4c10e:collectibles/index.html'] }).outputSync();
 assert.equal(collectiblesV44.code, 0, 'Published Collectibles v44 baseline must be available');
 const publishedSocialV44 = new Deno.Command('git', { args: ['show', 'fb3bf7d:collectibles/index.html'] }).outputSync();
@@ -94,8 +94,12 @@ assert.equal(publishedSocialV44.code, 0, 'Published social-preview baseline must
 assert.equal(new TextDecoder().decode(publishedSocialV44.stdout),
   withApprovedSocialPreview(new TextDecoder().decode(collectiblesV44.stdout), 'collectibles'),
   'Collectibles v44 HTML may differ only by the exact approved social metadata');
+const collectiblesV45 = new Deno.Command('git', { args: ['show', '72ef69b:collectibles/index.html'] }).outputSync();
+assert.equal(collectiblesV45.code, 0, 'Published Collectibles v45 baseline must be available');
+assert.equal(createHash('sha256').update(collectiblesV45.stdout).digest('hex'),
+  '6c3707dabf7c32c40fc722800543f07ab3edeaf716eacff901fbd75caaa0df6f', 'Published v45 baseline must remain intact');
 assert.equal(createHash('sha256').update(await Deno.readTextFile(new URL('../collectibles/index.html', import.meta.url))).digest('hex'),
-  '6c3707dabf7c32c40fc722800543f07ab3edeaf716eacff901fbd75caaa0df6f', 'Collectibles must match the complete reviewed v45 HTML, including approved social metadata');
+  'aa075917ea0927e9fbeb0793f77abab34b799572f7ef753934ba96a408ccff51', 'Collectibles must match the complete reviewed v46 HTML, including approved social metadata');
 // Keep the directory guard; allow only the strictly checked HTML and this
 // task's accuracy/counter tests and Collectibles release notes, not other files or assets.
 const collectiblesDiff = new Deno.Command('git', { args: ['diff', '--exit-code', '8a4c10e', '--',
@@ -103,7 +107,7 @@ const collectiblesDiff = new Deno.Command('git', { args: ['diff', '--exit-code',
   ':(exclude)collectibles/tests/accuracy-regression.mjs',
   ':(exclude)collectibles/tests/counter-regression.mjs', ':(exclude)collectibles/README.md'] }).outputSync();
 assert.equal(collectiblesDiff.code, 0, 'All other published Collectibles files must remain untouched');
-console.log('PASS exact v115/v45 application scope and approved static sharing metadata');
+console.log('PASS exact v115/v46 application scope and approved static sharing metadata');
 
 function app(width, reducedMotion, saved = null, source = html) {
   const window = new Window({ width, height: width < 650 ? 844 : 900, url: 'https://ending.test/',

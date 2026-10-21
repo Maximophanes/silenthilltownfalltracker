@@ -118,6 +118,86 @@ function app(width, reducedMotion, saved = null) {
 }
 
 const scenarios = {
+  'v46 metadata search preserves seven-item Part scope, missing-only selection and scoped Undo'(a) {
+    const scope=['postcard-07','signal-08','postcard-08','key-03','container-03','postcard-09'];
+    const ids=()=>[...a.document.querySelectorAll('#storyContent input[data-item]')].map(x=>x.dataset.item);
+    a.search('Part 3 · Chapter 8'); a.expectCounts();
+    assert.deepEqual(ids(),scope);
+    assert.equal(a.$('#storyContent [data-part="3"] .countpill').textContent,'0 / 7');
+    a.change('[data-select-part="3"]',true); a.expectCounts();
+    assert.equal(a.$('#storyContent [data-part="3"] .countpill').textContent,'6 / 7');
+    assert.deepEqual(Object.keys(a.checks()).filter(id=>a.checks()[id]).sort(),[...scope].sort());
+    a.search('Part 3'); a.change('#storyContent input[data-item="phone-10"]',true);
+    a.click('#undoButton'); a.expectCounts();
+    assert.equal(a.checks()['phone-10'],true,'Undo preserves the later nonmatching edit');
+    for (const id of scope) assert.equal(a.checks()[id],undefined);
+    a.search('Part 3, Chapter 8'); a.click('#missingOnly'); a.tick();
+    a.change('[data-select-part="3"]',true); a.expectCounts();
+    assert.deepEqual(ids(),[]); assert.equal(a.document.querySelector('#storyContent [data-part="3"]'),null);
+    a.click('#undoButton'); a.expectCounts(); assert.deepEqual(ids(),scope);
+    a.change('#storyContent input[data-item="postcard-07"]',true); a.expectCounts();
+    assert.equal(a.$('#storyContent [data-part="3"] .countpill').textContent,'2 / 7');
+    a.change('[data-select-part="3"]',false); a.expectCounts();
+    assert.equal(a.checks()['postcard-07'],undefined,'Clear includes completed search matches hidden by Missing Only');
+    assert.equal(a.checks()['phone-10'],true); assert.deepEqual(ids(),scope);
+    a.search('Part 5'); assert.deepEqual(ids(),[]);
+    a.search(''); a.click('#missingOnly'); a.tick(); a.expectCounts();
+    assert.ok(a.$('#storyContent [data-part="5"] .part-five-note'));
+    assert.equal(ids().length,61);
+  },
+  'v46 category intersections, category All, paired exact remainder and Return restoration'(a) {
+    a.categories(); a.search('Part 2 phone'); a.categoryFilter('postcard'); a.expectCounts();
+    assert.deepEqual([...a.document.querySelectorAll('#categoryContent input[data-item]')].map(x=>x.dataset.item),['postcard-05']);
+    a.categoryFilter('phone'); a.expectCounts();
+    assert.equal(a.document.querySelectorAll('#categoryContent input[data-item]').length,3);
+    a.categoryFilter('postcard'); a.search('Part 3 Chapter 8');
+    a.change('[data-select-category="postcard"]',true); a.expectCounts();
+    assert.equal(a.items.filter(x=>x.kind==='postcard'&&a.checks()[x.id]).length,15);
+    a.click('#undoButton'); a.expectCounts();
+    assert.equal(Object.values(a.checks()).filter(Boolean).length,0);
+    a.categoryFilter('container');
+    a.search('Chapter 8 Resource Container 3');
+    assert.deepEqual([...a.document.querySelectorAll('#categoryContent input[data-item]')].map(x=>x.dataset.item),['container-03']);
+    const query='Part 3 · Chapter 8 Lock Box Key (3/7)';
+    a.search(query);
+    assert.deepEqual([...a.document.querySelectorAll('#categoryContent input[data-item]')].map(x=>x.dataset.item),['key-03']);
+    a.click('#categoryContent [data-to-route="key-03"]'); a.expectCounts();
+    assert.equal(a.$('#searchInput').value,'');
+    assert.equal(a.document.querySelectorAll('#storyContent input[data-item]').length,61);
+    a.click('[data-return-category="key-03"]'); a.expectCounts();
+    assert.equal(a.$('#searchInput').value,query); assert.equal(a.evaluate('filter'),'container');
+    assert.equal(a.document.querySelectorAll('#categoryContent input[data-item]').length,1);
+    a.click('#missingOnly'); a.tick();
+    a.click('#categoryContent [data-to-route="key-03"]');
+    a.change('#storyContent input[data-item="key-03"]',true);
+    a.click('[data-return-category="key-03"]'); a.expectCounts();
+    assert.equal(a.$('#searchInput').value,query); assert.equal(a.evaluate('onlyMissing'),true);
+    assert.equal(a.document.querySelectorAll('#categoryContent input[data-item]').length,0);
+  },
+  async 'v46 raw structured queries survive view/Gallery navigation and reset across profiles/reload'(a,width,motion) {
+    a.search('Part 4, Chapter 11');
+    a.change('#storyContent input[data-item="signal-ceg-security"]',true); a.expectCounts();
+    a.click('#tab-categories');
+    assert.equal(a.document.querySelectorAll('#categoryContent input[data-item]').length,1);
+    a.click('#tab-gallery');
+    assert.equal(a.document.querySelectorAll('#galleryContent input[data-item]').length,15);
+    a.click('#galleryBack'); assert.equal(a.$('#searchInput').value,'Part 4, Chapter 11');
+    assert.equal(a.document.querySelectorAll('#categoryContent input[data-item]').length,1);
+    const savedChecks=a.checks();
+    a.click('#addProfile'); a.$('#appDialogInput').value='v46 metadata profile'; a.confirm();
+    assert.equal(a.$('#searchInput').value,''); assert.equal(Object.values(a.checks()).filter(Boolean).length,0);
+    a.search('Part 3'); a.click('#profileButton'); a.click('#profileOptions [data-profile="default"]');
+    assert.equal(a.$('#searchInput').value,''); a.expectCounts(); assert.deepEqual(a.checks(),savedChecks);
+    const reloaded=app(width,motion,a.saved());
+    try {
+      reloaded.expectCounts(); assert.deepEqual(reloaded.checks(),savedChecks);
+      assert.equal(reloaded.$('#searchInput').value,'');
+      reloaded.search('Chapter 11 · Part 4');
+      assert.equal(reloaded.document.querySelectorAll('#categoryContent input[data-item]').length,1);
+      reloaded.search(''); assert.equal(reloaded.document.querySelectorAll('#categoryContent input[data-item]').length,61);
+      assert.deepEqual(Object.keys(JSON.parse(reloaded.saved())).sort(),Object.keys(JSON.parse(a.saved())).sort());
+    } finally { await reloaded.close(); }
+  },
   'v45 Ward search keeps category totals, missing-only Part All and scoped Undo correct'(a) {
     a.change('#storyContent input[data-item="key-02"]',true);
     a.change('#storyContent input[data-item="postcard-08"]',true);
